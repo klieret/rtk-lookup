@@ -23,7 +23,7 @@ kanjis=[]
 mode="n"
 
 #load information
-with open("RTK.tsv",'r') as csvfile:
+with open("/home/fuchur/Documents/japan/programs/rtk_lookup/RTK.tsv",'r') as csvfile:
 	reader=csv.reader(csvfile, delimiter="\t")
 	for row in reader:
 		kanjis.append(row)	
