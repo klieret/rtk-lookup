@@ -1,23 +1,116 @@
 #!/usr/bin/python3
 """
-Input: combination of some of the following
-            - Heisig's keyword of a kanji (if the keyword contains a space " ",
-                write "_" instead)
-            - "word+" will look for all keywords of the form "word1 word2 word3" where word matches one of the word1,...
-            - if you're not sure whether the keyword is "go" or "going", write "go?" it will look for all words that contain "go"
-            - Heisig's number of a kanji
-            - other romanji (will be converted to hiragana if not found)
-            - -q (quit), :<mode> (switch to another mode)
-    Output: Kanji+hiragana.
-    Modes:
-            - x (nothing): do nothing
-            - n (normal): just copy to clipboard
-            - t (tangorin): look up in the www (default is firefox and tangorin)
-    Change via .<mode-name>.
+# Lookup Kanji by Heisig Keyword or frame number
+
+## Short Description
+A little command line interface that allows to look up kanji with the respective heisig keyword or frame number.
+
+![lookup.png](lookup.png "lookup.png")
+
+Examples:
+
+    inpt: large resist
+    大抵
+
+    inpt: 107 1832
+    大抵
+
+    inpt: large 1832
+    大抵
+
+If words are not found, they are converted to hiragana. This requires the ```romkan``` module which can be downloaded
+[here](https://pypi.python.org/pypi/romkan).
+
+Examples:
+
+    inpt: large てい
+    大てい
+
+    inpt: large 抵
+    大抵
+
+    inpt: large tei
+    大てい
+
+To quit, type ```.q```.
+
+## Modes
+
+There are three modes (in parenthesis: command to activate mode)
+
+* copy (```.c```): Copy result to clipboard.
+* lookup (```.w```): Lookup expression (default: tangorin.com with firefox)
+* nothing (```.n```): Do nothing.
+
+If more than one match is found, no action will be performed, regardless of the current mode.
+The default mode is ```c``` (but this can easily be changed in the source, as well as the commands above).
+
+## More on searching
+
+If a keyword contains a space, substitute ```_```:
+
+    inpt: sign_of_the_hog
+    亥
+
+```word+``` will look for all keywords of the form "word1 word2 word3" where word matches (exactly) one of the words. If
+there are multiple matches, all of them are printed as a list.
+
+    Inpt: sign+
+    [('酉', 'sign of the bird'), ('亥', 'sign of the hog'), ('寅', 'sign of the tiger'), ('辰', 'sign of the dragon'), ('丑', 'sign of the cow'), ('卯', 'sign of the hare'), ('巳', 'sign of the snake')]
+
+    Inpt: fish+
+    [('乙', 'fish guts'), ('魚', 'fish'), ('鰭', 'fish fin')]
+
+    Inpt: fish
+    魚
+
+    Inpt: fin+
+    鰭
+
+    Inpt: fish+ thunder
+    [('乙', 'fish guts'), ('魚', 'fish'), ('鰭', 'fish fin')]雷
+
+```word?``` will look for all keywords that contain "word":
+
+    Inpt: Inpt: goi?
+    行
+
+    Inpt: fish?
+    [('貝', 'shellfish'), ('乙', 'fish guts'), ('魚', 'fish'), ('漁', 'fishing'), ('恣', 'selfish'), ('鰭', 'fish fin')]
+
+    Inpt: fish+
+    [('乙', 'fish guts'), ('魚', 'fish'), ('鰭', 'fish fin')]
+
+## Installation:
+
+Download the file ```lookup.py```. And run it with ```python3 lookup.py```.
+
+## Issues, Suggestions, Feature Requests etc.
+Open a ticket at [this addon's gitbucket issue page](https://bitbucket.org/ch4noyu/anki-addon-reset-all-fields/issues) (prefered method, also works anonymously without login) or send me an [e-mail](mailto:ch4noyu@yahoo.com). German is fine, too. I am not a professional programmer, so feedback on how to improve my code is welcome, too.
+
+## Source
+The source is hostet at [this addon's bitbucket page](https://bitbucket.org/ch4noyu/anki-addon-reset-all-fields/).
+
+## Copyright
+**Copyright:** *ch4noyu* (<mailto:ch4noyu@yahoo.com>)
+
+**Licence:** GNU AGPL, version 3 or later
+
+The list of all kanji by heisig number "RTK.tsv" was included in an Anki plugin with:
+
+**Copyright**: Ian Worthington <Worthy.vii@gmail.com>
+
+**License:** GNU GPL, version 3 or later
+
+## History
+
+* 31 Mai 2015: First version released.
 """
 
 # todo: Use the python module for console interfaces
 # todo: change to relative path of csv
+# todo: which heisig version are we using?
+# todo: run with console arguments
 # to enable up and down arrows etc.
 
 import os
@@ -26,19 +119,21 @@ import csv
 
 # 'romkan' is the module used to convert
 # hiragana to romanji. It is available at https://pypi.python.org/pypi/romkan
-romkanSupport = False
+romkanSupport = True
 try:
     import romkan
 except ImportError:
     logging.warning("Romkan module not found. No Support for hiragana.")
     logging.debug("Romkan is available at https://pypi.python.org/pypi/romkan.")
-    romkanSupport = True
+    romkanSupport = False
+
+logging.basicConfig(level=logging.DEBUG)
 
 # ---------- CUSTOMIZE ME --------
 
 commandSeparator = "."
 defaultMode = 'n'
-prompt = "Phrase: "
+prompt = "Inpt: "
 
 
 def copy_to_clipboard(clip):
@@ -68,7 +163,7 @@ kanjis = []
 mode = defaultMode
 
 # ------------ load information ---------
-with open("/home/fuchur/Documents/japan/programs/rtk_lookup/RTK.tsv", 'r') as csvfile:
+with open("RTK.tsv", 'r') as csvfile:
     reader = csv.reader(csvfile, delimiter='\t')
     for row in reader:
         kanjis.append(row)
@@ -91,14 +186,19 @@ while True:
     for m in modes:
         if string == commandSeparator + modes[m][0]:
             mode = m
-            logging.info("Switchted to mode %s." % mode)
+            logging.info("Switched to mode %s." % mode)
 
     # split up segments
     segs = string.split(' ')
     ans = ""
 
+    # for debug purposes
+    p = ""
+
     for seg in segs:
         found = []
+        seg = seg.replace('_', ' ')
+
         if seg.isdigit():
             for kanji in kanjis:
                 if str(kanji[1]) == seg:
@@ -114,12 +214,15 @@ while True:
                         found.append((kanji[0], kanji[3]))
             else:
                 for kanji in kanjis:
-                    if seg.replace('_', ' ') == str(kanji[3]):
+                    if seg == str(kanji[3]):
                         found.append((kanji[0], kanji[3]))
 
         # if not found: simply convert to hiragana
-        if not found and romkanSupport:
-            found.append((romkan.to_hiragana(seg), '?'))
+        if not found:
+            if romkanSupport:
+                found.append((romkan.to_hiragana(seg), '?'))
+            else:
+                found.append((seg, '?'))
 
         # save current mode to temporarily change mode
         tmpMode = mode
@@ -131,6 +234,7 @@ while True:
             ans += str(found)
 
     print(ans)
+    print()
 
     if mode == 'copy':
         copy_to_clipboard(ans)

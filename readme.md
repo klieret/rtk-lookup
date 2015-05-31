@@ -1,7 +1,9 @@
 # Lookup Kanji by Heisig Keyword or frame number
 
 ## Short Description
-A little command line interface that allows to look up kanji with the respective heisig keyword or frame number
+A little command line interface that allows to look up kanji with the respective heisig keyword or frame number.
+
+![lookup.png](lookup.png "lookup.png")
 
 Examples:
     
@@ -79,7 +81,7 @@ there are multiple matches, all of them are printed as a list.
 
 ## Installation:
 
-Download the file ```lookup.py```. And run it with ```python lookup.py```.
+Download the file ```lookup.py```. And run it with ```python3 lookup.py```.
 
 ## Issues, Suggestions, Feature Requests etc.
 Open a ticket at [this addon's gitbucket issue page](https://bitbucket.org/ch4noyu/anki-addon-reset-all-fields/issues) (prefered method, also works anonymously without login) or send me an [e-mail](mailto:ch4noyu@yahoo.com). German is fine, too. I am not a professional programmer, so feedback on how to improve my code is welcome, too.
@@ -89,8 +91,15 @@ The source is hostet at [this addon's bitbucket page](https://bitbucket.org/ch4n
 
 ## Copyright
 **Copyright:** *ch4noyu* (<mailto:ch4noyu@yahoo.com>)
+
 **Licence:** GNU AGPL, version 3 or later
+
+The list of all kanji by heisig number "RTK.tsv" was included in an Anki plugin with:
+
+**Copyright**: Ian Worthington <Worthy.vii@gmail.com>
+
+**License:** GNU GPL, version 3 or later
 
 ## History
 
-* 31 Mai 2015: Initial version
+* 31 Mai 2015: First version released.
