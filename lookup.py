@@ -183,31 +183,17 @@ with open("RTK.tsv", 'r') as csvfile:
     for row in reader:
         kanjis.append(row)
 
-# ------------ main loop ------------
-while True:
-    string = input(prompt)
 
-    if string == "":
-        continue
-
-    # Commands
-
-    if string == commandSeparator + 'q':
-        break
-    if string == commandSeparator + '':
-        continue
-
-    for m in modes:
-        if string == commandSeparator + modes[m][0]:
-            mode = m
-            logging.info("Switched to mode %s." % mode)
-
+# ------------ the actual search ------------
+def lookup(search):
+    """
+    Does the actual search.
+    :param: search
+    :return: A list of tuples of the form ("<kanji>", "<keyword>") (or ("<string>", "?") if no kanji is found.)
+    """
     # split up segments
-    segs = string.split(' ')
+    segs = search.split(' ')
     ans = ""
-
-    # for debug purposes
-    p = ""
 
     for seg in segs:
         found = []
@@ -238,14 +224,40 @@ while True:
             else:
                 found.append((seg, '?'))
 
-        # save current mode to temporarily change mode
-        tmpMode = mode
+    return found
 
-        if len(found) == 1:
-            ans += found[0][0]
-        if len(found) > 1:
-            mode = "x"
-            ans += str(found)
+# ------------ main loop ------------
+
+while True:
+    string = input(prompt)
+
+    if string == "":
+        continue
+
+    # Commands
+
+    if string == commandSeparator + 'q':
+        break
+    if string == commandSeparator + '':
+        continue
+
+    for m in modes:
+        if string == commandSeparator + modes[m][0]:
+            mode = m
+            logging.info("Switched to mode %s." % mode)
+
+    found = lookup(string)
+
+    # save current mode to temporarily change mode
+    tmpMode = mode
+
+    ans = ""
+    
+    if len(found) == 1:
+        ans += found[0][0]
+    if len(found) > 1:
+        mode = "x"
+        ans += str(found)
 
     print(ans)
     print()
