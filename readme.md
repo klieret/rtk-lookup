@@ -3,7 +3,7 @@
 ## Short Description
 A little command line interface that allows to look up kanji with the respective heisig keyword or frame number.
 
-![lookup.png](lookup.png "lookup.png")
+![lookup.png](https://bitbucket.org/repo/qe4bg9/images/274375207-lookup.png)
 
 Examples:
     
