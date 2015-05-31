@@ -121,10 +121,11 @@ with:
 * 31 Mai 2015: First version released.
 """
 
-# todo: Use the python module for console interfaces
-# todo: change to relative path of csv
-# todo: which heisig version are we using?
+# todo: use the python module for elegant console interfaces
+# todo: rewrite with class
 # todo: run with console arguments
+# todo: which heisig version are we using?
+
 # to enable up and down arrows etc.
 
 import os
@@ -176,12 +177,11 @@ kanjis = []
 # stores mode
 mode = defaultMode
 
-# ------------ load information ---------
+# ------------ load kanji database ---------
 with open("RTK.tsv", 'r') as csvfile:
     reader = csv.reader(csvfile, delimiter='\t')
     for row in reader:
         kanjis.append(row)
-
 
 # ------------ main loop ------------
 while True:
