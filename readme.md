@@ -84,10 +84,10 @@ there are multiple matches, all of them are printed as a list.
 Download the file ```lookup.py```. And run it with ```python3 lookup.py```.
 
 ## Issues, Suggestions, Feature Requests etc.
-Open a ticket at [this addon's gitbucket issue page](https://bitbucket.org/ch4noyu/anki-addon-reset-all-fields/issues) (prefered method, also works anonymously without login) or send me an [e-mail](mailto:ch4noyu@yahoo.com). German is fine, too. I am not a professional programmer, so feedback on how to improve my code is welcome, too.
+Open a ticket at [this addon's gitbucket issue page](https://bitbucket.org/ch4noyu/lookup-kanji-by-heisig-keyword/issues?status=new&status=open) (prefered method, also works anonymously without login) or send me an [e-mail](mailto:ch4noyu@yahoo.com). German is fine, too. I am not a professional programmer, so feedback on how to improve my code is welcome, too.
 
 ## Source
-The source is hostet at [this addon's bitbucket page](https://bitbucket.org/ch4noyu/anki-addon-reset-all-fields/).
+The source is hostet at [this addon's bitbucket page](https://bitbucket.org/ch4noyu/lookup-kanji-by-heisig-keyword/overview).
 
 ## Copyright
 **Copyright:** *ch4noyu* (<mailto:ch4noyu@yahoo.com>)
