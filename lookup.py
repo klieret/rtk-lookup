@@ -118,9 +118,9 @@ def search(word):
     # if not found: simply convert to hiragana
     if not found:
         if romkanSupport:
-            found.append((romkan.to_hiragana(seg), '?'))
+            found.append((romkan.to_hiragana(word), '?'))
         else:
-            found.append((seg, '?'))
+            found.append((word, '?'))
 
     return found
 
