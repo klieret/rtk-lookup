@@ -20,8 +20,6 @@ with:
 
 """
 
-# todo: use the python module for elegant console interfaces
-# todo: rewrite with class
 # todo: run with console arguments
 # todo: which heisig version are we using?
 
@@ -36,13 +34,12 @@ logging.basicConfig(level=logging.DEBUG)
 
 # 'romkan' is the module used to convert
 # hiragana to romanji. It is available at https://pypi.python.org/pypi/romkan
-romkanSupport = True
 try:
     import romkan
 except ImportError:
+    romkan = None
     logging.warning("Romkan module not found. No Support for hiragana.")
     logging.debug("Romkan is available at https://pypi.python.org/pypi/romkan.")
-    romkanSupport = False
 
 # ---------- CUSTOMIZE ME --------
 
@@ -67,7 +64,7 @@ def lookup(clip):
 # ----------------------------------
 
 
-# dict of modes of the form longform (don't change): abbrev (free to adapt!), description
+# dict of modes of the form long_form (don't change): [abbrev (free to adapt!), description]
 modes = {'nothing': ['n', 'do nothing'], 'copy': ['c', 'Copy'], 'www': ['w', 'Lookup']}
 
 # ----------------------------------
@@ -113,7 +110,7 @@ def search(word):
 
     # if not found: simply convert to hiragana
     if not found:
-        if romkanSupport:
+        if romkan:
             found.append((romkan.to_hiragana(word), '?'))
         else:
             found.append((word, '?'))
@@ -122,7 +119,8 @@ def search(word):
 
 import cmd
 
-class lookupCli(cmd.Cmd):
+
+class LookupCli(cmd.Cmd):
 
     def __init__(self):
         super().__init__()
@@ -140,7 +138,7 @@ class lookupCli(cmd.Cmd):
     def emptyline(self):
         pass
 
-    def default(self,line):
+    def default(self, line):
         line = line.strip()
 
         # Commands
@@ -150,21 +148,25 @@ class lookupCli(cmd.Cmd):
             sys.exit(0)
 
         if line == self.commandSeparator + '':
-            skip = True
+            self.emptyline()
+            return
 
         for m in modes:
             if line == self.commandSeparator + modes[m][0]:
+                if m in ['copy', 'www'] and not os.name == "posix":
+                    logging.warning("Modes currently only supported for linux.")
+                    return
                 self.mode = m
                 logging.info("Switched to mode %s." % self.mode)
                 return
 
         # split up segments
         segs = line.split(' ')
-        ans = ""
 
         # save current mode to temporarily change mode
         tmp_mode = self.mode
 
+        # Return line
         ans = ""
 
         for seg in segs:
@@ -190,4 +192,4 @@ class lookupCli(cmd.Cmd):
         self.mode = tmp_mode
 
 if __name__ == '__main__':
-    lookupCli().cmdloop()
+    LookupCli().cmdloop()
