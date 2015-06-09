@@ -1,5 +1,5 @@
 #!/usr/bin/python3
- # -*- coding: utf-8 -*-
+# -*- coding: utf8 -*-
 
 """
 Lookup Kanji by Heisig Keyword or frame number
@@ -46,10 +46,6 @@ except ImportError:
 
 # ---------- CUSTOMIZE ME --------
 
-commandSeparator = "."
-defaultMode = 'n'
-prompt = "Inpt: "
-
 
 def copy_to_clipboard(clip):
     """ Copies argument to clipboard. """
@@ -68,6 +64,8 @@ def lookup(clip):
         success = os.system("firefox http://tangorin.com/general/dict.php?dict=general\&s=%s &" % clip)
     return success
 
+# ----------------------------------
+
 
 # dict of modes of the form longform (don't change): abbrev (free to adapt!), description
 modes = {'nothing': ['n', 'do nothing'], 'copy': ['c', 'Copy'], 'www': ['w', 'Lookup']}
@@ -76,8 +74,6 @@ modes = {'nothing': ['n', 'do nothing'], 'copy': ['c', 'Copy'], 'www': ['w', 'Lo
 
 # stores all information
 kanjis = []
-# stores mode
-mode = defaultMode
 
 # ------------ load kanji database ---------
 with open("RTK.tsv", 'r') as csvfile:
@@ -124,64 +120,74 @@ def search(word):
 
     return found
 
-# ------------ main loop ------------
+import cmd
 
+class lookupCli(cmd.Cmd):
 
-while True:
-    string = input(prompt).strip()
+    def __init__(self):
+        super().__init__()
 
-    if string == "":
-        continue
+        # ----------- Configure me ----------------
 
-    # Commands
+        self.defaultMode = 'nothing'
+        self.prompt = "Inpt: "
+        self.commandSeparator = "."
 
-    skip = False
+        # -----------------------------------------
 
-    if string == commandSeparator + 'q':
-        logging.info("Bye.")
-        sys.exit(0)
-    if string == commandSeparator + '':
-        skip = True
+        self.mode = self.defaultMode
 
-    for m in modes:
-        if string == commandSeparator + modes[m][0]:
-            mode = m
-            logging.info("Switched to mode %s." % mode)
-            skip = True
-
-    if skip:
-        print()
-        continue
-
-    # split up segments
-    segs = string.split(' ')
-    ans = ""
-
-
-
-    # save current mode to temporarily change mode
-    tmpMode = mode
-
-    ans = ""
-
-    for seg in segs:
-        hits = search(seg)
-
-        if len(hits) == 1:
-            ans += hits[0][0]
-        if len(hits) > 1:
-            mode = "nothing"
-            ans += str(hits)
-
-    print(ans)
-    print()
-
-    if mode == 'copy':
-        copy_to_clipboard(ans)
-    elif mode == 'www':
-        lookup(ans)
-    elif mode == "nothing":
+    def emptyline(self):
         pass
 
-    # reset mode
-    mode = tmpMode
+    def default(self,line):
+        line = line.strip()
+
+        # Commands
+
+        if line == self.commandSeparator + 'q':
+            logging.info("Bye.")
+            sys.exit(0)
+
+        if line == self.commandSeparator + '':
+            skip = True
+
+        for m in modes:
+            if line == self.commandSeparator + modes[m][0]:
+                self.mode = m
+                logging.info("Switched to mode %s." % self.mode)
+                return
+
+        # split up segments
+        segs = line.split(' ')
+        ans = ""
+
+        # save current mode to temporarily change mode
+        tmp_mode = self.mode
+
+        ans = ""
+
+        for seg in segs:
+            hits = search(seg)
+
+            if len(hits) == 1:
+                ans += hits[0][0]
+            if len(hits) > 1:
+                self.mode = "nothing"
+                ans += str(hits)
+
+        print(ans)
+        print()
+
+        if self.mode == 'copy':
+            copy_to_clipboard(ans)
+        elif self.mode == 'www':
+            lookup(ans)
+        elif self.mode == "nothing":
+            pass
+
+        # reset mode
+        self.mode = tmp_mode
+
+if __name__ == '__main__':
+    lookupCli().cmdloop()
