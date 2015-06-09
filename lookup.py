@@ -29,6 +29,7 @@ import os
 import logging
 import csv
 import sys
+import cmd
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -65,7 +66,8 @@ def lookup(clip):
 
 
 # dict of modes of the form long_form (don't change): [abbrev (free to adapt!), description]
-modes = {'nothing': ['n', 'do nothing'], 'copy': ['c', 'Copy'], 'www': ['w', 'Lookup']}
+modes = {'nothing': ['n', 'do nothing'], 'copy': ['c', 'Copy'], 'www': ['w', 'Lookup'],
+         'primitive': ['p', 'lookup kanji by primitives']}
 
 # ----------------------------------
 
@@ -77,6 +79,14 @@ with open("RTK.tsv", 'r') as csvfile:
     reader = csv.reader(csvfile, delimiter='\t')
     for row in reader:
         kanjis.append(row)
+
+# ------------- load stories db ----------------
+
+stories = []
+with open("kanji_stories.tsv", "r") as csvfile:
+    reader = csv.reader(csvfile, delimiter='\t')
+    for row in reader:
+        stories.append(row)
 
 
 # ------------ the actual search ------------
@@ -117,7 +127,18 @@ def search(word):
 
     return found
 
-import cmd
+
+def story_search(primitives):
+    results = []
+    for kanji in stories:
+        found = True
+        for p in primitives:
+            if not p.replace("_", " ") in kanji[3]:
+                found = False
+        if found:
+            results.append(kanji)
+    return results
+
 
 
 class LookupCli(cmd.Cmd):
@@ -159,6 +180,13 @@ class LookupCli(cmd.Cmd):
                 self.mode = m
                 logging.info("Switched to mode %s." % self.mode)
                 return
+
+        if self.mode == "primitive":
+            candidates = story_search(line.split(' '))
+            # print(candidates)
+            for c in candidates:
+                print("%s: %s" % (c[0], c[1]))
+            return
 
         # split up segments
         segs = line.split(' ')
