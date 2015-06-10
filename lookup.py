@@ -26,6 +26,7 @@ with:
 # to enable up and down arrows etc.
 
 import os
+import os.path
 import logging
 import csv
 import sys
@@ -69,24 +70,29 @@ def lookup(clip):
 modes = {'nothing': ['n', 'do nothing'], 'copy': ['c', 'Copy'], 'www': ['w', 'Lookup'],
          'primitive': ['p', 'lookup kanji by primitives']}
 
-# ----------------------------------
-
-# stores all information
-kanjis = []
-
 # ------------ load kanji database ---------
-with open("RTK.tsv", 'r') as csvfile:
-    reader = csv.reader(csvfile, delimiter='\t')
-    for row in reader:
-        kanjis.append(row)
+
+kanjis = []
+rtkFile = "RTK.tsv"
+if os.path.exists(rtkFile):
+    with open(rtkFile, 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter='\t')
+        for row in reader:
+            kanjis.append(row)
+else:
+    logging.critical("File %s (contains heisig indizes) not found. Exiting." % rtkFile)
 
 # ------------- load stories db ----------------
 
 stories = []
-with open("kanji_stories.tsv", "r") as csvfile:
-    reader = csv.reader(csvfile, delimiter='\t')
-    for row in reader:
-        stories.append(row)
+storiesFile = "kanji_stories.tsv"
+if os.path.exists(storiesFile):
+    with open(storiesFile, "r") as csvfile:
+        reader = csv.reader(csvfile, delimiter='\t')
+        for row in reader:
+            stories.append(row)
+else:
+    logging.warning("File %s (contains user stories) not found. Primitive mode unavailable.")
 
 
 # ------------ the actual search ------------
@@ -174,8 +180,10 @@ class LookupCli(cmd.Cmd):
         for m in modes:
             if line == self.commandSeparator + modes[m][0]:
                 if m in ['copy', 'www'] and not os.name == "posix":
-                    logging.warning("Modes currently only supported for linux.")
+                    logging.warning("Mode %s currently only supported for linux." % m)
                     return
+                if m == 'primitive' and not stories:
+                    logging.warning("No user defined stories available. Mode unavailable.")
                 self.mode = m
                 logging.info("Switched to mode %s." % self.mode)
                 return
