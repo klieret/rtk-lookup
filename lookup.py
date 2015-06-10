@@ -140,7 +140,6 @@ def story_search(primitives):
     return results
 
 
-
 class LookupCli(cmd.Cmd):
 
     def __init__(self):
@@ -183,7 +182,6 @@ class LookupCli(cmd.Cmd):
 
         if self.mode == "primitive":
             candidates = story_search(line.split(' '))
-            # print(candidates)
             for c in candidates:
                 print("%s: %s" % (c[0], c[1]))
             return
@@ -202,10 +200,16 @@ class LookupCli(cmd.Cmd):
 
             if len(hits) == 1:
                 ans += hits[0][0]
-            if len(hits) > 1:
+            else:
                 self.mode = "nothing"
-                ans += str(hits)
 
+                if len(segs) == 1:
+                    for h in hits:
+                        ans += "%s: %s\n" % (h[0], h[1])
+                else:
+                    ans += str(hits)
+
+        ans = ans.rstrip()
         print(ans)
         print()
 
