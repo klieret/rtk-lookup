@@ -20,6 +20,8 @@ with:
 
 """
 
+# todo: documentation of primitive mode
+# todo: more flexibility in handling csv files
 # todo: run with console arguments
 # todo: which heisig version are we using?
 
@@ -43,8 +45,8 @@ except ImportError:
     logging.warning("Romkan module not found. No Support for hiragana.")
     logging.debug("Romkan is available at https://pypi.python.org/pypi/romkan.")
 
-# ---------- CUSTOMIZE ME --------
 
+# ---------- CUSTOMIZE ME --------
 
 def copy_to_clipboard(clip):
     """ Copies argument to clipboard. """
