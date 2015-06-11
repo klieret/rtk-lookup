@@ -20,9 +20,11 @@ with:
 
 """
 
+# todo: move active parts
+# todo: surpess logging when running with cl arguments
+# todo: help
 # todo: documentation of primitive mode
-# todo: more flexibility in handling csv files
-# todo: run with console arguments
+# todo: more flexibility in handling csv files > transform into object
 # todo: which heisig version are we using?
 
 # to enable up and down arrows etc.
@@ -234,4 +236,11 @@ class LookupCli(cmd.Cmd):
         self.mode = tmp_mode
 
 if __name__ == '__main__':
-    LookupCli().cmdloop()
+    if len(sys.argv) == 1:
+        LookupCli().cmdloop()
+    else:
+        lines = ' '.join(sys.argv[1:]).split(",")
+        cli = LookupCli()
+        for line in lines:
+            print("Output for '%s':" % line)
+            cli.default(line)
