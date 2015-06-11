@@ -20,6 +20,7 @@ with:
 
 """
 
+# todo: logging
 # todo: move active parts
 # todo: surpess logging when running with cl arguments
 # todo: help
@@ -241,6 +242,8 @@ if __name__ == '__main__':
     else:
         lines = ' '.join(sys.argv[1:]).split(",")
         cli = LookupCli()
-        for line in lines:
-            print("Output for '%s':" % line)
-            cli.default(line)
+        for l in lines:
+            l = l.lstrip()    # else it matters whether there is a space in front of the ','
+            if not l.startswith('.'):
+                print("Output for '%s':" % l)
+            cli.default(l)
