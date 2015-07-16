@@ -27,7 +27,7 @@ with:
 # todo: documentation of primitive mode
 # todo: more flexibility in handling csv files > transform into object
 # todo: which heisig version are we using?
-# additional newline? 
+# additional newline?
 
 # to enable up and down arrows etc.
 
@@ -192,19 +192,30 @@ class LookupCli(cmd.Cmd):
                 self.emptyline()
                 return
 
+            if command[0] == '!':
+                os.system(command[1:])
+                return
+
             for m in modes:
                 if command == modes[m][0]:
+                    # ----------- switching not possible ---------------
                     if m in ['copy', 'www'] and not os.name == "posix":
                         logging.warning("Mode %s currently only supported for linux." % m)
                         return
                     if m == 'primitive' and not stories:
                         logging.warning("No user defined stories available. Mode unavailable.")
-                    self.mode = m
-                    logging.info("Switched to mode %s." % self.mode)
-                    return
+                        return
+                    # ----------- switching possible -------------------
+                    if self.mode == m:
+                        logging.info("Mode %s is already active." % self.mode)
+                        return
+                    else:
+                        self.mode = m
+                        logging.info("Switched to mode %s." % self.mode)
+                        return
 
             # if we come here, the command is not known.
-            print("Command not known. Type '.h' for help. \n")
+            logging.warning("Command not known. Type '.h' for help. \n")
             return
 
         # Input
