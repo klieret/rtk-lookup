@@ -27,6 +27,7 @@ with:
 # todo: documentation of primitive mode
 # todo: more flexibility in handling csv files > transform into object
 # todo: which heisig version are we using?
+# additional newline? 
 
 # to enable up and down arrows etc.
 
@@ -174,24 +175,39 @@ class LookupCli(cmd.Cmd):
 
         # Commands
 
-        if line == self.commandSeparator + 'q':
-            logging.info("Bye.")
-            sys.exit(0)
+        if line.startswith('.'):
+            command = line[1:]
 
-        if line == self.commandSeparator + '':
-            self.emptyline()
+            if command == 'h':
+                print("Basic commands: .q (quit), .h (help) ")
+                print("Available modes: %s" % str(modes))
+                print()
+                return
+
+            if command == 'q':
+                logging.info("Bye.")
+                sys.exit(0)
+
+            if command == '':
+                self.emptyline()
+                return
+
+            for m in modes:
+                if command == modes[m][0]:
+                    if m in ['copy', 'www'] and not os.name == "posix":
+                        logging.warning("Mode %s currently only supported for linux." % m)
+                        return
+                    if m == 'primitive' and not stories:
+                        logging.warning("No user defined stories available. Mode unavailable.")
+                    self.mode = m
+                    logging.info("Switched to mode %s." % self.mode)
+                    return
+
+            # if we come here, the command is not known.
+            print("Command not known. Type '.h' for help. \n")
             return
 
-        for m in modes:
-            if line == self.commandSeparator + modes[m][0]:
-                if m in ['copy', 'www'] and not os.name == "posix":
-                    logging.warning("Mode %s currently only supported for linux." % m)
-                    return
-                if m == 'primitive' and not stories:
-                    logging.warning("No user defined stories available. Mode unavailable.")
-                self.mode = m
-                logging.info("Switched to mode %s." % self.mode)
-                return
+        # Input
 
         if self.mode == "primitive":
             candidates = story_search(line.split(' '))
