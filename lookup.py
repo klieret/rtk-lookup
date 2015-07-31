@@ -21,6 +21,7 @@ with:
 """
 
 # todo: logging
+# todo: update screenshot
 # todo: move active parts
 # todo: surpess logging when running with cl arguments
 # todo: help
@@ -179,7 +180,7 @@ class LookupCli(cmd.Cmd):
             command = line[1:]
 
             if command == 'h':
-                print("Basic commands: .q (quit), .h (help) ")
+                print("Basic commands: .q (quit), .h (help), .!<command> (run command in shell), .m (print current mode) ")
                 print("Available modes: %s" % str(modes))
                 print()
                 return
@@ -194,6 +195,10 @@ class LookupCli(cmd.Cmd):
 
             if command[0] == '!':
                 os.system(command[1:])
+                return
+
+            if command == 'm':
+                logging.info("Current mode is %s." % self.mode)
                 return
 
             for m in modes:
