@@ -298,6 +298,9 @@ class LookupCli(cmd.Cmd):
         
         lines = ans.split('\n')
         for line in lines:
+            line = line.strip()
+            if not line:
+                continue
             print(" "*4 + line) 
         
         if colorama:
@@ -373,7 +376,7 @@ class LookupCli(cmd.Cmd):
 
         for candidate in candidates:
             kanjiObj = self.kc.kanjiObjFromPos(candidate)
-            ans += "%s: %s" % (kanjiObj.kanji, kanjiObj.meaning)
+            ans += "%s: %s\n" % (kanjiObj.kanji, kanjiObj.meaning)
         
         return ans
 
