@@ -410,8 +410,12 @@ class LookupCli(cmd.Cmd):
                     for h in hits:
                         ans += "%s: %s\n" % (self.kc.kanjiObjFromPos(h).kanji, self.kc.kanjiObjFromPos(h).meaning)
                 else:
-                    ans += str(hits)
-
+                    ans += '{'
+                    for h in hits:
+                        ans += "%s (%s), " % (self.kc.kanjiObjFromPos(h).kanji, self.kc.kanjiObjFromPos(h).meaning)
+                    # strip last ', '
+                    ans = ans[:-2]
+                    ans += '}'
 
         ans = ans.rstrip()
 
