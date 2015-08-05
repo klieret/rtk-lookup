@@ -120,7 +120,7 @@ class KanjiCollection(object):
             for row in reader:
                 kanji = row[kanjiColumn].strip()
                 index = row[indexColumn].strip()
-                meaning = row[meaningColumn].strip()
+                meaning = row[meaningColumn].strip().lower()
                 
                 kanjiObj = Kanji(kanji)
                 kanjiObj.index = index
@@ -151,7 +151,7 @@ class KanjiCollection(object):
             reader = csv.reader(csvfile, delimiter=delimeter)
             for row in reader:
                 kanji = row[kanjiColumn].strip()
-                story = row[storyColumn].strip()
+                story = row[storyColumn].strip().lower()
 
                 pos = self.posFromKanji(kanji) 
                 if pos:
@@ -271,7 +271,7 @@ class LookupCli(cmd.Cmd):
     def default(self, line):
         """ Default function that gets called on the input. """
         
-        line = line.strip()
+        line = line.strip().lower()
 
         if not line:
             self.emptyline()
