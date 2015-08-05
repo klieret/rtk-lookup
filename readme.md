@@ -26,15 +26,15 @@ Examples:
     
     [default] large てい
 
-    大てい
+        大てい
 
-[default] large 抵
+    [default] large 抵
 
-    大抵
+        大抵
 
-[default] large tei
+    [default] large tei
 
-    大てい
+        大てい
 
 To quit, type ```.q```.
 
@@ -95,22 +95,22 @@ there are multiple matches, all of them are printed as a list.
 
     [default] goi?
 
-    行
+        行
 
-[default] fish?
+    [default] fish?
 
-    貝: shellfish
-    乙: fish guts
-    魚: fish
-    漁: fishing
-    恣: selfish
-    鰭: fish fin
+        貝: shellfish
+        乙: fish guts
+        魚: fish
+        漁: fishing
+        恣: selfish
+        鰭: fish fin
 
-[default] fish+
+    [default] fish+
 
-    乙: fish guts
-    魚: fish
-    鰭: fish fin
+        乙: fish guts
+        魚: fish
+        鰭: fish fin
 
 
 ## Installation:
