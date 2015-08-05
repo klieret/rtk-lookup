@@ -141,8 +141,9 @@ class KanjiCollection(object):
         # --------------------------------
         
         if not os.path.exists(storyFile):
-            logger.warning("File %s (contains user stories) not found. Primitive mode will be unavailable.")
+            logger.warning("File %s (contains user stories) not found. Primitive mode will be unavailable." % storyFile)
             self.storiesAvailable = False
+            return
         else:
             self.storiesAvailable = True
         

@@ -7,38 +7,45 @@ A little command line interface that allows to look up kanji with the respective
 
 Examples:
     
-    inpt: large resist
-    大抵
-    
-    inpt: 107 1832
-    大抵
-    
-    inpt: large 1832
-    大抵
-   
-If words are not found, they are converted to hiragana. This requires the ```romkan``` module which can be downloaded
-[here](https://pypi.python.org/pypi/romkan).
+    [default] large resist
+
+        大抵
+
+    [default] 107 1832
+
+        大抵
+
+    [default] large 1832
+
+        大抵
+
+If words are not found, they are converted to hiragana if the ```romkan``` module is installed (optional). 
+This ```romkan``` module which can be downloaded [here](https://pypi.python.org/pypi/romkan). 
 
 Examples:
     
-    inpt: large てい
+    [default] large てい
+
     大てい
-    
-    inpt: large 抵
+
+[default] large 抵
+
     大抵
-    
-    inpt: large tei
+
+[default] large tei
+
     大てい
 
 To quit, type ```.q```.
 
 ## Modes 
 
-There are three modes (in parenthesis: command to activate mode)
+There are four modes (in parenthesis: command to activate mode)
 
+* default (```.d```): Do nothing.
 * copy (```.c```): Copy result to clipboard.
 * lookup (```.w```): Lookup expression (default: tangorin.com with firefox)
-* nothing (```.n```): Do nothing.
+* primitive (```.p```): Try to find kanji by specifying primitives (this requires an additional file that contains all the kanji stories of the user)
 
 If more than one match is found, no action will be performed, regardless of the current mode.
 The default mode is ```c``` (but this can easily be changed in the source, as well as the commands above).
