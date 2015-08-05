@@ -138,7 +138,7 @@ class KanjiCollection(object):
         storyFile = "kanji_stories.tsv"
         delimeter = '\t'
         kanjiColumn = 0
-        storyColumn = 2
+        storyColumn = 3
         
         if not os.path.exists(storyFile):
             logging.warning("File %s (contains user stories) not found. Primitive mode will be unavailable.")
@@ -195,13 +195,18 @@ class KanjiCollection(object):
 
     def story_search(self, primitives):
         results = []
-        for kanji in stories:
+        i=0
+        for kanjiObj in self.kanjis:
             found = True
             for p in primitives:
-                if not p.replace("_", " ") in kanji[3]:
+                if kanjiObj.story:
+                    if not p.replace("_", " ") in kanjiObj.story:
+                        found = False
+                else:
                     found = False
             if found:
-                results.append(kanji)
+                results.append(i)
+            i+=1
         return results
 
 
@@ -262,7 +267,7 @@ class LookupCli(cmd.Cmd):
                     if m in ['copy', 'www'] and not os.name == "posix":
                         logging.warning("Mode %s currently only supported for linux." % m)
                         return
-                    if m == 'primitive' and not stories:
+                    if m == 'primitive' and not self.kc.storiesAvailable:
                         logging.warning("No user defined stories available. Mode unavailable.")
                         return
                     # ----------- switching possible -------------------
@@ -281,9 +286,9 @@ class LookupCli(cmd.Cmd):
         # Input
 
         if self.mode == "primitive":
-            candidates = kc.story_search(line.split(' '))
+            candidates = self.kc.story_search(line.split(' '))
             for c in candidates:
-                print("%s: %s" % (c[0], c[1]))
+                print("%s: %s" % (self.kc.kanjiFromPos(c).kanji, self.kc.kanjiFromPos(c).meaning))
             return
 
         # split up segments
