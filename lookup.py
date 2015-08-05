@@ -116,10 +116,15 @@ class KanjiCollection(object):
 
                 self.kanjis.append(kanjiObj)
 
+    def kanjiFromPos(self, pos):
+        return self.kanjis[pos]
+
     def posFromKanji(self, kanji):
+        """ Given a kanji, returns the position of the corresponding
+        Object of class 'Kanji' in self.kanjis. """
+
         i = 0
         for kanjiObj in self.kanjis:
-            # print(kanji, kanjiObj.kanji)
             if kanjiObj.kanji == kanji:
                 return i
             i+=1
@@ -151,42 +156,39 @@ class KanjiCollection(object):
                 if pos:
                     self.kanjis[pos].story = story
                 else:
-                    print("Problem with %s" % kanji)
+                    logging.warning("Could not update story for %s." % kanji)
 
     def search(self, word):
         """
         Does the actual search.
         :param word: search phrase
-        :return: A list of tuples of the form ("<kanji>", "<keyword>") (or ("<string>", "?") if no kanji is found.)
+        :return: The positions of the matching kanjiObjs in self.kanjis (as a list)
         """
 
         word = word.replace('_', ' ')
         found = []
 
-        if word.isdigit():
-            for kanjiObj in self.kanjis:
+        i = 0
+        for kanjiObj in self.kanjis:
+            if word.isdigit():
+                # searching for RTK index
                 if kanjiObj.index == word:
-                    found.append((kanjiObj.kanji, kanjiObj.meaning))
-        else:
-            if word[-1] == "?":
-                for kanji in kanjis:
-                    if word[:-1] in str(kanji[3]):
-                        found.append((kanji[0], kanji[3]))
-            elif word[-1] == "+":
-                for kanji in kanjis:
-                    if word[:-1] in str(kanji[3]).split(' '):
-                        found.append((kanji[0], kanji[3]))
+                    found.append(i)
             else:
-                for kanji in kanjis:
-                    if word == str(kanji[3]):
-                        found.append((kanji[0], kanji[3]))
-
-        # if not found: simply convert to hiragana
-        if not found:
-            if romkan:
-                found.append((romkan.to_hiragana(word), '?'))
-            else:
-                found.append((word, '?'))
+                if word[-1] == "?":
+                    if word[:-1] in str(kanjiObj.meaning):
+                        found.append(i)
+                elif word[-1] == "+":
+                    if word[:-1] in str(kanjiObj.meaning).split(' '):
+                        found.append(i)
+                else:
+                    if word == str(kanjiObj.meaning):
+                        found.append(i)
+            i+=1
+            # if romkan:
+            #     found.append((romkan.to_hiragana(word), '?'))
+            # else:
+            #     found.append((word, '?'))
 
         return found
 
@@ -205,8 +207,11 @@ class KanjiCollection(object):
 
 class LookupCli(cmd.Cmd):
 
-    def __init__(self):
+    def __init__(self, kc):
         super().__init__()
+
+        # KanjiCollection
+        self.kc = kc
 
         # ----------- Configure me ----------------
 
@@ -276,7 +281,7 @@ class LookupCli(cmd.Cmd):
         # Input
 
         if self.mode == "primitive":
-            candidates = story_search(line.split(' '))
+            candidates = kc.story_search(line.split(' '))
             for c in candidates:
                 print("%s: %s" % (c[0], c[1]))
             return
@@ -291,16 +296,18 @@ class LookupCli(cmd.Cmd):
         ans = ""
 
         for seg in segs:
-            hits = search(seg)
+            hits = self.kc.search(seg)
 
+            if len(hits) == 0:
+                print("no hits. implement me!")
             if len(hits) == 1:
-                ans += hits[0][0]
+                ans += self.kc.kanjiFromPos(hits[0]).kanji
             else:
                 self.mode = "nothing"
 
                 if len(segs) == 1:
                     for h in hits:
-                        ans += "%s: %s\n" % (h[0], h[1])
+                        ans += "%s: %s\n" % (self.kc.kanjiFromPos(h).kanji, self.kc.kanjiFromPos(h).meaning)
                 else:
                     ans += str(hits)
 
@@ -324,11 +331,13 @@ if __name__ == '__main__':
     kc.updateRTK()
     logging.debug("Loding stories...")
     kc.updateStories()
+    logging.debug("Loading done.")
+    
     if len(sys.argv) == 1:
-        LookupCli().cmdloop()
+        LookupCli(kc).cmdloop()
     else:
         lines = ' '.join(sys.argv[1:]).split(",")
-        cli = LookupCli()
+        cli = LookupCli(kc)
         for l in lines:
             l = l.lstrip()    # else it matters whether there is a space in front of the ','
             if not l.startswith('.'):
