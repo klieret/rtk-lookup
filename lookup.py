@@ -212,10 +212,6 @@ class KanjiCollection(object):
                     if word == str(kanjiObj.meaning):
                         found.append(i)
             i+=1
-            # if romkan:
-            #     found.append((romkan.to_hiragana(word), '?'))
-            # else:
-            #     found.append((word, '?'))
 
         return found
 
@@ -352,9 +348,14 @@ class LookupCli(cmd.Cmd):
             hits = self.kc.search(seg)
 
             if len(hits) == 0:
-                print("no hits. implement me!")
-            if len(hits) == 1:
+                if romkan:
+                    ans += romkan.to_hiragana(seg)
+                else:
+                    ans += seg
+
+            elif len(hits) == 1:
                 ans += self.kc.kanjiObjFromPos(hits[0]).kanji
+
             else:
                 self.mode = "nothing"
 
@@ -363,6 +364,7 @@ class LookupCli(cmd.Cmd):
                         ans += "%s: %s\n" % (self.kc.kanjiObjFromPos(h).kanji, self.kc.kanjiObjFromPos(h).meaning)
                 else:
                     ans += str(hits)
+
 
         ans = ans.rstrip()
         print(ans)
@@ -379,6 +381,8 @@ class LookupCli(cmd.Cmd):
        
 
 if __name__ == '__main__':
+
+    # >>>>>> Load Data
     kc = KanjiCollection()
     logging.debug("Loading rtk data...")
     kc.updateRTK()
@@ -387,8 +391,11 @@ if __name__ == '__main__':
     logging.debug("Loading done.")
     
     if len(sys.argv) == 1:
+        # No argument given > start cli interface
         LookupCli(kc).cmdloop()
+    
     else:
+        # There were arguments > look them up
         lines = ' '.join(sys.argv[1:]).split(",")
         cli = LookupCli(kc)
         for l in lines:
