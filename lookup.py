@@ -26,9 +26,7 @@ with:
 # todo: surpess logging when running with cl arguments
 # todo: help
 # todo: documentation of primitive mode
-# todo: more flexibility in handling csv files > transform into object
 # todo: which heisig version are we using?
-# additional newline?
 
 # to enable up and down arrows etc.
 
@@ -41,14 +39,25 @@ import cmd
 
 logging.basicConfig(level=logging.DEBUG)
 
-# 'romkan' is the module used to convert
-# hiragana to romanji. It is available at https://pypi.python.org/pypi/romkan
+# The 'romkan' module is used to convert hiragana to romanji (optional).
+# It is available at https://pypi.python.org/pypi/romkan
 try:
     import romkan
 except ImportError:
     romkan = None
     logging.warning("Romkan module not found. No Support for hiragana.")
     logging.debug("Romkan is available at https://pypi.python.org/pypi/romkan.")
+
+# The 'colorama' module is  used to display colors in a platform independent way (optional). 
+# It is available at https://pypi.python.org/pypi/colorama
+try:
+    import colorama
+except ImportError:
+    colorama = None
+    logging.warning("Colorama module not found. No Support for colors.")
+    logging.debug("Colorama is available at https://pypi.python.org/pypi/colorama.")
+else:
+    colorama.init()
 
 
 # ---------- CUSTOMIZE ME --------
@@ -83,7 +92,7 @@ class Kanji(object):
     information (index, meaning, story etc.) """
     
     def __init__(self, kanji):
-        self.kanji = kanji
+        self.kanji = kanji            
         self.index = None
         self.meaning = None
         self.story = None
@@ -367,7 +376,10 @@ class LookupCli(cmd.Cmd):
 
 
         ans = ans.rstrip()
-        print(ans)
+        if colorama:
+            print(colorama.Fore.RED + ans + colorama.Fore.RESET)
+        else:
+            print(ans)
 
         if self.mode == 'copy':
             copy_to_clipboard(ans)
