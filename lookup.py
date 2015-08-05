@@ -20,10 +20,10 @@ with:
 
 """
 
-# todo: logging
+# todo: logger
 # todo: update screenshot
 # todo: move active parts
-# todo: surpess logging when running with cl arguments
+# todo: surpess logger when running with cl arguments
 # todo: help
 # todo: documentation of primitive mode
 # todo: which heisig version are we using?
@@ -37,16 +37,14 @@ import csv
 import sys
 import cmd
 
-logging.basicConfig(level=logging.DEBUG)
-
 # The 'romkan' module is used to convert hiragana to romanji (optional).
 # It is available at https://pypi.python.org/pypi/romkan
 try:
     import romkan
 except ImportError:
     romkan = None
-    logging.warning("Romkan module not found. No Support for hiragana.")
-    logging.debug("Romkan is available at https://pypi.python.org/pypi/romkan.")
+    logger.warning("Romkan module not found. No Support for hiragana.")
+    logger.debug("Romkan is available at https://pypi.python.org/pypi/romkan.")
 
 # The 'colorama' module is  used to display colors in a platform independent way (optional). 
 # It is available at https://pypi.python.org/pypi/colorama
@@ -54,8 +52,8 @@ try:
     import colorama
 except ImportError:
     colorama = None
-    logging.warning("Colorama module not found. No Support for colors.")
-    logging.debug("Colorama is available at https://pypi.python.org/pypi/colorama.")
+    logger.warning("Colorama module not found. No Support for colors.")
+    logger.debug("Colorama is available at https://pypi.python.org/pypi/colorama.")
 else:
     colorama.init()
 
@@ -118,7 +116,7 @@ class KanjiCollection(object):
         # --------------------------------
         
         if not os.path.exists(rtkFile):
-            logging.fatal("File %s (to contain heisig indizes) not found. Exiting." % rtkFile)
+            logger.fatal("File %s (to contain heisig indizes) not found. Exiting." % rtkFile)
             sys.exit(1)
         
         with open(rtkFile, 'r') as csvfile:
@@ -147,7 +145,7 @@ class KanjiCollection(object):
         # --------------------------------
         
         if not os.path.exists(storyFile):
-            logging.warning("File %s (contains user stories) not found. Primitive mode will be unavailable.")
+            logger.warning("File %s (contains user stories) not found. Primitive mode will be unavailable.")
             self.storiesAvailable = False
         else:
             self.storiesAvailable = True
@@ -162,7 +160,7 @@ class KanjiCollection(object):
                 if pos:
                     self.kanjis[pos].story = story
                 else:
-                    logging.warning("Could not update story for %s." % kanji)
+                    logger.warning("Could not update story for %s." % kanji)
 
     # ------------- pos <> .... -------------------------------
     # Most functions (e.g. search, etc.) will return the position
@@ -300,7 +298,7 @@ class LookupCli(cmd.Cmd):
             return
 
         if command == 'q':
-            logging.info("Bye.")
+            logger.info("Bye.")
             sys.exit(0)
 
         if command == '':
@@ -312,32 +310,32 @@ class LookupCli(cmd.Cmd):
             return
 
         if command == 'm':
-            logging.info("Current mode is %s." % self.mode)
+            logger.info("Current mode is %s." % self.mode)
             return
 
         for m in self.modes:
             if command == self.modes[m][0]:
                 # ----------- switching not possible ---------------
                 if m in ['copy', 'www'] and not os.name == "posix":
-                    logging.warning("Mode %s currently only supported for linux." % m)
-                    logging.debug("You can adapt the corresponding function in the source code!")
+                    logger.warning("Mode %s currently only supported for linux." % m)
+                    logger.debug("You can adapt the corresponding function in the source code!")
                     return
                 if m == 'primitive' and not self.kc.storiesAvailable:
-                    logging.warning("No user defined stories available. Mode unavailable.")
+                    logger.warning("No user defined stories available. Mode unavailable.")
                     return
                 
                 # ----------- switching possible -------------------
                 if self.mode == m:
-                    logging.info("Mode %s is already active." % self.mode)
+                    logger.info("Mode %s is already active." % self.mode)
                     return
                 else:
                     self.mode = m
-                    logging.info("Switched to mode %s." % self.mode)
+                    logger.info("Switched to mode %s." % self.mode)
                     self.update_prompt()
                     return
 
         # if we come here, the command is not known.
-        logging.warning("Command not known. Type '.h' for help.")
+        logger.warning("Command not known. Type '.h' for help.")
         return
 
     def primitive(self, line):
@@ -400,13 +398,29 @@ class LookupCli(cmd.Cmd):
 
 if __name__ == '__main__':
 
+    logger = logging.getLogger("lookup")
+    logger.setLevel(logging.DEBUG)
+    
+    sh = logging.StreamHandler()
+    sh.setLevel(logging.DEBUG)
+
+    if colorama:
+        fm = logging.Formatter(colorama.Style.DIM + "%(levelname)s: %(message)s" + colorama.Style.RESET_ALL)
+    else:
+        fm = logging.Formatter("%(levelname)s: %(message)s")
+
+    sh.setFormatter(fm)
+    logger.addHandler(sh)
+
+
+
     # >>>>>> Load Data
     kc = KanjiCollection()
-    logging.debug("Loading rtk data...")
+    logger.debug("Loading rtk data...")
     kc.updateRTK()
-    logging.debug("Loding stories...")
+    logger.debug("Loding stories...")
     kc.updateStories()
-    logging.debug("Loading done.")
+    logger.debug("Loading done.")
     
     if len(sys.argv) == 1:
         # No argument given > start cli interface
