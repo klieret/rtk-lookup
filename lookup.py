@@ -237,7 +237,6 @@ class KanjiCollection(object):
             i+=1
         return results
 
-
 class LookupCli(cmd.Cmd):
     """ The command line interface (Cli). """
 
@@ -249,19 +248,24 @@ class LookupCli(cmd.Cmd):
 
         # ----------- Configure me ----------------
 
-        self.defaultMode = 'nothing'
+        self.defaultMode = 'default'
         self.commandSeparator = "."
 
         # -----------------------------------------
 
-        self.prompt = "Inpt: "
         self.mode = self.defaultMode
+        self.update_prompt()
 
         # dict of modes of the form long_form (don't change): [abbrev/command, description]
-        self.modes = { 'nothing': ['n', 'do nothing'], 
+        self.modes = { 'default': ['d', 'do nothing'], 
                        'copy': ['c', 'Copy'], 
                        'www': ['w', 'Lookup'],
                        'primitive': ['p', 'lookup kanji by primitives']}
+
+    def update_prompt(self):
+        """ Updates the prompt (self.promp) based on the mode. """
+
+        self.prompt = "[%s] " % self.mode
 
     def default(self, line):
         """ Default function that gets called on the input. """
@@ -293,7 +297,6 @@ class LookupCli(cmd.Cmd):
         if command == 'h':
             print("Basic commands: .q (quit), .h (help), .!<command> (run command in shell), .m (print current mode) ")
             print("Available modes: %s" % str(self.modes))
-            print()
             return
 
         if command == 'q':
@@ -330,10 +333,11 @@ class LookupCli(cmd.Cmd):
                 else:
                     self.mode = m
                     logging.info("Switched to mode %s." % self.mode)
+                    self.update_prompt()
                     return
 
         # if we come here, the command is not known.
-        logging.warning("Command not known. Type '.h' for help. \n")
+        logging.warning("Command not known. Type '.h' for help.")
         return
 
     def primitive(self, line):
