@@ -77,80 +77,130 @@ def lookup(clip):
 modes = {'nothing': ['n', 'do nothing'], 'copy': ['c', 'Copy'], 'www': ['w', 'Lookup'],
          'primitive': ['p', 'lookup kanji by primitives']}
 
-# ------------ load kanji database ---------
 
-kanjis = []
-rtkFile = "RTK.tsv"
-if os.path.exists(rtkFile):
-    with open(rtkFile, 'r') as csvfile:
-        reader = csv.reader(csvfile, delimiter='\t')
-        for row in reader:
-            kanjis.append(row)
-else:
-    logging.critical("File %s (contains heisig indizes) not found. Exiting." % rtkFile)
+class Kanji(object):
+    def __init__(self, kanji):
+        self.kanji = kanji
+        self.index = None
+        self.meaning = None
+        self.story = None
 
-# ------------- load stories db ----------------
+class KanjiCollection(object):
+    def __init__(self):
+        self.kanjis = []
+        self.storiesAvailable = False 
 
-stories = []
-storiesFile = "kanji_stories.tsv"
-if os.path.exists(storiesFile):
-    with open(storiesFile, "r") as csvfile:
-        reader = csv.reader(csvfile, delimiter='\t')
-        for row in reader:
-            stories.append(row)
-else:
-    logging.warning("File %s (contains user stories) not found. Primitive mode unavailable.")
+    def updateRTK(self):
+        """ Load file that contains the RTK kanji, indizes and meanings. """
 
+        rtkFile = "RTK.tsv"
+        delimeter = '\t'
+        kanjiColumn = 0
+        indexColumn = 1
+        meaningColumn = 3
+        
+        if not os.path.exists(rtkFile):
+            logging.fatal("File %s (to contain heisig indizes) not found. Exiting." % rtkFile)
+            sys.exit(1)
+        
+        with open(rtkFile, 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=delimeter)
+            for row in reader:
+                kanji = row[kanjiColumn].strip()
+                index = row[indexColumn].strip()
+                meaning = row[meaningColumn].strip()
+                
+                kanjiObj = Kanji(kanji)
+                kanjiObj.index = index
+                kanjiObj.meaning = meaning
 
-# ------------ the actual search ------------
-def search(word):
-    """
-    Does the actual search.
-    :param: search
-    :return: A list of tuples of the form ("<kanji>", "<keyword>") (or ("<string>", "?") if no kanji is found.)
-    """
+                self.kanjis.append(kanjiObj)
 
-    word = word.replace('_', ' ')
-    found = []
+    def posFromKanji(self, kanji):
+        i = 0
+        for kanjiObj in self.kanjis:
+            # print(kanji, kanjiObj.kanji)
+            if kanjiObj.kanji == kanji:
+                return i
+            i+=1
 
-    if word.isdigit():
-        for kanji in kanjis:
-            if str(kanji[1]) == word:
-                found.append((kanji[0], kanji[3]))
-    else:
-        if word[-1] == "?":
-            for kanji in kanjis:
-                if word[:-1] in str(kanji[3]):
-                    found.append((kanji[0], kanji[3]))
-        elif word[-1] == "+":
-            for kanji in kanjis:
-                if word[:-1] in str(kanji[3]).split(' '):
-                    found.append((kanji[0], kanji[3]))
+        # if not found:
+        return None
+
+    def updateStories(self):
+        """ Load file that contains the RTK kanji, indizes and meanings. """
+
+        storyFile = "kanji_stories.tsv"
+        delimeter = '\t'
+        kanjiColumn = 0
+        storyColumn = 2
+        
+        if not os.path.exists(storyFile):
+            logging.warning("File %s (contains user stories) not found. Primitive mode will be unavailable.")
+            self.storiesAvailable = False
         else:
-            for kanji in kanjis:
-                if word == str(kanji[3]):
-                    found.append((kanji[0], kanji[3]))
+            self.storiesAvailable = True
+        
+        with open(storyFile, 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=delimeter)
+            for row in reader:
+                kanji = row[kanjiColumn].strip()
+                story = row[storyColumn].strip()
 
-    # if not found: simply convert to hiragana
-    if not found:
-        if romkan:
-            found.append((romkan.to_hiragana(word), '?'))
+                pos = self.posFromKanji(kanji) 
+                if pos:
+                    self.kanjis[pos].story = story
+                else:
+                    print("Problem with %s" % kanji)
+
+    def search(self, word):
+        """
+        Does the actual search.
+        :param word: search phrase
+        :return: A list of tuples of the form ("<kanji>", "<keyword>") (or ("<string>", "?") if no kanji is found.)
+        """
+
+        word = word.replace('_', ' ')
+        found = []
+
+        if word.isdigit():
+            for kanjiObj in self.kanjis:
+                if kanjiObj.index == word:
+                    found.append((kanjiObj.kanji, kanjiObj.meaning))
         else:
-            found.append((word, '?'))
+            if word[-1] == "?":
+                for kanji in kanjis:
+                    if word[:-1] in str(kanji[3]):
+                        found.append((kanji[0], kanji[3]))
+            elif word[-1] == "+":
+                for kanji in kanjis:
+                    if word[:-1] in str(kanji[3]).split(' '):
+                        found.append((kanji[0], kanji[3]))
+            else:
+                for kanji in kanjis:
+                    if word == str(kanji[3]):
+                        found.append((kanji[0], kanji[3]))
 
-    return found
+        # if not found: simply convert to hiragana
+        if not found:
+            if romkan:
+                found.append((romkan.to_hiragana(word), '?'))
+            else:
+                found.append((word, '?'))
+
+        return found
 
 
-def story_search(primitives):
-    results = []
-    for kanji in stories:
-        found = True
-        for p in primitives:
-            if not p.replace("_", " ") in kanji[3]:
-                found = False
-        if found:
-            results.append(kanji)
-    return results
+    def story_search(self, primitives):
+        results = []
+        for kanji in stories:
+            found = True
+            for p in primitives:
+                if not p.replace("_", " ") in kanji[3]:
+                    found = False
+            if found:
+                results.append(kanji)
+        return results
 
 
 class LookupCli(cmd.Cmd):
@@ -269,6 +319,11 @@ class LookupCli(cmd.Cmd):
         self.mode = tmp_mode
 
 if __name__ == '__main__':
+    kc = KanjiCollection()
+    logging.debug("Loading rtk data...")
+    kc.updateRTK()
+    logging.debug("Loding stories...")
+    kc.updateStories()
     if len(sys.argv) == 1:
         LookupCli().cmdloop()
     else:
