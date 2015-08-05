@@ -20,15 +20,11 @@ with:
 
 """
 
-# todo: logger
 # todo: update screenshot
-# todo: move active parts
-# todo: surpess logger when running with cl arguments
 # todo: help
 # todo: documentation of primitive mode
 # todo: which heisig version are we using?
 
-# to enable up and down arrows etc.
 
 import os
 import os.path
@@ -319,7 +315,9 @@ class LookupCli(cmd.Cmd):
 
         if command == 'h':
             print("Basic commands: .q (quit), .h (help), .!<command> (run command in shell), .m (print current mode) ")
-            print("Available modes: %s" % str(self.modes))
+            print("Available modes:")
+            for mode in self.modes:
+                print("    %s (.%s): %s" % (mode, self.modes[mode][0], self.modes[mode][1]))
             return
 
         if command == 'q':
@@ -335,7 +333,7 @@ class LookupCli(cmd.Cmd):
             return
 
         if command == 'm':
-            logger.info("Current mode is %s." % self.mode)
+            print("Current mode is %s." % self.mode)
             return
 
         for m in self.modes:
@@ -462,6 +460,7 @@ if __name__ == '__main__':
     
     else:
         # There were arguments > look them up
+        logger.setLevel(logging.CRITICAL)
         lines = ' '.join(sys.argv[1:]).split(",")
         cli = LookupCli(kc)
         for l in lines:
