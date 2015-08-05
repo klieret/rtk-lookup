@@ -82,10 +82,6 @@ def lookup(clip):
 # ----------------------------------
 
 
-# dict of modes of the form long_form (don't change): [abbrev (free to adapt!), description]
-modes = {'nothing': ['n', 'do nothing'], 'copy': ['c', 'Copy'], 'www': ['w', 'Lookup'],
-         'primitive': ['p', 'lookup kanji by primitives']}
-
 
 class Kanji(object):
     """ An object of this Class contains a kanji with the corresponding 
@@ -254,12 +250,18 @@ class LookupCli(cmd.Cmd):
         # ----------- Configure me ----------------
 
         self.defaultMode = 'nothing'
-        self.prompt = "Inpt: "
         self.commandSeparator = "."
 
         # -----------------------------------------
 
+        self.prompt = "Inpt: "
         self.mode = self.defaultMode
+
+        # dict of modes of the form long_form (don't change): [abbrev/command, description]
+        self.modes = { 'nothing': ['n', 'do nothing'], 
+                       'copy': ['c', 'Copy'], 
+                       'www': ['w', 'Lookup'],
+                       'primitive': ['p', 'lookup kanji by primitives']}
 
     def default(self, line):
         """ Default function that gets called on the input. """
@@ -290,7 +292,7 @@ class LookupCli(cmd.Cmd):
 
         if command == 'h':
             print("Basic commands: .q (quit), .h (help), .!<command> (run command in shell), .m (print current mode) ")
-            print("Available modes: %s" % str(modes))
+            print("Available modes: %s" % str(self.modes))
             print()
             return
 
@@ -310,8 +312,8 @@ class LookupCli(cmd.Cmd):
             logging.info("Current mode is %s." % self.mode)
             return
 
-        for m in modes:
-            if command == modes[m][0]:
+        for m in self.modes:
+            if command == self.modes[m][0]:
                 # ----------- switching not possible ---------------
                 if m in ['copy', 'www'] and not os.name == "posix":
                     logging.warning("Mode %s currently only supported for linux." % m)
