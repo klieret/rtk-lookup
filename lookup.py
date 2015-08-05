@@ -249,6 +249,12 @@ class LookupCli(cmd.Cmd):
         self.defaultMode = 'default'
         self.commandSeparator = "."
 
+        # "Answers" get indented by this amount of spaces
+        self.indent = 4
+
+        # Color of the answers. Empty string: No color     
+        self.answerColor = colorama.Fore.RED     
+
         # -----------------------------------------
 
         self.mode = self.defaultMode
@@ -278,12 +284,31 @@ class LookupCli(cmd.Cmd):
             self.command(command)
 
         elif self.mode == "primitive":
-            self.primitive(line)
+            self.ansPrinter(self.primitive(line))
 
         else:
-            self.search(line)
+            self.ansPrinter(self.search(line))
 
-    # ----------- Handles ---------------
+    def ansPrinter(self, ans):
+        """ Prints the Kanji results. A simple print(ans) would do, 
+        but wrapping it into a function allows for e.g. coloring or
+        indenting. """
+
+        if colorama and self.answerColor:
+            print(self.answerColor)
+        else:
+            print()
+        
+        lines = ans.split('\n')
+        for line in lines:
+            print(" "*4 + line) 
+        
+        if colorama:
+            print(colorama.Style.RESET_ALL)
+        else:
+            print()
+
+    # ----------- Handlers ---------------
 
     def emptyline(self):
         """ Gets called if user presses <ENTER> without providing intput. """
@@ -339,13 +364,23 @@ class LookupCli(cmd.Cmd):
         return
 
     def primitive(self, line):
+        """ Looks for kanjis based on primitives. """
+        
+        # Kanjis that match the description
         candidates = self.kc.story_search(line.split(' '))
+        
+        # Return line
+        ans = ""
+
         for candidate in candidates:
             kanjiObj = self.kc.kanjiObjFromPos(candidate)
-            print("%s: %s" % (kanjiObj.kanji, kanjiObj.meaning))
-        return
+            ans += "%s: %s" % (kanjiObj.kanji, kanjiObj.meaning)
+        
+        return ans
 
     def search(self, line):
+        """ Looks for kanjis based on RTK indizes or meanings. """
+
          # split up segments
         segs = line.split(' ')
 
@@ -380,10 +415,7 @@ class LookupCli(cmd.Cmd):
 
 
         ans = ans.rstrip()
-        if colorama:
-            print(colorama.Fore.RED + ans + colorama.Fore.RESET)
-        else:
-            print(ans)
+
 
         if self.mode == 'copy':
             copy_to_clipboard(ans)
@@ -395,6 +427,8 @@ class LookupCli(cmd.Cmd):
         # reset mode
         self.mode = tmp_mode
        
+        return ans
+
 
 if __name__ == '__main__':
 
