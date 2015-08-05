@@ -79,6 +79,9 @@ modes = {'nothing': ['n', 'do nothing'], 'copy': ['c', 'Copy'], 'www': ['w', 'Lo
 
 
 class Kanji(object):
+    """ An object of this Class contains a kanji with the corresponding 
+    information (index, meaning, story etc.) """
+    
     def __init__(self, kanji):
         self.kanji = kanji
         self.index = None
@@ -86,18 +89,28 @@ class Kanji(object):
         self.story = None
 
 class KanjiCollection(object):
+    """ An object of this Class bundles many Kanji objects. """
+    
     def __init__(self):
         self.kanjis = []
+
+        # did we load any stories?
         self.storiesAvailable = False 
 
+    # ------------- Load information from files -------------------------------
+
     def updateRTK(self):
-        """ Load file that contains the RTK kanji, indizes and meanings. """
+        """ Load the file that contains the RTK kanji, indizes and meanings. """
+
+        # --------- CONFIGURE ME ---------
 
         rtkFile = "RTK.tsv"
         delimeter = '\t'
         kanjiColumn = 0
         indexColumn = 1
         meaningColumn = 3
+
+        # --------------------------------
         
         if not os.path.exists(rtkFile):
             logging.fatal("File %s (to contain heisig indizes) not found. Exiting." % rtkFile)
@@ -116,29 +129,17 @@ class KanjiCollection(object):
 
                 self.kanjis.append(kanjiObj)
 
-    def kanjiFromPos(self, pos):
-        return self.kanjis[pos]
-
-    def posFromKanji(self, kanji):
-        """ Given a kanji, returns the position of the corresponding
-        Object of class 'Kanji' in self.kanjis. """
-
-        i = 0
-        for kanjiObj in self.kanjis:
-            if kanjiObj.kanji == kanji:
-                return i
-            i+=1
-
-        # if not found:
-        return None
-
     def updateStories(self):
         """ Load file that contains the RTK kanji, indizes and meanings. """
+
+        # --------- CONFIGURE ME ---------
 
         storyFile = "kanji_stories.tsv"
         delimeter = '\t'
         kanjiColumn = 0
         storyColumn = 3
+
+        # --------------------------------
         
         if not os.path.exists(storyFile):
             logging.warning("File %s (contains user stories) not found. Primitive mode will be unavailable.")
@@ -157,6 +158,32 @@ class KanjiCollection(object):
                     self.kanjis[pos].story = story
                 else:
                     logging.warning("Could not update story for %s." % kanji)
+
+    # ------------- pos <> .... -------------------------------
+    # Most functions (e.g. search, etc.) will return the position
+    # of the KanjiObj corresponding to the matched kanjis in self.kanjis.
+
+
+    def kanjiObjFromPos(self, pos):
+        """ Returns the kanji belonging to the KanjiObj at position pos 
+        in self.kanjis. """
+        
+        return self.kanjis[pos]
+
+    def posFromKanji(self, kanji):
+        """ Given a kanji, returns the position of the corresponding
+        Object of class 'Kanji' in self.kanjis. """
+
+        i = 0
+        for kanjiObj in self.kanjis:
+            if kanjiObj.kanji == kanji:
+                return i
+            i+=1
+
+        # if not found:
+        return None
+
+    # ------------- Search -------------------------------
 
     def search(self, word):
         """
@@ -211,6 +238,7 @@ class KanjiCollection(object):
 
 
 class LookupCli(cmd.Cmd):
+    """ The command line interface (Cli). """
 
     def __init__(self, kc):
         super().__init__()
@@ -228,73 +256,93 @@ class LookupCli(cmd.Cmd):
 
         self.mode = self.defaultMode
 
-    def emptyline(self):
-        pass
-
     def default(self, line):
+        """ Default function that gets called on the input. """
+        
         line = line.strip()
 
-        # Commands
+        if not line:
+            self.emptyline()
 
-        if line.startswith('.'):
+        elif line.startswith(self.commandSeparator):
             command = line[1:]
+            self.command(command)
 
-            if command == 'h':
-                print("Basic commands: .q (quit), .h (help), .!<command> (run command in shell), .m (print current mode) ")
-                print("Available modes: %s" % str(modes))
-                print()
-                return
+        elif self.mode == "primitive":
+            self.primitive(line)
 
-            if command == 'q':
-                logging.info("Bye.")
-                sys.exit(0)
+        else:
+            self.search(line)
 
-            if command == '':
-                self.emptyline()
-                return
+    # ----------- Handles ---------------
 
-            if command[0] == '!':
-                os.system(command[1:])
-                return
+    def emptyline(self):
+        """ Gets called if user presses <ENTER> without providing intput. """
+        pass
 
-            if command == 'm':
-                logging.info("Current mode is %s." % self.mode)
-                return
+    def command(self, command):
+        """ Gets called if line starts with self.commandSeparator. """
 
-            for m in modes:
-                if command == modes[m][0]:
-                    # ----------- switching not possible ---------------
-                    if m in ['copy', 'www'] and not os.name == "posix":
-                        logging.warning("Mode %s currently only supported for linux." % m)
-                        return
-                    if m == 'primitive' and not self.kc.storiesAvailable:
-                        logging.warning("No user defined stories available. Mode unavailable.")
-                        return
-                    # ----------- switching possible -------------------
-                    if self.mode == m:
-                        logging.info("Mode %s is already active." % self.mode)
-                        return
-                    else:
-                        self.mode = m
-                        logging.info("Switched to mode %s." % self.mode)
-                        return
-
-            # if we come here, the command is not known.
-            logging.warning("Command not known. Type '.h' for help. \n")
+        if command == 'h':
+            print("Basic commands: .q (quit), .h (help), .!<command> (run command in shell), .m (print current mode) ")
+            print("Available modes: %s" % str(modes))
+            print()
             return
 
-        # Input
+        if command == 'q':
+            logging.info("Bye.")
+            sys.exit(0)
 
-        if self.mode == "primitive":
-            candidates = self.kc.story_search(line.split(' '))
-            for c in candidates:
-                print("%s: %s" % (self.kc.kanjiFromPos(c).kanji, self.kc.kanjiFromPos(c).meaning))
+        if command == '':
+            self.emptyline()
             return
 
-        # split up segments
+        if command[0] == '!':
+            os.system(command[1:])
+            return
+
+        if command == 'm':
+            logging.info("Current mode is %s." % self.mode)
+            return
+
+        for m in modes:
+            if command == modes[m][0]:
+                # ----------- switching not possible ---------------
+                if m in ['copy', 'www'] and not os.name == "posix":
+                    logging.warning("Mode %s currently only supported for linux." % m)
+                    logging.debug("You can adapt the corresponding function in the source code!")
+                    return
+                if m == 'primitive' and not self.kc.storiesAvailable:
+                    logging.warning("No user defined stories available. Mode unavailable.")
+                    return
+                
+                # ----------- switching possible -------------------
+                if self.mode == m:
+                    logging.info("Mode %s is already active." % self.mode)
+                    return
+                else:
+                    self.mode = m
+                    logging.info("Switched to mode %s." % self.mode)
+                    return
+
+        # if we come here, the command is not known.
+        logging.warning("Command not known. Type '.h' for help. \n")
+        return
+
+    def primitive(self, line):
+        candidates = self.kc.story_search(line.split(' '))
+        for candidate in candidates:
+            kanjiObj = self.kc.kanjiObjFromPos(candidate)
+            print("%s: %s" % (kanjiObj.kanji, kanjiObj.meaning))
+        return
+
+    def search(self, line):
+         # split up segments
         segs = line.split(' ')
 
         # save current mode to temporarily change mode
+        # if the current mode doesn't make sense in the context
+        # (e.g. lookup mode if more than one expression was found)
         tmp_mode = self.mode
 
         # Return line
@@ -306,19 +354,18 @@ class LookupCli(cmd.Cmd):
             if len(hits) == 0:
                 print("no hits. implement me!")
             if len(hits) == 1:
-                ans += self.kc.kanjiFromPos(hits[0]).kanji
+                ans += self.kc.kanjiObjFromPos(hits[0]).kanji
             else:
                 self.mode = "nothing"
 
                 if len(segs) == 1:
                     for h in hits:
-                        ans += "%s: %s\n" % (self.kc.kanjiFromPos(h).kanji, self.kc.kanjiFromPos(h).meaning)
+                        ans += "%s: %s\n" % (self.kc.kanjiObjFromPos(h).kanji, self.kc.kanjiObjFromPos(h).meaning)
                 else:
                     ans += str(hits)
 
         ans = ans.rstrip()
         print(ans)
-        print()
 
         if self.mode == 'copy':
             copy_to_clipboard(ans)
@@ -329,6 +376,7 @@ class LookupCli(cmd.Cmd):
 
         # reset mode
         self.mode = tmp_mode
+       
 
 if __name__ == '__main__':
     kc = KanjiCollection()
