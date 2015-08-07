@@ -92,9 +92,9 @@ class coloramaOverride(object):
         self.Style.BRIGHT = ""
         self.Style.RESET_ALL = ""
 
-colorama=coloramaOverride()
+colorama = coloramaOverride()
 try:
-    import coloramaa
+    import colorama
 except ImportError:
     logger.warning("Colorama module not found. No Support for colors.")
     logger.debug("Colorama is available at https://pypi.python.org/pypi/colorama.")
@@ -298,7 +298,8 @@ class LookupCli(cmd.Cmd):
         self.indent = 4
 
         # Color of the answers. Empty string: No color     
-        self.answerColor = colorama.Fore.RED     
+        self.answerColor = colorama.Fore.RED
+        self.answerColor2 = colorama.Fore.BLUE     
 
         # -----------------------------------------
 
@@ -356,10 +357,7 @@ class LookupCli(cmd.Cmd):
         but wrapping it into a function allows for e.g. coloring or
         indenting. """
 
-        if colorama and self.answerColor:
-            print(self.answerColor)
-        else:
-            print()
+        print(self.answerColor)
         
         lines = ans.split('\n')
         for line in lines:
@@ -368,10 +366,7 @@ class LookupCli(cmd.Cmd):
                 continue
             print(" "*4 + line) 
         
-        if colorama:
-            print(colorama.Style.RESET_ALL)
-        else:
-            print()
+        print(colorama.Style.RESET_ALL)
 
     # ----------- Handlers ---------------
 
@@ -458,8 +453,15 @@ class LookupCli(cmd.Cmd):
 
         # Return line
         ans = ""
+        segNo = -1
+        color = [self.answerColor, self.answerColor2]
 
         for seg in segs:
+            segNo += 1
+            
+            # alternating colors
+            ans += color[segNo % len(color)]
+
             hits = self.kc.search(seg)
 
             if len(hits) == 0:
@@ -478,12 +480,14 @@ class LookupCli(cmd.Cmd):
                     for h in hits:
                         ans += "%s: %s\n" % (self.kc.kanjiObjFromPos(h).kanji, self.kc.kanjiObjFromPos(h).meaning)
                 else:
-                    ans += '{'
+                    ans += ''
                     for h in hits:
-                        ans += "%s (%s), " % (self.kc.kanjiObjFromPos(h).kanji, self.kc.kanjiObjFromPos(h).meaning)
+                        ans += "%s/" % (self.kc.kanjiObjFromPos(h).kanji)
                     # strip last ', '
-                    ans = ans[:-2]
-                    ans += '}'
+                    ans = ans[:-1]
+                    ans += ''
+
+            ans += colorama.Style.RESET_ALL
 
         ans = ans.rstrip()
 
