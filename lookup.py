@@ -33,6 +33,8 @@ import csv
 import sys
 import cmd
 
+logger = logging.getLogger("lookup")
+
 # The 'romkan' module is used to convert hiragana to romanji (optional).
 # It is available at https://pypi.python.org/pypi/romkan
 try:
@@ -44,14 +46,51 @@ except ImportError:
 
 # The 'colorama' module is  used to display colors in a platform independent way (optional). 
 # It is available at https://pypi.python.org/pypi/colorama
+
+# In case we don't have colorama, we simply define a mock class
+from collections import namedtuple
+
+class coloramaOverride(object):
+    def __init__(self):
+        self.Fore = namedtuple("Fore", "BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE RESET")
+        self.Back = namedtuple("Back", "BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE RESET")
+        self.Style = namedtuple("Style", "DIM NORMAL BRIGHT RESET_ALL")
+        self.unset()
+    def unset(self):
+        self.Fore.BLACK = ""
+        self.Fore.RED = ""
+        self.Fore.GREEN = ""
+        self.Fore.YELLOW = ""
+        self.Fore.BLUE = ""
+        self.Fore.MAGENTA = ""
+        self.Fore.CYAN = ""
+        self.Fore.WHITE = ""
+        self.Fore.RESET = ""
+        self.Back.BLACK = ""
+        self.Back.RED = ""
+        self.Back.GREEN = ""
+        self.Back.YELLOW = ""
+        self.Back.BLUE = ""
+        self.Back.MAGENTA = ""
+        self.Back.CYAN = ""
+        self.Back.WHITE = ""
+        self.Back.RESET = ""
+        self.Style.DIM = ""
+        self.Style.NORMAL = ""
+        self.Style.BRIGHT = ""
+        self.Style.RESET_ALL = ""
+
+colorama=coloramaOverride()
 try:
-    import colorama
+    import coloramaa
 except ImportError:
-    colorama = None
     logger.warning("Colorama module not found. No Support for colors.")
     logger.debug("Colorama is available at https://pypi.python.org/pypi/colorama.")
 else:
     colorama.init()
+    
+
+
 
 
 # ---------- CUSTOMIZE ME --------
@@ -271,6 +310,14 @@ class LookupCli(cmd.Cmd):
     def default(self, line):
         """ Default function that gets called on the input. """
         
+        if ';' in line:
+            # multiple commands
+            # call this function recursively
+            lines = line.split(';')
+            for line in lines:
+                self.default(line)
+            return
+
         line = line.strip().lower()
 
         if not line:
