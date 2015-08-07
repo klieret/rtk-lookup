@@ -33,7 +33,19 @@ import csv
 import sys
 import cmd
 
+
+# have to predefine logger here
+# to log errors with colorama etc.
+# later (in __main__) the stream handler gets redefined
+
 logger = logging.getLogger("lookup")
+logger.setLevel(logging.DEBUG)
+sh = logging.StreamHandler()
+sh.setLevel(logging.DEBUG)
+fm = logging.Formatter("%(levelname)s: %(message)s")
+sh.setFormatter(fm)
+logger.addHandler(sh)
+logger.addHandler(sh)
 
 # The 'romkan' module is used to convert hiragana to romanji (optional).
 # It is available at https://pypi.python.org/pypi/romkan
@@ -89,9 +101,6 @@ except ImportError:
 else:
     colorama.init()
     
-
-
-
 
 # ---------- CUSTOMIZE ME --------
 
@@ -491,24 +500,19 @@ class LookupCli(cmd.Cmd):
        
         return ans
 
-
 if __name__ == '__main__':
 
     logger = logging.getLogger("lookup")
-    logger.setLevel(logging.DEBUG)
+    
+    # remove previous handler
+    logger.handlers = []
     
     sh = logging.StreamHandler()
     sh.setLevel(logging.DEBUG)
 
-    if colorama:
-        fm = logging.Formatter(colorama.Style.DIM + "%(levelname)s: %(message)s" + colorama.Style.RESET_ALL)
-    else:
-        fm = logging.Formatter("%(levelname)s: %(message)s")
-
+    fm = logging.Formatter(colorama.Style.DIM + "%(levelname)s: %(message)s" + colorama.Style.RESET_ALL)
     sh.setFormatter(fm)
     logger.addHandler(sh)
-
-
 
     # >>>>>> Load Data
     kc = KanjiCollection()
