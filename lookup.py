@@ -25,7 +25,6 @@ with:
 # todo: documentation of primitive mode
 # todo: which heisig version are we using?
 
-
 import os
 import os.path
 import logging
@@ -99,7 +98,31 @@ except ImportError:
     logger.debug("Colorama is available at https://pypi.python.org/pypi/colorama.")
 else:
     colorama.init()
-    
+
+def removeColor(string):
+    string = string.replace(colorama.Fore.BLACK, "")
+    string = string.replace(colorama.Fore.RED, "")
+    string = string.replace(colorama.Fore.GREEN, "")
+    string = string.replace(colorama.Fore.YELLOW, "")
+    string = string.replace(colorama.Fore.BLUE, "")
+    string = string.replace(colorama.Fore.MAGENTA, "")
+    string = string.replace(colorama.Fore.CYAN, "")
+    string = string.replace(colorama.Fore.WHITE, "")
+    string = string.replace(colorama.Fore.RESET, "")
+    string = string.replace(colorama.Back.BLACK, "")
+    string = string.replace(colorama.Back.RED, "")
+    string = string.replace(colorama.Back.GREEN, "")
+    string = string.replace(colorama.Back.YELLOW, "")
+    string = string.replace(colorama.Back.BLUE, "")
+    string = string.replace(colorama.Back.MAGENTA, "")
+    string = string.replace(colorama.Back.CYAN, "")
+    string = string.replace(colorama.Back.WHITE, "")
+    string = string.replace(colorama.Back.RESET, "")
+    string = string.replace(colorama.Style.DIM, "")
+    string = string.replace(colorama.Style.NORMAL, "")
+    string = string.replace(colorama.Style.BRIGHT, "")
+    string = string.replace(colorama.Style.RESET_ALL, "")
+    return string
 
 # ---------- CUSTOMIZE ME --------
 
@@ -504,9 +527,9 @@ class LookupCli(cmd.Cmd):
             ans += annotations
 
         if self.mode == 'copy':
-            copy_to_clipboard(ans)
+            copy_to_clipboard(removeColor(ans))
         elif self.mode == 'www':
-            lookup(ans)
+            lookup(removeColor(ans))
         elif self.mode == "nothing":
             pass
 
