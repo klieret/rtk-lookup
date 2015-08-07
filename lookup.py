@@ -281,10 +281,19 @@ class LookupCli(cmd.Cmd):
             self.command(command)
 
         elif self.mode == "primitive":
-            self.ansPrinter(self.primitive(line))
+            ans = self.primitive(line)
+            if ans:
+                self.ansPrinter(ans)
+            else:
+                self.ansPrinter("No result. ")
 
         else:
-            self.ansPrinter(self.search(line))
+            ans = self.search(line)
+            if ans:
+                self.ansPrinter(ans)
+            else:
+                self.ansPrinter("No result. ")
+
 
     def ansPrinter(self, ans):
         """ Prints the Kanji results. A simple print(ans) would do, 
