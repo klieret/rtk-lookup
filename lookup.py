@@ -61,7 +61,6 @@ except ImportError:
 
 # In case we don't have colorama, we simply define a mock class
 from collections import namedtuple
-
 class coloramaOverride(object):
     def __init__(self):
         self.Fore = namedtuple("Fore", "BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE RESET")
@@ -453,9 +452,9 @@ class LookupCli(cmd.Cmd):
 
         # Return line
         ans = ""
+        annotations = ""    # will be appended to ans at the end
         segNo = -1
         color = [self.answerColor, self.answerColor2]
-
         for seg in segs:
             segNo += 1
             
@@ -465,32 +464,44 @@ class LookupCli(cmd.Cmd):
             hits = self.kc.search(seg)
 
             if len(hits) == 0:
+                # no kanji matches the description. Konvert to hiragana.
                 if romkan:
                     ans += romkan.to_hiragana(seg)
                 else:
                     ans += seg
 
             elif len(hits) == 1:
+                # there is exactly 1 kanji matching the search pattern
                 ans += self.kc.kanjiObjFromPos(hits[0]).kanji
 
             else:
+                # there ist more than 1 kanji matching the search pattern
                 self.mode = "nothing"
 
                 if len(segs) == 1:
+                    # only one search pattern is given
                     for h in hits:
                         ans += "%s: %s\n" % (self.kc.kanjiObjFromPos(h).kanji, self.kc.kanjiObjFromPos(h).meaning)
                 else:
-                    ans += ''
+                    # multiple search pattern are given
+                    # group the matching kanji for a result that fits in one line
+                    ans += '('
                     for h in hits:
-                        ans += "%s/" % (self.kc.kanjiObjFromPos(h).kanji)
+                        ans += "%s" % (self.kc.kanjiObjFromPos(h).kanji)
                     # strip last ', '
                     ans = ans[:-1]
-                    ans += ''
+                    ans += ')'
+                    # give the keywords for the multiple search results
+                    # as an annotation below the answer line
+                    annotations += self.search(seg)
 
             ans += colorama.Style.RESET_ALL
 
-        ans = ans.rstrip()
-
+        ans = ans.strip()
+        annotations = annotations.strip()
+        if annotations:
+            ans += "\n\n-----------------\n"
+            ans += annotations
 
         if self.mode == 'copy':
             copy_to_clipboard(ans)
