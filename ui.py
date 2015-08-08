@@ -41,12 +41,13 @@ class LookupCli(cmd.Cmd):
         self.indent = 4
 
         # Color of the answers. Empty string: No color     
+        # todo: remove me
         self.answerColor = colorama.Fore.RED
         self.answerColor2 = colorama.Fore.BLUE     
 
-        # better implementation needs restrucuring of self.search
-        # self.SearchResultColors = [colorama.Fore.RED, colorama.Fore.BLUE]
-        # self.searchResultColors = [colorama.Fore.RED, colorama.Fore.BLUE]
+        self.defaultResultColor = colorama.Fore.RED
+        self.oneLineSearchResultColors = [colorama.Fore.RED, colorama.Fore.BLUE]
+        self.searchResultColors = [colorama.Fore.RED, colorama.Fore.BLUE]
 
 
         # -----------------------------------------
@@ -216,7 +217,7 @@ class LookupCli(cmd.Cmd):
         # and returned exactly 1 result?
         guaranteed_hit = True
 
-         # split up segments
+        # split up segments
         segs = line.split(' ')
 
         # save current mode to temporarily change mode
@@ -228,17 +229,20 @@ class LookupCli(cmd.Cmd):
         ans = ""
         annotations = ""    # will be appended to ans at the end
         segNo = -1
-        color = [self.answerColor, self.answerColor2]
+        
         for seg in segs:
             segNo += 1
             
-            # alternating colors
-            ans += color[segNo % len(color)]
+            # alternating colors for different segments of the one
+            # line search result representation
+            if len(segs) > 1:
+                ans += self.oneLineSearchResultColors[segNo % len(self.oneLineSearchResultColors)]
 
             hits = self.kc.search(seg)
 
             if len(hits) == 0:
                 # no kanji matches the description. Konvert to hiragana.
+                
                 guaranteed_hit = False
                 if romkan:
                     ans += romkan.to_hiragana(seg)
@@ -247,17 +251,31 @@ class LookupCli(cmd.Cmd):
 
             elif len(hits) == 1:
                 # there is exactly 1 kanji matching the search pattern
-                ans += self.kc.kanjiObjFromPos(hits[0]).kanji
+                
+                if len(segs) == 1:
+                    ans += self.oneLineSearchResultColors[0]
+
+                kanji = self.kc.kanjiObjFromPos(hits[0]).kanji
+                meaning = self.kc.kanjiObjFromPos(hits[0]).meaning
+                
+                ans += kanji
+                if any(letter in line for letter in ['?', '+']):
+                    annotations += "%s: %s\n" % (kanji, meaning)
 
             else:
                 # there ist more than 1 kanji matching the search pattern
+                
                 self.mode = "nothing"
                 guaranteed_hit = False
 
                 if len(segs) == 1:
                     # only one search pattern is given
+                    hNum = -1
                     for h in hits:
+                        hNum += 1
+                        ans += self.searchResultColors[hNum % len(self.searchResultColors)]
                         ans += "%s: %s\n" % (self.kc.kanjiObjFromPos(h).kanji, self.kc.kanjiObjFromPos(h).meaning)
+                
                 else:
                     # multiple search pattern are given
                     # group the matching kanji for a result that fits in one line
