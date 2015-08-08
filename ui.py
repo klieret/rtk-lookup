@@ -44,6 +44,11 @@ class LookupCli(cmd.Cmd):
         self.answerColor = colorama.Fore.RED
         self.answerColor2 = colorama.Fore.BLUE     
 
+        # better implementation needs restrucuring of self.search
+        # self.SearchResultColors = [colorama.Fore.RED, colorama.Fore.BLUE]
+        # self.searchResultColors = [colorama.Fore.RED, colorama.Fore.BLUE]
+
+
         # -----------------------------------------
 
         self.mode = self.defaultMode
@@ -52,8 +57,9 @@ class LookupCli(cmd.Cmd):
         # dict of modes of the form long_form (don't change): [abbrev/command, description]
         self.modes = { 'default': ['d', 'do nothing'], 
                        'copy': ['c', 'Copy'], 
-                       'www': ['w', 'Lookup'],
-                       'primitive': ['p', 'lookup kanji by primitives']}
+                       'www': ['w', 'Lookup in the www.'],
+                       'primitive': ['p', 'lookup kanji by primitives'],
+                       'conditional': ['o', 'Lookup in the www if the search was guaranteed to be successful.']}
 
         self.search_history = [] 
 
@@ -177,6 +183,7 @@ class LookupCli(cmd.Cmd):
                 if not self.search_history:
                     logger.warning("Search history empty. Skipping that command. ")
                     return
+                logger.info('Handling "%s" with mode %s.' % (self.search_history[-1], m))
                 old_mode = self.mode
                 self.change_mode(m, silent=True)
                 self.default(self.search_history[-1])
@@ -205,6 +212,10 @@ class LookupCli(cmd.Cmd):
     def search(self, line):
         """ Looks for kanjis based on RTK indizes or meanings. """
 
+        # are we sure that the search was successful
+        # and returned exactly 1 result?
+        guaranteed_hit = True
+
          # split up segments
         segs = line.split(' ')
 
@@ -228,6 +239,7 @@ class LookupCli(cmd.Cmd):
 
             if len(hits) == 0:
                 # no kanji matches the description. Konvert to hiragana.
+                guaranteed_hit = False
                 if romkan:
                     ans += romkan.to_hiragana(seg)
                 else:
@@ -240,6 +252,7 @@ class LookupCli(cmd.Cmd):
             else:
                 # there ist more than 1 kanji matching the search pattern
                 self.mode = "nothing"
+                guaranteed_hit = False
 
                 if len(segs) == 1:
                     # only one search pattern is given
@@ -270,6 +283,12 @@ class LookupCli(cmd.Cmd):
             copy_to_clipboard(removeColor(ans))
         elif self.mode == 'www':
             lookup(removeColor(ans))
+        elif self.mode == "conditional":
+            if guaranteed_hit:
+                logger.info("Guaranteed hit. Looking up.")
+                lookup(removeColor(ans))
+            else:
+                logger.info("No guaranteed hit. Doing nothing.")
         elif self.mode == "nothing":
             pass
 
