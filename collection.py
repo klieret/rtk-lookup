@@ -11,6 +11,11 @@ for more information.
 **Copyright:** *ch4noyu* (<mailto:ch4noyu@yahoo.com>)
 
 **Licence:** GNU GPL, version 3 or later
+
+About This File
+---------------
+
+The database class.
 """
 
 import os

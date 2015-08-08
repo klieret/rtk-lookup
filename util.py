@@ -11,6 +11,14 @@ for more information.
 **Copyright:** *ch4noyu* (<mailto:ch4noyu@yahoo.com>)
 
 **Licence:** GNU GPL, version 3 or later
+
+About This File
+---------------
+
+Utility functions to copy things to the clipboard
+or look them up in the internet.
+Right they only work on Linux with firefox, so you might
+want to adapt them.
 """
 
 import os
