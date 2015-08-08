@@ -15,13 +15,13 @@ for more information.
 
 import cmd
 import sys
-
+import os
 
 global colorama
 global logger
 
 from modules import *
-
+from util import *
 
 class LookupCli(cmd.Cmd):
     """ The command line interface (Cli). """
@@ -120,6 +120,29 @@ class LookupCli(cmd.Cmd):
         """ Gets called if user presses <ENTER> without providing intput. """
         pass
 
+    def change_mode(self, mode, silent=False):
+        """ Changes self.mode to mode (long form). """
+        # ----------- switching not possible ---------------
+        if mode in ['copy', 'www'] and not os.name == "posix":
+            logger.warning("Mode %s currently only supported for linux." % mode)
+            logger.debug("You can adapt the corresponding function in the source code!")
+            return
+        if mode == 'primitive' and not self.kc.storiesAvailable:
+            logger.warning("No user defined stories available. Mode unavailable.")
+            return
+        
+        # ----------- switching possible -------------------
+        if self.mode == mode:
+            if not silent:
+                logger.info("Mode %s is already active." % self.mode)
+            return
+        else:
+            self.mode = mode
+            if not silent:
+                logger.info("Switched to mode %s." % self.mode)
+            self.update_prompt()
+            return
+
     def command(self, command):
         """ Gets called if line starts with self.commandSeparator. """
 
@@ -148,33 +171,16 @@ class LookupCli(cmd.Cmd):
 
         for m in self.modes:
             if command == self.modes[m][0]:
-                # ----------- switching not possible ---------------
-                if m in ['copy', 'www'] and not os.name == "posix":
-                    logger.warning("Mode %s currently only supported for linux." % m)
-                    logger.debug("You can adapt the corresponding function in the source code!")
-                    return
-                if m == 'primitive' and not self.kc.storiesAvailable:
-                    logger.warning("No user defined stories available. Mode unavailable.")
-                    return
-                
-                # ----------- switching possible -------------------
-                if self.mode == m:
-                    logger.info("Mode %s is already active." % self.mode)
-                    return
-                else:
-                    self.mode = m
-                    logger.info("Switched to mode %s." % self.mode)
-                    self.update_prompt()
-                    return
-            if command == self.commandSeparator + self.modes[m][0]:
-                # todo: only quick and dirty approach
+                self.change_mode(m)
+                return 
+            elif command == self.commandSeparator + self.modes[m][0]:
                 if not self.search_history:
                     logger.warning("Search history empty. Skipping that command. ")
                     return
                 old_mode = self.mode
-                self.default(self.commandSeparator+self.modes[m][0]+"; "+self.search_history[-1])
-                self.mode = old_mode
-                print(self.mode)
+                self.change_mode(m, silent=True)
+                self.default(self.search_history[-1])
+                self.change_mode(old_mode, silent=True)
                 return
 
         # if we come here, the command is not known.

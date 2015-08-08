@@ -28,7 +28,6 @@ import logging
 from collection import *
 from ui import *
 from modules import *
-from util import *
 
 global logger
 global colorama

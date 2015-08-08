@@ -13,6 +13,7 @@ for more information.
 **Licence:** GNU GPL, version 3 or later
 """
 
+import os
 
 def copy_to_clipboard(clip):
     """ Copies argument to clipboard. """
