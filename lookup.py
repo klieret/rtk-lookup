@@ -450,9 +450,14 @@ class LookupCli(cmd.Cmd):
                     return
             if command == self.commandSeparator + self.modes[m][0]:
                 # todo: only quick and dirty approach
+                if not self.search_history:
+                    logger.warning("Search history empty. Skipping that command. ")
+                    return
                 old_mode = self.mode
                 self.default(self.commandSeparator+self.modes[m][0]+"; "+self.search_history[-1])
                 self.mode = old_mode
+                print(self.mode)
+                return
 
         # if we come here, the command is not known.
         logger.warning("Command not known. Type '.h' for help.")
