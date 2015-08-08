@@ -20,10 +20,13 @@ with:
 
 """
 
+#pylint: disable-all
+
 # todo: update screenshot
 # todo: help
 # todo: documentation of primitive mode
 # todo: which heisig version are we using?
+# todo: mode switching more flexible
 
 import os
 import os.path
@@ -334,6 +337,8 @@ class LookupCli(cmd.Cmd):
                        'www': ['w', 'Lookup'],
                        'primitive': ['p', 'lookup kanji by primitives']}
 
+        self.search_history = [] 
+
     def update_prompt(self):
         """ Updates the prompt (self.promp) based on the mode. """
 
@@ -367,6 +372,7 @@ class LookupCli(cmd.Cmd):
                 self.ansPrinter("No result. ")
 
         else:
+            self.search_history.append(line)
             ans = self.search(line)
             if ans:
                 self.ansPrinter(ans)
@@ -442,6 +448,11 @@ class LookupCli(cmd.Cmd):
                     logger.info("Switched to mode %s." % self.mode)
                     self.update_prompt()
                     return
+            if command == self.commandSeparator + self.modes[m][0]:
+                # todo: only quick and dirty approach
+                old_mode = self.mode
+                self.default(self.commandSeparator+self.modes[m][0]+"; "+self.search_history[-1])
+                self.mode = old_mode
 
         # if we come here, the command is not known.
         logger.warning("Command not known. Type '.h' for help.")
