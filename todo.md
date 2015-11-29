@@ -1,0 +1,2 @@
+- let all methods return kanjiObjs instead of the position of the kanjiObj in the list (wth)
+- document story mode
