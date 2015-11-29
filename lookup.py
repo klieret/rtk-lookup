@@ -25,12 +25,6 @@ or (under linux, after ```chmod +x lookup.py```)
     ./lookup.py
 """
 
-# todo: update screenshot
-# todo: help
-# todo: documentation of primitive mode
-# todo: which heisig version are we using?
-# todo: mode switching more flexible
-
 import os
 import sys
 import logging
@@ -45,6 +39,8 @@ global colorama
 
 if __name__ == '__main__':
 
+    # else the datafile will not be found if the script is called
+    # from another location
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     logger = logging.getLogger("lookup")

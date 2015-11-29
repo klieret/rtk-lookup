@@ -39,6 +39,7 @@ class Kanji(object):
         self.meaning = None
         self.story = None
 
+
 class KanjiCollection(object):
     """ An object of this Class bundles many Kanji objects. """
     
@@ -185,6 +186,8 @@ class KanjiCollection(object):
                 results.append(i)
             i+=1
         return results
+
+    # ----------------------------- not yet used ------------------------------
 
     def kanjiObj_from_kanji(self, kanji):
         """ Returns kanjiObj corresponding to kanji $kanji. """
