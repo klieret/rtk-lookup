@@ -43,6 +43,7 @@ class KanjiCollection(object):
     """ An object of this Class bundles many Kanji objects. """
     
     def __init__(self):
+        # a plain list of Kanji objects
         self.kanjis = []
 
         # did we load any stories?
@@ -137,6 +138,7 @@ class KanjiCollection(object):
 
     # ------------- Search -------------------------------
 
+    # todo: this is weird, probably way better to return list of kanajiObj!
     def search(self, word):
         """
         Does the actual search.
@@ -167,7 +169,7 @@ class KanjiCollection(object):
 
         return found
 
-
+    # todo: this is weird, probably way better to return list of kanajiObj!
     def story_search(self, primitives):
         results = []
         i=0
@@ -183,3 +185,19 @@ class KanjiCollection(object):
                 results.append(i)
             i+=1
         return results
+
+    def kanjiObj_from_kanji(self, kanji):
+        """ Returns kanjiObj corresponding to kanji $kanji. """
+        for kanjiObj in self.kanjis:
+            if kanjiObj.kanji == kanji:
+                return kanjiObj
+        # not found:
+        return None
+
+    def story_from_kanji(self, kanji):
+        """ Returns story corresponding to kanji $kanji. """
+        kanjiObj = self.kanjiObj_from_kanji(kanji)
+        if kanjiObj:
+            return kanjiObj.story
+        else:
+            return None

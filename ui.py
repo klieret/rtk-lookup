@@ -65,7 +65,8 @@ class LookupCli(cmd.Cmd):
                        'copy': ['c', 'Copy'], 
                        'www': ['w', 'Lookup in the www.'],
                        'primitive': ['p', 'lookup kanji by primitives'],
-                       'conditional': ['o', 'Lookup in the www if the search was guaranteed to be successful.']}
+                       'conditional': ['o', 'Lookup in the www if the search was guaranteed to be successful.'],
+                       'story': ['s', 'Like default but also prints the story corresponding to the kanji.']}
 
         self.search_history = [] 
 
@@ -291,8 +292,12 @@ class LookupCli(cmd.Cmd):
                     ans = ans[:-1]
                     ans += ')'
                     # give the keywords for the multiple search results
-                    # as an annotation below the answer line
+                    # as an annotation below t he answer line
                     annotations += self.search(seg)
+
+            if self.mode == 'story':
+                for h in hits:
+                    annotations += "%s: %s\n" % (self.kc.kanjiObjFromPos(h).kanji, (self.kc.kanjiObjFromPos(h).story))
 
             ans += colorama.Style.RESET_ALL
 
