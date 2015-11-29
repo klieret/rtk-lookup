@@ -31,7 +31,7 @@ or (under linux, after ```chmod +x lookup.py```)
 # todo: which heisig version are we using?
 # todo: mode switching more flexible
 
-
+import os
 import sys
 import logging
 
@@ -44,6 +44,8 @@ global colorama
 
 
 if __name__ == '__main__':
+
+    os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     logger = logging.getLogger("lookup")
     
