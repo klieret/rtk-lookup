@@ -22,11 +22,7 @@ import os
 import os.path
 import sys
 import csv
-
-global logger
-
-from modules import *
-
+from log import logger
 
 class Kanji(object):
     """An object of this Class contains a kanji with the corresponding 

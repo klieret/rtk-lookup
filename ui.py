@@ -22,9 +22,8 @@ import cmd
 import sys
 import os
 
-global logger
 
-from modules import *
+from log import logger
 from util import *
 from collection import *
 from searchresults import SearchItem, SearchItemCollection

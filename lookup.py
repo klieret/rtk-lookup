@@ -29,7 +29,9 @@ import os
 import sys
 from ui import LookupCli
 from collection import KanjiCollection
-from modules import colorama, logging
+from log import logger
+import logging
+from _colorama import colorama
 
 if __name__ == '__main__':
 

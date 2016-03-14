@@ -5,66 +5,31 @@ import re
 from searchresults import SearchItemCollection, SearchItem
 from util import CyclicalList
 from log import logger
-
-# The 'colorama' module is  used to display colors in a platform independent way (optional).
-# It is available at https://pypi.python.org/pypi/colorama
-try:
-    import colorama
-except ImportError:
-    colorama = None
-    logger.warning("Colorama module not found. No Support for colors.")
-    logger.debug("Colorama is available at https://pypi.python.org/pypi/colorama.")
-else:
-    colorama.init()
-
-
-def remove_color(string: str) -> str:
-    """ Removes all formatting from input. Useful for
-    getting the length of a string.
-    :param string:
-    :return:
-    """
-    if not colorama:
-        return
-
-    colors = ["BLACK", "RED", "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE", "RESET", "BLACK", "RED", "GREEN",
-              "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE", "RESET", ]
-    styles = ["DIM", "NORMAL", "BRIGHT", "RESET_ALL"]
-
-    for color in colors:
-        string = string.replace(getattr(colorama.Fore, color), "")
-        string = string.replace(getattr(colorama.Back, color), "")
-    for style in styles:
-        string = string.replace(getattr(colorama.Style, style), "")
-
-    return string
-
+from collections import namedtuple
+from _colorama import colorama, remove_color
 
 class ResultPrinter(object):
-    def __init__(self, search_item_collection: SearchItemCollection, force_annotation=False):
+    def __init__(self, search_item_collection: SearchItemCollection):
         """
-        :param
+        :param search_item_collection: SearchItemCollection object containing the information about the search results.
         :return:None
         """
-        self.force_annotation = force_annotation
         self.search_results = search_item_collection
 
+        colors_type = namedtuple("colors", ["kanji", "kana", "broken",  "default"])
+
         if colorama:
-            self.kanji_colors = CyclicalList([colorama.Fore.RED, colorama.Fore.BLUE])
-            self.kana_colors = CyclicalList([colorama.Fore.CYAN])
-            self.not_found_colors = CyclicalList([colorama.Fore.YELLOW])
-            self.default_color = colorama.Style.RESET_ALL
+            self.colors = colors_type(kanji=CyclicalList([colorama.Fore.RED, colorama.Fore.BLUE]),
+                                      kana=CyclicalList([colorama.Fore.CYAN]),
+                                      broken=CyclicalList([colorama.Fore.YELLOW]),
+                                      default=colorama.Style.RESET_ALL)
         else:
-            # colorama not installed
-            self.kanji_colors = [""]
-            self.kana_colors = [""]
-            self.not_found_colors = [""]
-            self.default_color = ""
+            self.colors = colors_type(kanji=CyclicalList([""]),
+                                      kana=CyclicalList([""]),
+                                      broken=CyclicalList([""]),
+                                      default="")
 
-        self.color_by_type = {"kanji": self.kanji_colors, "kana": self.kana_colors, "broken": self.not_found_colors}
-
-
-        self.first_line = self.default_color
+        self.first_line = self.colors.default
         self.detail_groups = []  # type: list[list[str]]
 
         self.indent_all = 4
@@ -81,13 +46,13 @@ class ResultPrinter(object):
                 if not search_item.is_unique:
                     self.first_line += "("
                 for kanji in search_item.kanji:
-                    self.first_line += self.group_color(search_item) + kanji.kanji + self.default_color
+                    self.first_line += self.group_color(search_item) + kanji.kanji + self.colors.default
                 if not search_item.is_unique:
                     self.first_line += ")"
             elif search_item.has_kana:
-                self.first_line += self.group_color(search_item) + search_item.hiragana + self.default_color
+                self.first_line += self.group_color(search_item) + search_item.hiragana + self.colors.default
             elif search_item.is_broken:
-                self.first_line += self.group_color(search_item) + search_item.search + self.default_color
+                self.first_line += self.group_color(search_item) + search_item.search + self.colors.default
             else:
                 raise ValueError
 
@@ -100,7 +65,7 @@ class ResultPrinter(object):
                 nth += 1
 
     def group_color(self, item: SearchItem) -> str:
-        return self.color_by_type[item.type][self.nth_item_of_type(item)]
+        return getattr(self.colors, item.type)[self.nth_item_of_type(item)]
 
     def format_details(self):
         if not self.search_results.is_broken and self.search_results.multiple_searches and not \
@@ -116,8 +81,8 @@ class ResultPrinter(object):
         search_item = self.search_results.items[0]
         if search_item.has_kanji:
             for no, kanji in enumerate(search_item.kanji):
-                details.append("{}{}: {}{}".format(self.kanji_colors[no], kanji.kanji, kanji.meaning,
-                                                   self.default_color))
+                details.append("{}{}: {}{}".format(self.colors.kanji[no], kanji.kanji, kanji.meaning,
+                                                   self.colors.default))
         else:
             # shouldn't happen. everything else should be unique
             raise ValueError
@@ -130,13 +95,17 @@ class ResultPrinter(object):
                 for kanji in item.kanji:
                     # same coloring as the groups
                     details.append("{}{}: {}{}".format(self.group_color(item), kanji.kanji, kanji.meaning,
-                                                       self.default_color))
+                                                       self.colors.default))
                 self.detail_groups.append(details)
 
     @staticmethod
-    def approximate_string_length(string):
-        # works as long as there are no European characters
-        # todo: also take european characters into account
+    def approximate_string_length(string: str) -> int:
+        """ Note that kanji have about twice the width of European
+        characters. This Function returns the length of $string as a
+        multiple of the length of a European character.
+        :param string: String.
+        :return:
+        """
         string = remove_color(string)
         normal_regex = re.compile("[\u0020-\u007f]")
         return 2*len(string) - len(normal_regex.findall(string))
