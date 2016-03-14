@@ -52,7 +52,8 @@ except ImportError:
 
 # In case we don't have colorama, we simply define a mock class
 from collections import namedtuple
-class coloramaOverride(object):
+
+class ColoramaOverride(object):
     def __init__(self):
         self.Fore = namedtuple("Fore", "BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE RESET")
         self.Back = namedtuple("Back", "BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE RESET")
@@ -82,7 +83,7 @@ class coloramaOverride(object):
         self.Style.BRIGHT = ""
         self.Style.RESET_ALL = ""
 
-colorama = coloramaOverride()
+colorama = ColoramaOverride()
 try:
     import colorama
 except ImportError:
@@ -91,7 +92,8 @@ except ImportError:
 else:
     colorama.init()
 
-def removeColor(string):
+
+def remove_color(string):
     string = string.replace(colorama.Fore.BLACK, "")
     string = string.replace(colorama.Fore.RED, "")
     string = string.replace(colorama.Fore.GREEN, "")

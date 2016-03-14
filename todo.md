@@ -1,3 +1,4 @@
+- bug: first look up something with "+" etc., so that it has a comment, then use "..c", then copy will also copy the comment >> just save the last comment and answer separately!
 - let all methods return kanjiObjs instead of the position of the kanjiObj in the list (wth)
 - document story mode
 - running on mobile

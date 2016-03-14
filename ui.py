@@ -28,18 +28,19 @@ global logger
 from modules import *
 from util import *
 
+
 class LookupCli(cmd.Cmd):
-    """ The command line interface (Cli). """
+    """The command line interface (Cli). """
 
     def __init__(self, kc):
-        super().__init__()
+        cmd.Cmd.__init__(self)
 
         # KanjiCollection
         self.kc = kc
 
         # ----------- Configure me ----------------
 
-        self.defaultMode = 'default'
+        self.default_mode = 'default'
         self.commandSeparator = "."
 
         # "Answers" get indented by this amount of spaces
@@ -54,30 +55,29 @@ class LookupCli(cmd.Cmd):
         self.oneLineSearchResultColors = [colorama.Fore.RED, colorama.Fore.BLUE]
         self.searchResultColors = [colorama.Fore.RED, colorama.Fore.BLUE]
 
-
-        # -----------------------------------------
-
-        self.mode = self.defaultMode
+        self.mode = self.default_mode
         self.update_prompt()
 
         # dict of modes of the form long_form (don't change): [abbrev/command, description]
-        self.modes = { 'default': ['d', 'do nothing'], 
-                       'copy': ['c', 'Copy'], 
-                       'www': ['w', 'Lookup in the www.'],
-                       'primitive': ['p', 'lookup kanji by primitives'],
-                       'conditional': ['o', 'Lookup in the www if the search was guaranteed to be successful.'],
-                       'story': ['s', 'Like default but also prints the story corresponding to the kanji.']}
+        self.modes = {'default': ['d', 'do nothing'],
+                      'copy': ['c', 'Copy'],
+                      'www': ['w', 'Lookup in the www.'],
+                      'primitive': ['p', 'lookup kanji by primitives'],
+                      'conditional': ['o', 'Lookup in the www if the search was guaranteed to be successful.'],
+                      'story': ['s', 'Like default but also prints the story corresponding to the kanji.']}
 
         self.search_history = [] 
 
     def update_prompt(self):
-        """ Updates the prompt (self.promp) based on the mode. """
-
+        """Updates the prompt (self.promp) based on the mode.
+        """
         self.prompt = "[%s] " % self.mode
 
     def default(self, line):
-        """ Default function that gets called on the input. """
-        
+        """Default function that gets called on the input.
+        :param line:
+        :return:
+        """
         if ';' in line:
             # multiple commands
             # call this function recursively
@@ -98,24 +98,25 @@ class LookupCli(cmd.Cmd):
         elif self.mode == "primitive":
             ans = self.primitive(line)
             if ans:
-                self.ansPrinter(ans)
+                self.ans_printer(ans)
             else:
-                self.ansPrinter("No result. ")
+                self.ans_printer("No result. ")
 
         else:
             self.search_history.append(line)
             ans = self.search(line)
             if ans:
-                self.ansPrinter(ans)
+                self.ans_printer(ans)
             else:
-                self.ansPrinter("No result. ")
+                self.ans_printer("No result. ")
 
-
-    def ansPrinter(self, ans):
-        """ Prints the Kanji results. A simple print(ans) would do, 
+    def ans_printer(self, ans):
+        """Prints the Kanji results. A simple print(ans) would do, 
         but wrapping it into a function allows for e.g. coloring or
-        indenting. """
-
+        indenting.
+        :param ans
+        :return None
+        """
         print(self.answerColor)
         
         lines = ans.split('\n')
@@ -130,11 +131,17 @@ class LookupCli(cmd.Cmd):
     # ----------- Handlers ---------------
 
     def emptyline(self):
-        """ Gets called if user presses <ENTER> without providing intput. """
+        """Gets called if user presses <ENTER> without providing intput.
+        :return: None
+        """
         pass
 
     def change_mode(self, mode, silent=False):
-        """ Changes self.mode to mode (long form). """
+        """Changes self.mode to mode (long form).
+        :param mode
+        :param silent
+        :return
+        """
         # ----------- switching not possible ---------------
         if mode in ['copy', 'www'] and not os.name == "posix":
             logger.warning("Mode %s currently only supported for linux." % mode)
@@ -157,8 +164,10 @@ class LookupCli(cmd.Cmd):
             return
 
     def command(self, command):
-        """ Gets called if line starts with self.commandSeparator. """
-
+        """Gets called if line starts with self.commandSeparator.
+        :param command
+        :return
+        """
         if command == 'h':
             print("Basic commands: .q (quit), .h (help), .!<command> (run command in shell), .m (print current mode) ")
             print("Available modes:")
@@ -202,8 +211,10 @@ class LookupCli(cmd.Cmd):
         return
 
     def primitive(self, line):
-        """ Looks for kanjis based on primitives. """
-        
+        """Looks for kanjis based on primitives.
+        :param line
+        :return
+        """
         # Kanjis that match the description
         candidates = self.kc.story_search(line.split(' '))
         
@@ -211,14 +222,16 @@ class LookupCli(cmd.Cmd):
         ans = ""
 
         for candidate in candidates:
-            kanjiObj = self.kc.kanjiObjFromPos(candidate)
-            ans += "%s: %s\n" % (kanjiObj.kanji, kanjiObj.meaning)
+            kanji_obj = self.kc.kanji_obj_from_pos(candidate)
+            ans += "%s: %s\n" % (kanji_obj.kanji, kanji_obj.meaning)
         
         return ans
 
     def search(self, line):
-        """ Looks for kanjis based on RTK indizes or meanings. """
-
+        """Looks for kanjis based on RTK indizes or meanings.
+        :param line
+        :return
+        """
         # are we sure that the search was successful
         # and returned exactly 1 result?
         guaranteed_hit = True
@@ -234,15 +247,15 @@ class LookupCli(cmd.Cmd):
         # Return line
         ans = ""
         annotations = ""    # will be appended to ans at the end
-        segNo = -1
+        seg_no = -1
         
         for seg in segs:
-            segNo += 1
+            seg_no += 1
             
             # alternating colors for different segments of the one
             # line search result representation
             if len(segs) > 1:
-                ans += self.oneLineSearchResultColors[segNo % len(self.oneLineSearchResultColors)]
+                ans += self.oneLineSearchResultColors[seg_no % len(self.oneLineSearchResultColors)]
 
             hits = self.kc.search(seg)
 
@@ -261,8 +274,8 @@ class LookupCli(cmd.Cmd):
                 if len(segs) == 1:
                     ans += self.oneLineSearchResultColors[0]
 
-                kanji = self.kc.kanjiObjFromPos(hits[0]).kanji
-                meaning = self.kc.kanjiObjFromPos(hits[0]).meaning
+                kanji = self.kc.kanji_obj_from_pos(hits[0]).kanji
+                meaning = self.kc.kanji_obj_from_pos(hits[0]).meaning
                 
                 ans += kanji
                 if any(letter in line for letter in ['?', '+']):
@@ -276,18 +289,18 @@ class LookupCli(cmd.Cmd):
 
                 if len(segs) == 1:
                     # only one search pattern is given
-                    hNum = -1
+                    h_num = -1
                     for h in hits:
-                        hNum += 1
-                        ans += self.searchResultColors[hNum % len(self.searchResultColors)]
-                        ans += "%s: %s\n" % (self.kc.kanjiObjFromPos(h).kanji, self.kc.kanjiObjFromPos(h).meaning)
+                        h_num += 1
+                        ans += self.searchResultColors[h_num % len(self.searchResultColors)]
+                        ans += "%s: %s\n" % (self.kc.kanji_obj_from_pos(h).kanji, self.kc.kanji_obj_from_pos(h).meaning)
                 
                 else:
                     # multiple search pattern are given
                     # group the matching kanji for a result that fits in one line
                     ans += '('
                     for h in hits:
-                        ans += "%s" % (self.kc.kanjiObjFromPos(h).kanji)
+                        ans += "%s" % self.kc.kanji_obj_from_pos(h).kanji
                     # strip last ', '
                     ans = ans[:-1]
                     ans += ')'
@@ -297,7 +310,8 @@ class LookupCli(cmd.Cmd):
 
             if self.mode == 'story':
                 for h in hits:
-                    annotations += "%s: %s\n" % (self.kc.kanjiObjFromPos(h).kanji, (self.kc.kanjiObjFromPos(h).story))
+                    annotations += "%s: %s\n" % (self.kc.kanji_obj_from_pos(h).kanji,
+                                                 self.kc.kanji_obj_from_pos(h).story)
 
             ans += colorama.Style.RESET_ALL
 
@@ -308,13 +322,13 @@ class LookupCli(cmd.Cmd):
             ans += annotations
 
         if self.mode == 'copy':
-            copy_to_clipboard(removeColor(ans))
+            copy_to_clipboard(remove_color(ans))
         elif self.mode == 'www':
-            lookup(removeColor(ans))
+            lookup(remove_color(ans))
         elif self.mode == "conditional":
             if guaranteed_hit:
                 logger.info("Guaranteed hit. Looking up.")
-                lookup(removeColor(ans))
+                lookup(remove_color(ans))
             else:
                 logger.info("No guaranteed hit. Doing nothing.")
         elif self.mode == "nothing":

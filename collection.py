@@ -30,9 +30,9 @@ from modules import *
 
 
 class Kanji(object):
-    """ An object of this Class contains a kanji with the corresponding 
-    information (index, meaning, story etc.) """
-    
+    """An object of this Class contains a kanji with the corresponding 
+    information (index, meaning, story etc.)
+    """
     def __init__(self, kanji):
         self.kanji = kanji            
         self.index = None
@@ -41,73 +41,76 @@ class Kanji(object):
 
 
 class KanjiCollection(object):
-    """ An object of this Class bundles many Kanji objects. """
-    
+    """An object of this Class bundles many Kanji objects.
+    """
     def __init__(self):
         # a plain list of Kanji objects
         self.kanjis = []
 
         # did we load any stories?
-        self.storiesAvailable = False 
+        self.stories_available = False
 
     # ------------- Load information from files -------------------------------
 
-    def updateRTK(self):
-        """ Load the file that contains the RTK kanji, indizes and meanings. """
+    def update_rtk(self):
+        """Load the file that contains the RTK kanji, indizes and meanings.
+        """
 
         # --------- CONFIGURE ME ---------
 
-        rtkFile = "RTK.tsv"
+        rtk_file = "RTK.tsv"
         delimeter = '\t'
-        kanjiColumn = 0
-        indexColumn = 1
-        meaningColumn = 3
+        kanji_column = 0
+        index_column = 1
+        meaning_column = 3
 
         # --------------------------------
         
-        if not os.path.exists(rtkFile):
-            logger.fatal("File %s (to contain heisig indizes) not found. Exiting." % rtkFile)
+        if not os.path.exists(rtk_file):
+            logger.fatal("File %s (to contain heisig indizes) not found. Exiting." % rtk_file)
             sys.exit(1)
         
-        with open(rtkFile, 'r') as csvfile:
+        with open(rtk_file, 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=delimeter)
             for row in reader:
-                kanji = row[kanjiColumn].strip()
-                index = row[indexColumn].strip()
-                meaning = row[meaningColumn].strip().lower()
+                kanji = row[kanji_column].strip()
+                index = row[index_column].strip()
+                meaning = row[meaning_column].strip().lower()
                 
-                kanjiObj = Kanji(kanji)
-                kanjiObj.index = index
-                kanjiObj.meaning = meaning
+                kanji_obj = Kanji(kanji)
+                kanji_obj.index = index
+                kanji_obj.meaning = meaning
 
-                self.kanjis.append(kanjiObj)
+                self.kanjis.append(kanji_obj)
 
-    def updateStories(self):
-        """ Load file that contains the RTK kanji, indizes and meanings. """
+    def update_stories(self):
+        """Load file that contains the RTK kanji, indizes and meanings.
+        """
 
         # --------- CONFIGURE ME ---------
 
-        storyFile = "kanji_stories.tsv"
+        story_file = "kanji_stories.tsv"
         delimeter = '\t'
-        kanjiColumn = 0
-        storyColumn = 3
+        kanji_column = 0
+        story_column = 3
 
         # --------------------------------
         
-        if not os.path.exists(storyFile):
-            logger.warning("File %s (contains user stories) not found. Primitive mode will be unavailable." % storyFile)
-            self.storiesAvailable = False
+        if not os.path.exists(story_file):
+            logger.warning("File %s (contains user stories) not found. Primitive mode will be unavailable." %
+                           story_file)
+            self.stories_available = False
             return
         else:
-            self.storiesAvailable = True
+            self.stories_available = True
         
-        with open(storyFile, 'r') as csvfile:
+        with open(story_file, 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=delimeter)
             for row in reader:
-                kanji = row[kanjiColumn].strip()
-                story = row[storyColumn].strip().lower()
+                kanji = row[kanji_column].strip()
+                story = row[story_column].strip().lower()
 
-                pos = self.posFromKanji(kanji) 
+                pos = self.pos_from_kanji(kanji)
                 if pos:
                     self.kanjis[pos].story = story
                 else:
@@ -117,22 +120,25 @@ class KanjiCollection(object):
     # Most functions (e.g. search, etc.) will return the position
     # of the KanjiObj corresponding to the matched kanjis in self.kanjis.
 
-
-    def kanjiObjFromPos(self, pos):
-        """ Returns the kanji belonging to the KanjiObj at position pos 
-        in self.kanjis. """
-        
+    def kanji_obj_from_pos(self, pos):
+        """Returns the kanji belonging to the KanjiObj at position pos 
+        in self.kanjis.
+        :param pos
+        :return None
+        """
         return self.kanjis[pos]
 
-    def posFromKanji(self, kanji):
-        """ Given a kanji, returns the position of the corresponding
-        Object of class 'Kanji' in self.kanjis. """
-
+    def pos_from_kanji(self, kanji):
+        """Given a kanji, returns the position of the corresponding
+        Object of class 'Kanji' in self.kanjis.
+        :param kanji
+        :return None
+        """
         i = 0
-        for kanjiObj in self.kanjis:
-            if kanjiObj.kanji == kanji:
+        for kanji_obj in self.kanjis:
+            if kanji_obj.kanji == kanji:
                 return i
-            i+=1
+            i += 1
 
         # if not found:
         return None
@@ -151,56 +157,62 @@ class KanjiCollection(object):
         found = []
 
         i = 0
-        for kanjiObj in self.kanjis:
+        for kanji_obj in self.kanjis:
             if word.isdigit():
                 # searching for RTK index
-                if kanjiObj.index == word:
+                if kanji_obj.index == word:
                     found.append(i)
             else:
                 if word[-1] == "?":
-                    if word[:-1] in str(kanjiObj.meaning):
+                    if word[:-1] in str(kanji_obj.meaning):
                         found.append(i)
                 elif word[-1] == "+":
-                    if word[:-1] in str(kanjiObj.meaning).split(' '):
+                    if word[:-1] in str(kanji_obj.meaning).split(' '):
                         found.append(i)
                 else:
-                    if word == str(kanjiObj.meaning):
+                    if word == str(kanji_obj.meaning):
                         found.append(i)
-            i+=1
+            i += 1
 
         return found
 
     # todo: this is weird, probably way better to return list of kanajiObj!
     def story_search(self, primitives):
         results = []
-        i=0
-        for kanjiObj in self.kanjis:
+        i = 0
+        for kanji_obj in self.kanjis:
             found = True
             for p in primitives:
-                if kanjiObj.story:
-                    if not p.replace("_", " ") in kanjiObj.story:
+                if kanji_obj.story:
+                    if not p.replace("_", " ") in kanji_obj.story:
                         found = False
                 else:
                     found = False
             if found:
                 results.append(i)
-            i+=1
+            i += 1
         return results
 
     # ----------------------------- not yet used ------------------------------
 
-    def kanjiObj_from_kanji(self, kanji):
-        """ Returns kanjiObj corresponding to kanji $kanji. """
-        for kanjiObj in self.kanjis:
-            if kanjiObj.kanji == kanji:
-                return kanjiObj
+    def kanji_obj_from_kanji(self, kanji):
+        """Returns kanji_obj corresponding to kanji $kanji.
+        :param kanji
+        :return None
+        """
+        for kanji_obj in self.kanjis:
+            if kanji_obj.kanji == kanji:
+                return kanji_obj
         # not found:
         return None
 
     def story_from_kanji(self, kanji):
-        """ Returns story corresponding to kanji $kanji. """
-        kanjiObj = self.kanjiObj_from_kanji(kanji)
-        if kanjiObj:
-            return kanjiObj.story
+        """Returns story corresponding to kanji $kanji.
+        :param kanji
+        :return None
+        """
+        kanji_obj = self.kanji_obj_from_kanji(kanji)
+        if kanji_obj:
+            return kanji_obj.story
         else:
             return None
