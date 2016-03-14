@@ -31,14 +31,14 @@ from modules import *
 
 class Kanji(object):
     """An object of this Class contains a kanji with the corresponding 
-    information (index, meaning, story etc.)
+    information (index, meaning, story etc).
     """
     def __init__(self, kanji):
         # todo: default values should be "" not None
         self.kanji = kanji
-        self.index = None
-        self.meaning = None
-        self.story = None
+        self.index = ""
+        self.meaning = ""
+        self.story = ""
 
     def __equal__(self, other):
         return self.kanji == other.kanji
@@ -50,7 +50,6 @@ class KanjiCollection(object):
     def __init__(self):
         # a plain list of Kanji objects
         self.kanjis = []
-        # todo: maybe instead of having a list of kanji objects, have lists for all of the csv files rows instead, which makes searching easier and then only combine later on.
 
         # did we load any stories?
         self.stories_available = False
@@ -122,38 +121,23 @@ class KanjiCollection(object):
                 else:
                     logger.warning("Could not update story for %s." % kanji)
 
-    # ------------- pos <> .... -------------------------------
-    # Most functions (e.g. search, etc.) will return the position
-    # of the KanjiObj corresponding to the matched kanjis in self.kanjis.
-
-    def kanji_obj_from_pos(self, pos):
-        """Returns the kanji belonging to the KanjiObj at position pos 
-        in self.kanjis.
-        :param pos
-        :return None
-        """
-        return self.kanjis[pos]
-
-    # todo: shouldn't that be search_kanji (also do we ever use that?)
+    # used to update values in self.kanjis
     def pos_from_kanji(self, kanji):
         """Given a kanji, returns the position of the corresponding
         Object of class 'Kanji' in self.kanjis.
         :param kanji
-        :return None
+        :return kanji object or None
         """
-        # todo: use enumerate instead
-        i = 0
-        for kanji_obj in self.kanjis:
+        for index, kanji_obj in enumerate(self.kanjis):
             if kanji_obj.kanji == kanji:
-                return i
-            i += 1
+                return index
 
         # if not found:
         return None
 
     # ------------- Search -------------------------------
 
-    # todo: split up w.r.t. to type of search item >> faster
+    # todo: instead have (word, mode) as parameters and also do '_' replace before. not job of collection
     def search(self, word):
         """
         Does the actual search.
@@ -164,32 +148,44 @@ class KanjiCollection(object):
         word = word.replace('_', ' ')
         found = []
 
-        # todo: use enumerate instead
-        i = 0
-        for kanji_obj in self.kanjis:
-            if word.isdigit():
-                # searching for RTK index
+        if word.isdigit():
+            # searching for RTK index
+            for kanji_obj in self.kanjis:
                 if kanji_obj.index == word:
-                    found.append(i)
-            else:
-                if word[-1] == "?":
-                    # todo: why call str() here? Default values for all attributes should be "", not None
-                    if word[:-1] in str(kanji_obj.meaning):
-                        found.append(i)
-                elif word[-1] == "+":
-                    if word[:-1] in str(kanji_obj.meaning).split(' '):
-                        found.append(i)
-                else:
-                    if word == str(kanji_obj.meaning):
-                        found.append(i)
-            i += 1
+                    found.append(kanji_obj)
+
+        elif word[-1] == "?":
+            sword = word[:-1]
+            for kanji_obj in self.kanjis:
+                if sword in kanji_obj.meaning:
+                    found.append(kanji_obj)
+
+        elif word[-1] == "+":
+            sword = word[:-1]
+            for kanji_obj in self.kanjis:
+                if sword in kanji_obj.meaning.split(' '):
+                    found.append(kanji_obj)
+
+        elif word[-1] == "%":
+            sword = word[:-1]
+            for kanji_obj in self.kanjis:
+                is_found = True
+                for letter in sword:
+                    if not kanji_obj.meaning.count(letter) == sword.count(letter):
+                        is_found = False
+                if is_found:
+                    found.append(kanji_obj)
+
+        else:
+            for kanji_obj in self.kanjis:
+                if word == kanji_obj.meaning:
+                    found.append(kanji_obj)
 
         return found
 
+    # todo: docstring
     def primitive_search(self, primitives):
         results = []
-        # todo: use enumerate
-        i = 0
         for kanji_obj in self.kanjis:
             found = True
             for p in primitives:
@@ -199,30 +195,16 @@ class KanjiCollection(object):
                 else:
                     found = False
             if found:
-                results.append(i)
-            i += 1
+                results.append(kanji_obj)
         return results
-
-    # ----------------------------- not yet used ------------------------------
 
     def kanji_obj_from_kanji(self, kanji):
         """Returns kanji_obj corresponding to kanji $kanji.
         :param kanji
         :return None
         """
-        for kanji_obj in self.kanjis:
-            if kanji_obj.kanji == kanji:
-                return kanji_obj
-        # not found:
-        return None
-
-    def story_from_kanji(self, kanji):
-        """Returns story corresponding to kanji $kanji.
-        :param kanji
-        :return None
-        """
-        kanji_obj = self.kanji_obj_from_kanji(kanji)
-        if kanji_obj:
-            return kanji_obj.story
+        pos = self.pos_from_kanji(kanji)
+        if pos is not None:
+            return self.kanjis[pos]
         else:
             return None

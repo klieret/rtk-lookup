@@ -96,10 +96,10 @@ class LookupCli(cmd.Cmd):
 
         elif line.startswith(self.commandSeparator):
             command = line[1:].split(" ")[0]
+            self.command(command)
             if " " in line:
                 rest = ' '.join(line[1:].split(" ")[1:])
-            self.command(command)
-            self.default(rest)
+                self.default(rest)
 
         elif self.mode == "primitive":
             ans = self.primitive(line)
@@ -230,8 +230,7 @@ class LookupCli(cmd.Cmd):
         ans = ""
 
         for candidate in candidates:
-            kanji_obj = self.kc.kanji_obj_from_pos(candidate)
-            ans += "%s: %s\n" % (kanji_obj.kanji, kanji_obj.meaning)
+            ans += "%s: %s\n" % (candidate.kanji, candidate.meaning)
         
         return ans
 
@@ -282,8 +281,8 @@ class LookupCli(cmd.Cmd):
                 if len(segs) == 1:
                     ans += self.oneLineSearchResultColors[0]
 
-                kanji = self.kc.kanji_obj_from_pos(hits[0]).kanji
-                meaning = self.kc.kanji_obj_from_pos(hits[0]).meaning
+                kanji = hits[0].kanji
+                meaning = hits[0].meaning
                 
                 ans += kanji
                 if any(letter in line for letter in ['?', '+']):
@@ -301,14 +300,14 @@ class LookupCli(cmd.Cmd):
                     for h in hits:
                         h_num += 1
                         ans += self.searchResultColors[h_num % len(self.searchResultColors)]
-                        ans += "%s: %s\n" % (self.kc.kanji_obj_from_pos(h).kanji, self.kc.kanji_obj_from_pos(h).meaning)
+                        ans += "%s: %s\n" % (h.kanji, h.meaning)
                 
                 else:
                     # multiple search pattern are given
                     # group the matching kanji for a result that fits in one line
                     ans += '('
                     for h in hits:
-                        ans += "%s" % self.kc.kanji_obj_from_pos(h).kanji
+                        ans += "%s" % h.kanji
                     # strip last ', '
                     ans = ans[:-1]
                     ans += ')'
@@ -318,8 +317,8 @@ class LookupCli(cmd.Cmd):
 
             if self.mode == 'story':
                 for h in hits:
-                    annotations += "%s: %s\n" % (self.kc.kanji_obj_from_pos(h).kanji,
-                                                 self.kc.kanji_obj_from_pos(h).story)
+                    annotations += "%s: %s\n" % (h.kanji,
+                                                 h.story)
 
             ans += colorama.Style.RESET_ALL
 
