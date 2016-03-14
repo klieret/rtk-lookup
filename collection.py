@@ -34,7 +34,6 @@ class Kanji(object):
     information (index, meaning, story etc).
     """
     def __init__(self, kanji):
-        # todo: default values should be "" not None
         self.kanji = kanji
         self.index = ""
         self.meaning = ""
@@ -42,6 +41,12 @@ class Kanji(object):
 
     def __equal__(self, other):
         return self.kanji == other.kanji
+
+    def __str__(self):
+        return "<Kanji object for kanji {}>".format(self.kanji)
+
+    def __hash__(self):
+        return self.kanji.__hash__()
 
 
 class KanjiCollection(object):
@@ -71,7 +76,7 @@ class KanjiCollection(object):
         # --------------------------------
         
         if not os.path.exists(rtk_file):
-            logger.fatal("File %s (to contain heisig indizes) not found. Exiting." % rtk_file)
+            logger.fatal("File %s (meant to contain heisig indizes) not found. Exiting." % rtk_file)
             sys.exit(1)
         
         with open(rtk_file, 'r') as csvfile:
@@ -105,8 +110,8 @@ class KanjiCollection(object):
                            story_file)
             self.stories_available = False
             return
-        else:
-            self.stories_available = True
+
+        self.stories_available = True
         
         with open(story_file, 'r') as csvfile:
             # todo: use unicode normalisation?
