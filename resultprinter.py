@@ -1,16 +1,43 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
-from modules import colorama, remove_color
-from searchresults import SearchItemCollection, SearchItem
 import re
+from searchresults import SearchItemCollection, SearchItem
+from util import CyclicalList
+from log import logger
 
-class CyclicalList(list):
-    def __init__(self, *args, **kwargs):
-        list.__init__(self, *args, **kwargs)
+# The 'colorama' module is  used to display colors in a platform independent way (optional).
+# It is available at https://pypi.python.org/pypi/colorama
+try:
+    import colorama
+except ImportError:
+    colorama = None
+    logger.warning("Colorama module not found. No Support for colors.")
+    logger.debug("Colorama is available at https://pypi.python.org/pypi/colorama.")
+else:
+    colorama.init()
 
-    def __getitem__(self, item):
-        return list.__getitem__(self, item % len(self))
+
+def remove_color(string: str) -> str:
+    """ Removes all formatting from input. Useful for
+    getting the length of a string.
+    :param string:
+    :return:
+    """
+    if not colorama:
+        return
+
+    colors = ["BLACK", "RED", "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE", "RESET", "BLACK", "RED", "GREEN",
+              "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE", "RESET", ]
+    styles = ["DIM", "NORMAL", "BRIGHT", "RESET_ALL"]
+
+    for color in colors:
+        string = string.replace(getattr(colorama.Fore, color), "")
+        string = string.replace(getattr(colorama.Back, color), "")
+    for style in styles:
+        string = string.replace(getattr(colorama.Style, style), "")
+
+    return string
 
 
 class ResultPrinter(object):

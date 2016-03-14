@@ -1,10 +1,19 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
-from modules import romkan
 import re
 from collection import Kanji
-# todo: docstrings
+from log import logger
+
+# The 'romkan' module is used to convert hiragana to romanji (optional).
+# It is available at https://pypi.python.org/pypi/romkan
+try:
+    import romkan
+except ImportError:
+    romkan = None
+    logger.warning("Romkan module not found. No Support for hiragana.")
+    logger.debug("Romkan is available at https://pypi.python.org/pypi/romkan.")
+
 
 
 class SearchItem(object):

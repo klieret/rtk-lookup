@@ -27,15 +27,9 @@ or (under linux, after ```chmod +x lookup.py```)
 
 import os
 import sys
-import logging
-
-from collection import *
-from ui import *
-from modules import *
-
-global logger
-global colorama
-
+from ui import LookupCli
+from collection import KanjiCollection
+from modules import colorama, logging
 
 if __name__ == '__main__':
 
@@ -50,12 +44,15 @@ if __name__ == '__main__':
     
     sh = logging.StreamHandler()
     sh.setLevel(logging.DEBUG)
-    # todo: colorama
-    fm = logging.Formatter(colorama.Style.DIM + "%(levelname)s: %(message)s" + colorama.Style.RESET_ALL)
+
+    if colorama:
+        fm = logging.Formatter(colorama.Style.DIM + "%(levelname)s: %(message)s" + colorama.Style.RESET_ALL)
+    else:
+        fm = logging.Formatter("%(levelname)s: %(message)s")
+
     sh.setFormatter(fm)
     logger.addHandler(sh)
 
-    # >>>>>> Load Data
     kc = KanjiCollection()
     logger.debug("Loading rtk data...")
     kc.load_file_rtk()
@@ -68,6 +65,7 @@ if __name__ == '__main__':
         LookupCli(kc).cmdloop()
     
     else:
+        # experimental
         # There were arguments > look them up
         logger.setLevel(logging.CRITICAL)
         lines = ' '.join(sys.argv[1:]).split(",")
