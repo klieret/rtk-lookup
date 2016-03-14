@@ -27,6 +27,7 @@ global logger
 from modules import *
 from util import *
 from collection import *
+from searchresults import SearchItem, SearchItemCollection
 
 # todo: force annotations
 
@@ -99,8 +100,9 @@ class LookupCli(cmd.Cmd):
             self.search(line)
 
     @staticmethod
-    def print_results(result_groups, force_annotation=False):
-        rp = ResultPrinter(result_groups, force_annotation=force_annotation)
+    def print_results(search_item_collection):
+        # print(search_item_collection)
+        rp = ResultPrinter(search_item_collection)
         rp.print()
 
     # ----------- Handlers ---------------
@@ -175,52 +177,35 @@ class LookupCli(cmd.Cmd):
         logger.warning("Command not known. Type '.h' for help.")
         return
 
-    def primitive(self, line):
+    def primitive(self, line: str):
         """Looks for kanjis based on primitives.
         :param line
         :return
         """
         # Kanjis that match the description
-        candidates = self.kc.primitive_search(line.split(' '))
-        self.print_results([candidates], force_annotation=True)
+        search_item_collection = SearchItemCollection(line)
+        search_item_collection.items = [SearchItem(line)]
+        search_item_collection.items[0].kanji = self.kc.primitive_search(line.split(' '))
+        self.print_results(search_item_collection)
 
     # todo: shouldn't do any printing; only assemble an appropriate return object
-    def search(self, line):
+    def search(self, line: str):
         """Looks for kanjis based on RTK indizes or meanings.
         :param line
         :return
         """
         # are we sure that the search was successful
         # and returned exactly 1 result? > for conditional mode
-        guaranteed_hit = True
 
-        # split up search_groups (i.e. single search entries)
-        search_groups = line.split(' ')
+        # split up in search words (i.e. single search entries)
+        search_words = line.split(' ')
+        search_item_collection = SearchItemCollection(line)
+        search_item_collection.items = [SearchItem(search_word) for search_word in search_words]
 
-        result_groups = []
-        force_annotations = False
-
-        for search_group in search_groups:
-
-            matching_kanjis = self.kc.search(search_group)
-
-            if len(matching_kanjis) == 0:
-                # no kanji matches the search pattern. Try to convert to hiragana.
-                if romkan:
-                    result_groups.append([romkan.to_hiragana(search_group)])
-                else:
-                    result_groups.append([search_group])
-
-            elif len(matching_kanjis) == 1:
-                # exactly 1 kanji matches the search pattern
-                result_groups.append(matching_kanjis)
-                if any(letter in line for letter in ['?', '+', '%']):
-                    force_annotations = True
-
-            else:
-                # several kanji match the search pattern
-                guaranteed_hit = False
-                result_groups.append(matching_kanjis)
+        # perform the searches
+        for search_item in search_item_collection:
+            # todo: does this update or copy?
+            search_item.kanji = self.kc.search(search_item.search)
 
             # todo: story mode
             # if self.mode == 'story':
@@ -241,4 +226,5 @@ class LookupCli(cmd.Cmd):
         # elif self.mode == "nothing":
         #     pass
         #
+        self.print_results(search_item_collection)
         # self.print_results(result_groups, force_annotations)

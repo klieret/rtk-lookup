@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
-# todo: we can use try/except statements instead of defining our own romkan
 from modules import romkan
 import re
 from collection import Kanji
+# todo: docstrings
 
 
 class SearchItem(object):
@@ -14,31 +14,34 @@ class SearchItem(object):
         self.hiragana = ""
         self.wildcards = ['%', '+', '*', '?']
         if romkan:
-            try:
-                self.hiragana = romkan.to_hiragana(self.search)
-            except NameError:
-                pass
-            else:
-                no_kana_regex = re.compile("[^\u3040-\u30ff]")
-                if no_kana_regex.match(self.hiragana):
-                    # failure to convert completely
-                    self.hiragana = ""
+            self.hiragana = romkan.to_hiragana(self.search)
+            no_kana_regex = re.compile("[^\u3040-\u30ff]")
+            if no_kana_regex.search(self.hiragana):
+                # failure to convert completely
+                self.hiragana = ""
 
     @property
-    def is_kana(self):
+    def is_empty(self):
+        return self.search == ""
+
+    @property
+    def has_kana(self):
         return bool(self.hiragana)
 
     @property
-    def is_kanji(self):
+    def has_kanji(self):
         return bool(self.kanji)
 
     @property
     def is_unique(self):
-        return len(self.kanji) == 1
+        if self.has_kanji:
+            return len(self.kanji) == 1
+        else:
+            return True
 
     @property
     def is_failed(self):
-        return not self.is_kana and not self.is_unique
+        return not self.is_empty and not self.has_kana and not self.has_kanji
 
     @property
     def needs_annotation(self):
@@ -46,6 +49,21 @@ class SearchItem(object):
             if wc in self.search:
                 return True
         return False
+
+    @property
+    def type(self):
+        if self.has_kanji:
+            return "kanji"
+        elif self.has_kana:
+            return "kana"
+        elif self.is_failed:
+            return "broken"
+
+    def __str__(self):
+        return "<SearchItem object for search '{}'>".format(self.search)
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class SearchItemCollection(object):
@@ -65,14 +83,22 @@ class SearchItemCollection(object):
         return True
 
     @property
-    def is_failed(self):
+    def multiple_searches(self) -> bool:
+        return len(self.items) >= 2
+
+    @property
+    def is_failed(self) -> bool:
         for item in self.items:
             if item.is_failed:
                 return True
         return False
 
-    def __contains__(self, item: SearchItem):
+    @property
+    def is_empty(self):
+        return not bool(self.items)
+
+    def __contains__(self, item: int):
         return item in self.items
 
-    def __getitem__(self, item: SearchItem):
+    def __getitem__(self, item: int) -> SearchItem:
         return self.items[item]

@@ -1,22 +1,32 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
-from modules import colorama
+from modules import colorama, remove_color
 from collection import Kanji
+from searchresults import SearchItemCollection, SearchItem
+
+
+class CyclicalList(list):
+    def __init__(self, *args, **kwargs):
+        list.__init__(self, *args, **kwargs)
+
+    def __getitem__(self, item):
+        return list.__getitem__(self, item % len(self))
+
 
 class ResultPrinter(object):
-    def __init__(self, lst_of_lst, force_annotation=False):
+    def __init__(self, search_item_collection: SearchItemCollection, force_annotation=False):
         """
-        :param lst_of_lst: List of (List of (KanjiObjects or Strings))
+        :param
         :return:None
         """
         self.force_annotation = force_annotation
-        self.result_groups = lst_of_lst
+        self.search_results = search_item_collection
 
         if colorama:
-            self.kanji_colors = [colorama.Fore.RED, colorama.Fore.BLUE]
-            self.kana_colors = [colorama.Fore.CYAN]
-            self.not_found_colors = [colorama.Fore.YELLOW]  # todo: not yet implemented
+            self.kanji_colors = CyclicalList([colorama.Fore.RED, colorama.Fore.BLUE])
+            self.kana_colors = CyclicalList([colorama.Fore.CYAN])
+            self.not_found_colors = CyclicalList([colorama.Fore.YELLOW])
             self.default_color = colorama.Style.RESET_ALL
         else:
             # colorama not installed
@@ -25,79 +35,76 @@ class ResultPrinter(object):
             self.not_found_colors = [""]
             self.default_color = ""
 
+        self.color_by_type = {"kanji": self.kanji_colors, "kana": self.kana_colors, "broken": self.not_found_colors}
+
+
         self.first_line = self.default_color
-        self.detail_groups = []  # list of lists
+        self.detail_groups = []  # type: list[list[str]]
 
         self.indent_all = 4
         self.indent_details = 0
 
     def format_first_line(self):
-        if len(self.result_groups) == 1 and len(self.result_groups[0]) >= 2:
+        if not self.search_results.multiple_searches and not self.search_results.is_unique:
             # first line unnescessary, leave it empty
             return
-        for group_no, group in enumerate(self.result_groups):
-            if not group:
-                self.result_groups.remove(group)
+        for search_item_no, search_item in enumerate(self.search_results.items):
+            if search_item.is_empty:
                 continue
-            if len(group) >= 2:
-                self.first_line += "("
-            for result_no, result in enumerate(group):
-                self.first_line += self.color_from_item(result, result_no, group_no)
-                if isinstance(result, Kanji):
-                    self.first_line += result.kanji
-                elif isinstance(result, str):
-                    self.first_line += result
-                else:
-                    raise ValueError
-                self.first_line += self.default_color
-            if len(group) >= 2:
-                self.first_line += ")"
+            if search_item.has_kanji:
+                if not search_item.is_unique:
+                    self.first_line += "("
+                for kanji in search_item.kanji:
+                    self.first_line += self.group_color(search_item) + kanji.kanji + self.default_color
+                if not search_item.is_unique:
+                    self.first_line += ")"
+            elif search_item.has_kana:
+                self.first_line += self.group_color(search_item) + search_item.hiragana + self.default_color
+            elif search_item.is_failed:
+                self.first_line += self.group_color(search_item) + search_item.search + self.default_color
+            else:
+                raise ValueError
 
-    def color_from_item(self, result, result_no, group_no):
-        if isinstance(result, Kanji):
-            return self.kanji_colors[group_no % len(self.kanji_colors)]
-        elif isinstance(result, str):
-            return self.kana_colors[group_no % len(self.kana_colors)]
-        else:
-            raise ValueError
+    def nth_item_of_type(self, item: SearchItem) -> int:
+        nth = 0
+        for other in self.search_results:
+            if item == other:
+                return nth
+            if item.type == other.type:
+                nth += 1
+
+    def group_color(self, item: SearchItem) -> str:
+        return self.color_by_type[item.type][self.nth_item_of_type(item)]
 
     def format_details(self):
-        if len(self.result_groups) == 1 and len(self.result_groups[0]) >= 2:
+        if not self.search_results.multiple_searches and not self.search_results.is_unique:
             self.format_details_single_group()
-        elif len(self.result_groups) >= 2:
+        elif self.search_results.multiple_searches:
             self.format_details_multiple_groups()
         else:
             return
 
     def format_details_single_group(self):
-        group = self.result_groups[0]
         details = []
-        for result_no, result in enumerate(group):
-            # alternating color in matches
-            if isinstance(result, Kanji):
-                details.append("{}{}: {}{}".format(self.kanji_colors[result_no % len(self.kanji_colors)],
-                                                   result.kanji, result.meaning, self.default_color))
-            elif isinstance(result, Kanji):
-                details.append("{}{}{}".format(self.kana_colors[result_no % len(self.kana_colors)], result,
-                                               self.default_color))
-            else:
-                raise ValueError
+        search_item = self.search_results.items[0]
+        if search_item.has_kanji:
+            for no, kanji in enumerate(search_item.kanji):
+                details.append("{}{}: {}{}".format(self.kanji_colors[no], kanji.kanji, kanji.meaning,
+                                                   self.default_color))
+        else:
+            # shouldn't happen. everything else should be unique
+            raise ValueError
         self.detail_groups.append(details)
 
     def format_details_multiple_groups(self):
-        for group_no, group in enumerate(self.result_groups):
-            if len(group) >= 2:
+        for item in self.search_results:
+            if not item.is_unique:
+                assert item.has_kanji
                 details = []
-                for result_no, result in enumerate(group):
+                for kanji in item.kanji:
                     # same coloring as the groups
-                    if isinstance(result, Kanji):
-                        details.append("{}{}: {}{}".format(self.color_from_item(result, result_no, group_no),
-                                                           result.kanji, result.meaning, self.default_color))
-                    elif isinstance(result, Kanji):
-                        details.append("{}{}{}".format(self.color_from_item(result, result_no, group_no), result,
+                    details.append("{}{}: {}{}".format(self.group_color(item), kanji.kanji, kanji.meaning,
                                                        self.default_color))
-                    else:
-                        raise ValueError
                 self.detail_groups.append(details)
 
     @staticmethod
@@ -110,15 +117,18 @@ class ResultPrinter(object):
 
     def print(self):
         print()
-        if len(self.result_groups) == 0:
+        if self.search_results.is_empty:
             print(" "*self.indent_all + "No results.")
             return
         self.format_first_line()
         self.format_details()
-        print(" "*self.indent_all + self.first_line)
+        if remove_color(self.first_line):
+            print(" "*self.indent_all + self.first_line)
         if remove_color(self.first_line) and self.detail_groups:
             print(" "*self.indent_all + "\u2500"*self.approximate_string_length(self.first_line))
-        for group in self.detail_groups:
+        for no, group in enumerate(self.detail_groups):
             for result in group:
                 print(" "*(self.indent_all+self.indent_details) + result)
+            if not no == len(self.detail_groups)-1:
+                print(" "*self.indent_all + "\u2500"*self.approximate_string_length(self.first_line))
         print()
