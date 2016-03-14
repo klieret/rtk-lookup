@@ -34,10 +34,14 @@ class Kanji(object):
     information (index, meaning, story etc.)
     """
     def __init__(self, kanji):
-        self.kanji = kanji            
+        # todo: default values should be "" not None
+        self.kanji = kanji
         self.index = None
         self.meaning = None
         self.story = None
+
+    def __equal__(self, other):
+        return self.kanji == other.kanji
 
 
 class KanjiCollection(object):
@@ -46,13 +50,14 @@ class KanjiCollection(object):
     def __init__(self):
         # a plain list of Kanji objects
         self.kanjis = []
+        # todo: maybe instead of having a list of kanji objects, have lists for all of the csv files rows instead, which makes searching easier and then only combine later on.
 
         # did we load any stories?
         self.stories_available = False
 
     # ------------- Load information from files -------------------------------
 
-    def update_rtk(self):
+    def load_file_rtk(self):
         """Load the file that contains the RTK kanji, indizes and meanings.
         """
 
@@ -83,7 +88,7 @@ class KanjiCollection(object):
 
                 self.kanjis.append(kanji_obj)
 
-    def update_stories(self):
+    def load_file_stories(self):
         """Load file that contains the RTK kanji, indizes and meanings.
         """
 
@@ -105,6 +110,7 @@ class KanjiCollection(object):
             self.stories_available = True
         
         with open(story_file, 'r') as csvfile:
+            # todo: use unicode normalisation?
             reader = csv.reader(csvfile, delimiter=delimeter)
             for row in reader:
                 kanji = row[kanji_column].strip()
@@ -128,12 +134,14 @@ class KanjiCollection(object):
         """
         return self.kanjis[pos]
 
+    # todo: shouldn't that be search_kanji (also do we ever use that?)
     def pos_from_kanji(self, kanji):
         """Given a kanji, returns the position of the corresponding
         Object of class 'Kanji' in self.kanjis.
         :param kanji
         :return None
         """
+        # todo: use enumerate instead
         i = 0
         for kanji_obj in self.kanjis:
             if kanji_obj.kanji == kanji:
@@ -145,7 +153,7 @@ class KanjiCollection(object):
 
     # ------------- Search -------------------------------
 
-    # todo: this is weird, probably way better to return list of kanajiObj!
+    # todo: split up w.r.t. to type of search item >> faster
     def search(self, word):
         """
         Does the actual search.
@@ -156,6 +164,7 @@ class KanjiCollection(object):
         word = word.replace('_', ' ')
         found = []
 
+        # todo: use enumerate instead
         i = 0
         for kanji_obj in self.kanjis:
             if word.isdigit():
@@ -164,6 +173,7 @@ class KanjiCollection(object):
                     found.append(i)
             else:
                 if word[-1] == "?":
+                    # todo: why call str() here? Default values for all attributes should be "", not None
                     if word[:-1] in str(kanji_obj.meaning):
                         found.append(i)
                 elif word[-1] == "+":
@@ -176,9 +186,9 @@ class KanjiCollection(object):
 
         return found
 
-    # todo: this is weird, probably way better to return list of kanajiObj!
-    def story_search(self, primitives):
+    def primitive_search(self, primitives):
         results = []
+        # todo: use enumerate
         i = 0
         for kanji_obj in self.kanjis:
             found = True

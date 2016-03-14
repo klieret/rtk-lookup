@@ -58,9 +58,9 @@ if __name__ == '__main__':
     # >>>>>> Load Data
     kc = KanjiCollection()
     logger.debug("Loading rtk data...")
-    kc.update_rtk()
+    kc.load_file_rtk()
     logger.debug("Loding stories...")
-    kc.update_stories()
+    kc.load_file_stories()
     logger.debug("Loading done.")
     
     if len(sys.argv) == 1:

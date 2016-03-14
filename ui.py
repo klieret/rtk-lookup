@@ -47,9 +47,9 @@ class LookupCli(cmd.Cmd):
         self.indent = 4
 
         # Color of the answers. Empty string: No color     
-        # todo: remove me
         self.answerColor = colorama.Fore.RED
-        self.answerColor2 = colorama.Fore.BLUE     
+        # todo: remove some of those (aren't used?)
+        self.answerColor2 = colorama.Fore.BLUE
 
         self.defaultResultColor = colorama.Fore.RED
         self.oneLineSearchResultColors = [colorama.Fore.RED, colorama.Fore.BLUE]
@@ -59,6 +59,7 @@ class LookupCli(cmd.Cmd):
         self.update_prompt()
 
         # dict of modes of the form long_form (don't change): [abbrev/command, description]
+        # todo: should be a class, not a dictionary
         self.modes = {'default': ['d', 'do nothing'],
                       'copy': ['c', 'Copy'],
                       'www': ['w', 'Lookup in the www.'],
@@ -110,6 +111,7 @@ class LookupCli(cmd.Cmd):
             else:
                 self.ans_printer("No result. ")
 
+    # todo: there should be a proper object, not just a string
     def ans_printer(self, ans):
         """Prints the Kanji results. A simple print(ans) would do, 
         but wrapping it into a function allows for e.g. coloring or
@@ -216,8 +218,9 @@ class LookupCli(cmd.Cmd):
         :return
         """
         # Kanjis that match the description
-        candidates = self.kc.story_search(line.split(' '))
-        
+        candidates = self.kc.primitive_search(line.split(' '))
+
+        # todo: use proper object
         # Return line
         ans = ""
 
