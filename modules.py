@@ -22,9 +22,6 @@ that we don't have to care about it in the other modules.
 
 import logging
 
-global logger
-global colorama
-
 # have to predefine logger here
 # to log errors with colorama etc.
 # later (in __main__) the stream handler gets redefined
@@ -47,11 +44,8 @@ except ImportError:
     logger.warning("Romkan module not found. No Support for hiragana.")
     logger.debug("Romkan is available at https://pypi.python.org/pypi/romkan.")
 
-# The 'colorama' module is  used to display colors in a platform independent way (optional). 
+# The 'colorama' module is  used to display colors in a platform independent way (optional).
 # It is available at https://pypi.python.org/pypi/colorama
-
-# In case we don't have colorama, we simply define a mock class
-
 try:
     import colorama
 except ImportError:
@@ -62,7 +56,12 @@ else:
     colorama.init()
 
 
-def remove_color(string):
+def remove_color(string: str) -> str:
+    """ Removes all formatting from input. Useful for
+    getting the length of a string.
+    :param string:
+    :return:
+    """
     if not colorama:
         return
 
@@ -73,7 +72,6 @@ def remove_color(string):
     for color in colors:
         string = string.replace(getattr(colorama.Fore, color), "")
         string = string.replace(getattr(colorama.Back, color), "")
-
     for style in styles:
         string = string.replace(getattr(colorama.Style, style), "")
 

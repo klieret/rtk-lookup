@@ -2,9 +2,8 @@
 # -*- coding: utf8 -*-
 
 from modules import colorama, remove_color
-from collection import Kanji
 from searchresults import SearchItemCollection, SearchItem
-
+import re
 
 class CyclicalList(list):
     def __init__(self, *args, **kwargs):
@@ -60,7 +59,7 @@ class ResultPrinter(object):
                     self.first_line += ")"
             elif search_item.has_kana:
                 self.first_line += self.group_color(search_item) + search_item.hiragana + self.default_color
-            elif search_item.is_failed:
+            elif search_item.is_broken:
                 self.first_line += self.group_color(search_item) + search_item.search + self.default_color
             else:
                 raise ValueError
@@ -77,7 +76,8 @@ class ResultPrinter(object):
         return self.color_by_type[item.type][self.nth_item_of_type(item)]
 
     def format_details(self):
-        if not self.search_results.multiple_searches and not self.search_results.is_unique:
+        if not self.search_results.is_broken and self.search_results.multiple_searches and not \
+                self.search_results.is_unique:
             self.format_details_single_group()
         elif self.search_results.multiple_searches:
             self.format_details_multiple_groups()
@@ -99,7 +99,6 @@ class ResultPrinter(object):
     def format_details_multiple_groups(self):
         for item in self.search_results:
             if not item.is_unique:
-                assert item.has_kanji
                 details = []
                 for kanji in item.kanji:
                     # same coloring as the groups
@@ -112,8 +111,8 @@ class ResultPrinter(object):
         # works as long as there are no European characters
         # todo: also take european characters into account
         string = remove_color(string)
-        brackets = string.count("(") + string.count(")")
-        return 2*len(string) - brackets
+        normal_regex = re.compile("[\u0020-\u007f]")
+        return 2*len(string) - len(normal_regex.findall(string))
 
     def print(self):
         print()
@@ -130,5 +129,5 @@ class ResultPrinter(object):
             for result in group:
                 print(" "*(self.indent_all+self.indent_details) + result)
             if not no == len(self.detail_groups)-1:
-                print(" "*self.indent_all + "\u2500"*self.approximate_string_length(self.first_line))
+                print(" "*self.indent_all + "\u2508"*self.approximate_string_length(self.first_line))
         print()
