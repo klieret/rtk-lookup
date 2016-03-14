@@ -42,6 +42,8 @@ class LookupCli(cmd.Cmd):
 
         self.default_mode = 'default'
         self.commandSeparator = "."
+        if " " in self.commandSeparator:
+            raise ValueError("This would give problems later. No spaces in command separator.")
 
         # "Answers" get indented by this amount of spaces
         self.indent = 4
@@ -93,8 +95,11 @@ class LookupCli(cmd.Cmd):
             self.emptyline()
 
         elif line.startswith(self.commandSeparator):
-            command = line[1:]
+            command = line[1:].split(" ")[0]
+            if " " in line:
+                rest = ' '.join(line[1:].split(" ")[1:])
             self.command(command)
+            self.default(rest)
 
         elif self.mode == "primitive":
             ans = self.primitive(line)
@@ -149,7 +154,7 @@ class LookupCli(cmd.Cmd):
             logger.warning("Mode %s currently only supported for linux." % mode)
             logger.debug("You can adapt the corresponding function in the source code!")
             return
-        if mode == 'primitive' and not self.kc.storiesAvailable:
+        if mode == 'primitive' and not self.kc.stories_available:
             logger.warning("No user defined stories available. Mode unavailable.")
             return
         
