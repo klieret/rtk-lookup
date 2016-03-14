@@ -23,7 +23,6 @@ import os.path
 import sys
 import csv
 
-global colorama
 global logger
 
 from modules import *
@@ -33,7 +32,7 @@ class Kanji(object):
     """An object of this Class contains a kanji with the corresponding 
     information (index, meaning, story etc).
     """
-    def __init__(self, kanji):
+    def __init__(self, kanji: str):
         self.kanji = kanji
         self.index = ""
         self.meaning = ""
@@ -45,6 +44,9 @@ class Kanji(object):
     def __str__(self):
         return "<Kanji object for kanji {}>".format(self.kanji)
 
+    def __repr__(self):
+        return self.__str__()
+
     def __hash__(self):
         return self.kanji.__hash__()
 
@@ -54,7 +56,7 @@ class KanjiCollection(object):
     """
     def __init__(self):
         # a plain list of Kanji objects
-        self.kanjis = []
+        self.kanjis = []  # type: list[Kanji]
 
         # did we load any stories?
         self.stories_available = False
@@ -143,7 +145,7 @@ class KanjiCollection(object):
     # ------------- Search -------------------------------
 
     # todo: instead have (word, mode) as parameters and also do '_' replace before. not job of collection
-    def search(self, word):
+    def search(self, word: str):
         """
         Does the actual search.
         :param word: search phrase
@@ -189,7 +191,7 @@ class KanjiCollection(object):
         return found
 
     # todo: docstring
-    def primitive_search(self, primitives):
+    def primitive_search(self, primitives: list):
         results = []
         for kanji_obj in self.kanjis:
             found = True
@@ -203,7 +205,7 @@ class KanjiCollection(object):
                 results.append(kanji_obj)
         return results
 
-    def kanji_obj_from_kanji(self, kanji):
+    def kanji_obj_from_kanji(self, kanji: str):
         """Returns kanji_obj corresponding to kanji $kanji.
         :param kanji
         :return None

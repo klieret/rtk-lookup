@@ -6,6 +6,7 @@ from modules import romkan
 import re
 from collection import Kanji
 
+
 class SearchItem(object):
     def __init__(self, search_string: str):
         self.search = search_string
@@ -13,11 +14,15 @@ class SearchItem(object):
         self.hiragana = ""
         self.wildcards = ['%', '+', '*', '?']
         if romkan:
-            self.hiragana = romkan.to_hiragana(self.search)
-            no_kana_regex = re.compile("[^\u3040-\u30ff]")
-            if no_kana_regex.match(self.hiragana):
-                # failure to convert completely
-                self.hiragana = ""
+            try:
+                self.hiragana = romkan.to_hiragana(self.search)
+            except NameError:
+                pass
+            else:
+                no_kana_regex = re.compile("[^\u3040-\u30ff]")
+                if no_kana_regex.match(self.hiragana):
+                    # failure to convert completely
+                    self.hiragana = ""
 
     @property
     def is_kana(self):

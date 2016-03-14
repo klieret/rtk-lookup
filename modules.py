@@ -51,42 +51,11 @@ except ImportError:
 # It is available at https://pypi.python.org/pypi/colorama
 
 # In case we don't have colorama, we simply define a mock class
-from collections import namedtuple
 
-class ColoramaOverride(object):
-    def __init__(self):
-        self.Fore = namedtuple("Fore", "BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE RESET")
-        self.Back = namedtuple("Back", "BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE RESET")
-        self.Style = namedtuple("Style", "DIM NORMAL BRIGHT RESET_ALL")
-        self.unset()
-    def unset(self):
-        self.Fore.BLACK = ""
-        self.Fore.RED = ""
-        self.Fore.GREEN = ""
-        self.Fore.YELLOW = ""
-        self.Fore.BLUE = ""
-        self.Fore.MAGENTA = ""
-        self.Fore.CYAN = ""
-        self.Fore.WHITE = ""
-        self.Fore.RESET = ""
-        self.Back.BLACK = ""
-        self.Back.RED = ""
-        self.Back.GREEN = ""
-        self.Back.YELLOW = ""
-        self.Back.BLUE = ""
-        self.Back.MAGENTA = ""
-        self.Back.CYAN = ""
-        self.Back.WHITE = ""
-        self.Back.RESET = ""
-        self.Style.DIM = ""
-        self.Style.NORMAL = ""
-        self.Style.BRIGHT = ""
-        self.Style.RESET_ALL = ""
-
-colorama = ColoramaOverride()
 try:
     import colorama
 except ImportError:
+    colorama = None
     logger.warning("Colorama module not found. No Support for colors.")
     logger.debug("Colorama is available at https://pypi.python.org/pypi/colorama.")
 else:
@@ -94,26 +63,18 @@ else:
 
 
 def remove_color(string):
-    string = string.replace(colorama.Fore.BLACK, "")
-    string = string.replace(colorama.Fore.RED, "")
-    string = string.replace(colorama.Fore.GREEN, "")
-    string = string.replace(colorama.Fore.YELLOW, "")
-    string = string.replace(colorama.Fore.BLUE, "")
-    string = string.replace(colorama.Fore.MAGENTA, "")
-    string = string.replace(colorama.Fore.CYAN, "")
-    string = string.replace(colorama.Fore.WHITE, "")
-    string = string.replace(colorama.Fore.RESET, "")
-    string = string.replace(colorama.Back.BLACK, "")
-    string = string.replace(colorama.Back.RED, "")
-    string = string.replace(colorama.Back.GREEN, "")
-    string = string.replace(colorama.Back.YELLOW, "")
-    string = string.replace(colorama.Back.BLUE, "")
-    string = string.replace(colorama.Back.MAGENTA, "")
-    string = string.replace(colorama.Back.CYAN, "")
-    string = string.replace(colorama.Back.WHITE, "")
-    string = string.replace(colorama.Back.RESET, "")
-    string = string.replace(colorama.Style.DIM, "")
-    string = string.replace(colorama.Style.NORMAL, "")
-    string = string.replace(colorama.Style.BRIGHT, "")
-    string = string.replace(colorama.Style.RESET_ALL, "")
+    if not colorama:
+        return
+
+    colors = ["BLACK", "RED", "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE", "RESET", "BLACK", "RED", "GREEN",
+              "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE", "RESET", ]
+    styles = ["DIM", "NORMAL", "BRIGHT", "RESET_ALL"]
+
+    for color in colors:
+        string = string.replace(getattr(colorama.Fore, color), "")
+        string = string.replace(getattr(colorama.Back, color), "")
+
+    for style in styles:
+        string = string.replace(getattr(colorama.Style, style), "")
+
     return string

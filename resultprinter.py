@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
+from modules import colorama
+from collection import Kanji
+
 class ResultPrinter(object):
     def __init__(self, lst_of_lst, force_annotation=False):
         """
@@ -10,10 +13,17 @@ class ResultPrinter(object):
         self.force_annotation = force_annotation
         self.result_groups = lst_of_lst
 
-        self.kanji_colors = [colorama.Fore.RED, colorama.Fore.BLUE]
-        self.kana_colors = [colorama.Fore.CYAN]
-        self.not_found_colors = [colorama.Fore.YELLOW]  # todo: not yet implemented
-        self.default_color = colorama.Style.RESET_ALL
+        if colorama:
+            self.kanji_colors = [colorama.Fore.RED, colorama.Fore.BLUE]
+            self.kana_colors = [colorama.Fore.CYAN]
+            self.not_found_colors = [colorama.Fore.YELLOW]  # todo: not yet implemented
+            self.default_color = colorama.Style.RESET_ALL
+        else:
+            # colorama not installed
+            self.kanji_colors = [""]
+            self.kana_colors = [""]
+            self.not_found_colors = [""]
+            self.default_color = ""
 
         self.first_line = self.default_color
         self.detail_groups = []  # list of lists

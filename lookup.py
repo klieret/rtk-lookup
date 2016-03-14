@@ -50,7 +50,7 @@ if __name__ == '__main__':
     
     sh = logging.StreamHandler()
     sh.setLevel(logging.DEBUG)
-
+    # todo: colorama
     fm = logging.Formatter(colorama.Style.DIM + "%(levelname)s: %(message)s" + colorama.Style.RESET_ALL)
     sh.setFormatter(fm)
     logger.addHandler(sh)

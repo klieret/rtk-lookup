@@ -22,7 +22,6 @@ import cmd
 import sys
 import os
 
-global colorama
 global logger
 
 from modules import *
