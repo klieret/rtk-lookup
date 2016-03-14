@@ -31,121 +31,8 @@ from collection import *
 
 # todo: force annotations
 
-class ResultPrinter(object):
-    def __init__(self, lst_of_lst, force_annotation=False):
-        """
-        :param lst_of_lst: List of (List of (KanjiObjects or Strings))
-        :return:None
-        """
-        self.force_annotation = force_annotation
-        self.result_groups = lst_of_lst
 
-        self.kanji_colors = [colorama.Fore.RED, colorama.Fore.BLUE]
-        self.kana_colors = [colorama.Fore.CYAN]
-        self.not_found_colors = [colorama.Fore.YELLOW]  # todo: not yet implemented
-        self.default_color = colorama.Style.RESET_ALL
-
-        self.first_line = self.default_color
-        self.detail_groups = []  # list of lists
-
-        self.indent_all = 4
-        self.indent_details = 0
-
-    def format_first_line(self):
-        if len(self.result_groups) == 1 and len(self.result_groups[0]) >= 2:
-            # first line unnescessary, leave it empty
-            return
-        for group_no, group in enumerate(self.result_groups):
-            if not group:
-                self.result_groups.remove(group)
-                continue
-            if len(group) >= 2:
-                self.first_line += "("
-            for result_no, result in enumerate(group):
-                self.first_line += self.color_from_item(result, result_no, group_no)
-                if isinstance(result, Kanji):
-                    self.first_line += result.kanji
-                elif isinstance(result, str):
-                    self.first_line += result
-                else:
-                    raise ValueError
-                self.first_line += self.default_color
-            if len(group) >= 2:
-                self.first_line += ")"
-
-    def color_from_item(self, result, result_no, group_no):
-        if isinstance(result, Kanji):
-            return self.kanji_colors[group_no % len(self.kanji_colors)]
-        elif isinstance(result, str):
-            return self.kana_colors[group_no % len(self.kana_colors)]
-        else:
-            raise ValueError
-
-    def format_details(self):
-        if len(self.result_groups) == 1 and len(self.result_groups[0]) >= 2:
-            self.format_details_single_group()
-        elif len(self.result_groups) >= 2:
-            self.format_details_multiple_groups()
-        else:
-            return
-
-    def format_details_single_group(self):
-        group = self.result_groups[0]
-        details = []
-        for result_no, result in enumerate(group):
-            # alternating color in matches
-            if isinstance(result, Kanji):
-                details.append("{}{}: {}{}".format(self.kanji_colors[result_no % len(self.kanji_colors)],
-                                                   result.kanji, result.meaning, self.default_color))
-            elif isinstance(result, Kanji):
-                details.append("{}{}{}".format(self.kana_colors[result_no % len(self.kana_colors)], result,
-                                               self.default_color))
-            else:
-                raise ValueError
-        self.detail_groups.append(details)
-
-    def format_details_multiple_groups(self):
-        for group_no, group in enumerate(self.result_groups):
-            if len(group) >= 2:
-                details = []
-                for result_no, result in enumerate(group):
-                    # same coloring as the groups
-                    if isinstance(result, Kanji):
-                        details.append("{}{}: {}{}".format(self.color_from_item(result, result_no, group_no),
-                                                           result.kanji, result.meaning, self.default_color))
-                    elif isinstance(result, Kanji):
-                        details.append("{}{}{}".format(self.color_from_item(result, result_no, group_no), result,
-                                                       self.default_color))
-                    else:
-                        raise ValueError
-                self.detail_groups.append(details)
-
-    @staticmethod
-    def approximate_string_length(string):
-        # works as long as there are no European characters
-        # todo: also take european characters into account
-        string = remove_color(string)
-        brackets = string.count("(") + string.count(")")
-        return 2*len(string) - brackets
-
-    def print(self):
-        print()
-        if len(self.result_groups) == 0:
-            print(" "*self.indent_all + "No results.")
-            return
-        self.format_first_line()
-        self.format_details()
-        print(" "*self.indent_all + self.first_line)
-        if remove_color(self.first_line) and self.detail_groups:
-            print(" "*self.indent_all + "\u2500"*self.approximate_string_length(self.first_line))
-        for group in self.detail_groups:
-            for result in group:
-                print(" "*(self.indent_all+self.indent_details) + result)
-        print()
-
-
-
-
+from resultprinter import ResultPrinter
 
 class LookupCli(cmd.Cmd):
     """The command line interface (Cli). """
@@ -163,17 +50,6 @@ class LookupCli(cmd.Cmd):
         if " " in self.commandSeparator:
             raise ValueError("This would give problems later. No spaces in command separator.")
 
-        # "Answers" get indented by this amount of spaces
-        self.indent = 4
-
-        # Color of the answers. Empty string: No color     
-        self.answer_color = colorama.Fore.RED
-        # todo: remove some of those (aren't used?)
-        self.answer_color_2 = colorama.Fore.BLUE
-
-        self.default_result_color = colorama.Fore.RED
-        self.one_line_search_results_color = [colorama.Fore.RED, colorama.Fore.BLUE]
-        self.search_results_color = [colorama.Fore.RED, colorama.Fore.BLUE]
 
         self.mode = self.default_mode
         self.update_prompt()
@@ -201,7 +77,7 @@ class LookupCli(cmd.Cmd):
         """
         if ';' in line:
             # multiple commands
-            # call this function recursively
+            # call this function recursively!
             lines = line.split(';')
             for line in lines:
                 self.default(line)
@@ -211,23 +87,20 @@ class LookupCli(cmd.Cmd):
 
         if not line:
             self.emptyline()
-
         elif line.startswith(self.commandSeparator):
             command = line[1:].split(" ")[0]
             self.command(command)
             if " " in line:
                 rest = ' '.join(line[1:].split(" ")[1:])
                 self.default(rest)
-
         elif self.mode == "primitive":
             self.primitive(line)
-
         else:
             self.search_history.append(line)
             self.search(line)
 
-    # todo: there should be a proper object, not just a string
-    def print_results(self, result_groups, force_annotation=False):
+    @staticmethod
+    def print_results(result_groups, force_annotation=False):
         rp = ResultPrinter(result_groups, force_annotation=force_annotation)
         rp.print()
 
@@ -245,26 +118,19 @@ class LookupCli(cmd.Cmd):
         :param silent
         :return
         """
-        # ----------- switching not possible ---------------
         if mode in ['copy', 'www'] and not os.name == "posix":
             logger.warning("Mode %s currently only supported for linux." % mode)
             logger.debug("You can adapt the corresponding function in the source code!")
-            return
-        if mode == 'primitive' and not self.kc.stories_available:
+        elif mode == 'primitive' and not self.kc.stories_available:
             logger.warning("No user defined stories available. Mode unavailable.")
-            return
-        
-        # ----------- switching possible -------------------
-        if self.mode == mode:
+        elif self.mode == mode:
             if not silent:
                 logger.info("Mode %s is already active." % self.mode)
-            return
         else:
             self.mode = mode
             if not silent:
                 logger.info("Switched to mode %s." % self.mode)
             self.update_prompt()
-            return
 
     def command(self, command):
         """Gets called if line starts with self.commandSeparator.
@@ -277,23 +143,20 @@ class LookupCli(cmd.Cmd):
             for mode in self.modes:
                 print("    %s (.%s): %s" % (mode, self.modes[mode][0], self.modes[mode][1]))
             return
-
-        if command == 'q':
+        elif command == 'q':
             logger.info("Bye.")
             sys.exit(0)
-
-        if command == '':
+        elif command == '':
             self.emptyline()
             return
-
-        if command[0] == '!':
+        elif command[0] == '!':
             os.system(command[1:])
             return
-
-        if command == 'm':
+        elif command == 'm':
             print("Current mode is %s." % self.mode)
             return
 
+        # changing modes
         for m in self.modes:
             if command == self.modes[m][0]:
                 self.change_mode(m)
@@ -329,44 +192,35 @@ class LookupCli(cmd.Cmd):
         :return
         """
         # are we sure that the search was successful
-        # and returned exactly 1 result?
+        # and returned exactly 1 result? > for conditional mode
         guaranteed_hit = True
 
-        # split up segments
-        segments = line.split(' ')
-
-        # save current mode to temporarily change mode
-        # if the current mode doesn't make sense in the context
-        # (e.g. lookup mode if more than one expression was found)
-        tmp_mode = self.mode
+        # split up search_groups (i.e. single search entries)
+        search_groups = line.split(' ')
 
         result_groups = []
-        force_annotation = False
+        force_annotations = False
 
-        for segment in segments:
+        for search_group in search_groups:
 
-            matching_kanjis = self.kc.search(segment)
-
+            matching_kanjis = self.kc.search(search_group)
 
             if len(matching_kanjis) == 0:
-                # no kanji matches the description. Konvert to hiragana.
-                
-                guaranteed_hit = False
+                # no kanji matches the search pattern. Try to convert to hiragana.
                 if romkan:
-                    result_groups.append([romkan.to_hiragana(segment)])
+                    result_groups.append([romkan.to_hiragana(search_group)])
                 else:
-                    result_groups.append([segment])
+                    result_groups.append([search_group])
 
             elif len(matching_kanjis) == 1:
-                # there is exactly 1 kanji matching the search pattern
-                
+                # exactly 1 kanji matches the search pattern
                 result_groups.append(matching_kanjis)
-
                 if any(letter in line for letter in ['?', '+', '%']):
-                    force_annotation = True
+                    force_annotations = True
 
             else:
-                self.mode = "nothing"
+                # several kanji match the search pattern
+                guaranteed_hit = False
                 result_groups.append(matching_kanjis)
 
             # todo: story mode
@@ -374,12 +228,6 @@ class LookupCli(cmd.Cmd):
             #     for h in matching_kanjis:
             #         annotations += "%s: %s\n" % (h.kanji, h.story)
 
-        # ans = ans.strip()
-        # annotations = annotations.strip()
-        # if annotations:
-        #     ans += "\n\n-----------------\n"
-        #     ans += annotations
-        #
         # todo: copying etc.
         # if self.mode == 'copy':
         #     copy_to_clipboard(remove_color(ans))
@@ -393,8 +241,5 @@ class LookupCli(cmd.Cmd):
         #         logger.info("No guaranteed hit. Doing nothing.")
         # elif self.mode == "nothing":
         #     pass
-
-        # reset mode
-        self.mode = tmp_mode
-
-        self.print_results(result_groups, force_annotation)
+        #
+        # self.print_results(result_groups, force_annotations)
