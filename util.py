@@ -30,7 +30,7 @@ def copy_to_clipboard(clip: str) -> int:
     """
     # Check if we are running on linux:
     if os.name == "posix":
-        success = os.system("echo '%s' | xclip -selection c" % clip)
+        success = os.system("echo -n '%s' | xclip -selection c" % clip)
     else:
         raise NotImplemented
     return success
