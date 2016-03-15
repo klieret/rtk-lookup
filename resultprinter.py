@@ -148,7 +148,9 @@ class ResultPrinter(object):
 
     def print_first_line(self):
         """Print first line. """
-        self.print_line(self.first_line)
+        if self.first_line:
+            # if needed to avoid line break if self.first_line is empty
+            self.print_line(self.first_line)
 
     def print_details(self):
         """ Print details block. """
