@@ -25,8 +25,6 @@ from util import lookup, copy_to_clipboard
 from log import logger
 from collection import KanjiCollection
 from searchresults import SearchResultGroup, SearchResult
-
-# todo: force annotations
 from resultprinter import ResultPrinter
 
 
@@ -48,7 +46,6 @@ class LookupCli(cmd.Cmd):
         self.update_prompt()
 
         # dict of modes of the form long_form (don't change): [abbrev/command, description]
-        # todo: should be a class, not a dictionary
         self.modes = {'default': ['d', 'do nothing'],
                       'copy': ['c', 'Copy'],
                       'www': ['w', 'Lookup in the www.'],

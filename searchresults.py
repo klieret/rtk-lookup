@@ -4,7 +4,6 @@
 from typing import List
 import re
 from collection import Kanji
-from log import logger
 
 # The 'romkan' module is used to convert hiragana to romanji (optional).
 # It is available at https://pypi.python.org/pypi/romkan
@@ -12,8 +11,8 @@ try:
     import romkan
 except ImportError:
     romkan = None
-    logger.warning("Romkan module not found. No Support for hiragana.")
-    logger.debug("Romkan is available at https://pypi.python.org/pypi/romkan.")
+    print("Romkan module not found. No Support for hiragana.")
+    print("Romkan is available at https://pypi.python.org/pypi/romkan.")
 
 
 class SearchResultGroup(object):

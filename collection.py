@@ -142,7 +142,6 @@ class KanjiCollection(object):
 
     # ------------- Search -------------------------------
 
-    # todo: instead have (word, mode) as parameters and also do '_' replace before. not job of collection
     def search(self, word: str):
         """
         Does the actual search.
@@ -188,8 +187,11 @@ class KanjiCollection(object):
 
         return found
 
-    # todo: docstring
-    def primitive_search(self, primitives: list):
+    def primitive_search(self, primitives: List[str]):
+        """ Searches for kanji based on primitives.
+        :param primitives:
+        :return:
+        """
         results = []
         for kanji_obj in self.kanjis:
             found = True
