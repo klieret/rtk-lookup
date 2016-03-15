@@ -177,8 +177,8 @@ class LookupCli(cmd.Cmd):
         """
         # Kanjis that match the description
         search_item_collection = SearchGroupCollection(line)
-        search_item_collection.items = [SearchGroup(line)]
-        search_item_collection.items[0].kanji = self.kc.primitive_search(line.split(' '))
+        search_item_collection.groups = [SearchGroup(line)]
+        search_item_collection.groups[0].kanji = self.kc.primitive_search(line.split(' '))
         self.print_results(search_item_collection)
 
     # todo: shouldn't do any printing; only assemble an appropriate return object
@@ -193,7 +193,7 @@ class LookupCli(cmd.Cmd):
         # split up in search words (i.e. single search entries)
         search_words = line.split(' ')
         search_item_collection = SearchGroupCollection(line)
-        search_item_collection.items = [SearchGroup(search_word) for search_word in search_words]
+        search_item_collection.groups = [SearchGroup(search_word) for search_word in search_words]
 
         # perform the searches
         for search_item in search_item_collection:

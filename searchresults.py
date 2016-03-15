@@ -111,14 +111,14 @@ class SearchGroupCollection(object):
         :return:None
         """
         self.search = search_string
-        self.items = []  # type: List[SearchGroup]
+        self.groups = []  # type: List[SearchGroup]
 
     @property
     def is_unique(self):
         """Did we get one unique result for every item the user searched for?
         :return:
         """
-        for item in self.items:
+        for item in self.groups:
             if not item.is_unique:
                 return False
         return True
@@ -128,14 +128,14 @@ class SearchGroupCollection(object):
         """Did the user search for multiple items?
         :return:
         """
-        return len(self.items) >= 2
+        return len(self.groups) >= 2
 
     @property
     def is_broken(self) -> bool:
         """Could one of the items that the user searched for not be found/converted at all?
         :return:
         """
-        for item in self.items:
+        for item in self.groups:
             if item.is_broken:
                 return True
         return False
@@ -145,10 +145,10 @@ class SearchGroupCollection(object):
         """Do we have no search items?
         :return:
         """
-        return not self.items
+        return not self.groups
 
     def __contains__(self, item: int):
-        return item in self.items
+        return item in self.groups
 
     def __getitem__(self, item: int) -> SearchGroup:
-        return self.items[item]
+        return self.groups[item]
