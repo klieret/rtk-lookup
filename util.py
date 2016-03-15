@@ -1,27 +1,17 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
+""" Functions that don't fit into any other file.
 """
-Lookup Kanji by Heisig Keyword or frame number
-----------------------------------------------
 
-See https://bitbucket.org/ch4noyu/lookup-kanji-by-heisig-keyword.git
-for more information.
-
-**Copyright:** *ch4noyu* (<mailto:ch4noyu@yahoo.com>)
-
-**Licence:** GNU GPL, version 3 or later
-
-About This File
----------------
-
-Utility functions to copy things to the clipboard, look them up in the internet etc.
-"""
 
 import os
 import re
 from _colorama import remove_color
 
+__author__ = "ch4noyu"
+__email__ = "ch4noyu@yahoo.com"
+__license__ = "GPL"
 
 def copy_to_clipboard(clip: str) -> int:
     """ Copies argument to clipboard.

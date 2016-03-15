@@ -1,21 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
-"""
-Lookup Kanji by Heisig Keyword or frame number
-----------------------------------------------
-
-See https://bitbucket.org/ch4noyu/lookup-kanji-by-heisig-keyword.git
-for more information.
-
-**Copyright:** *ch4noyu* (<mailto:ch4noyu@yahoo.com>)
-
-**Licence:** GNU GPL, version 3 or later
-
-About This File
----------------
-
-The user interface.
+""" The user interface.
 """
 
 import cmd
@@ -27,6 +13,9 @@ from collection import KanjiCollection
 from searchresults import SearchResultGroup, SearchResult
 from resultprinter import ResultPrinter
 
+__author__ = "ch4noyu"
+__email__ = "ch4noyu@yahoo.com"
+__license__ = "GPL"
 
 class LookupCli(cmd.Cmd):
     """The command line interface (Cli). """

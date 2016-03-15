@@ -1,37 +1,22 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
-"""
-Lookup Kanji by Heisig Keyword or frame number
-----------------------------------------------
-
-See https://bitbucket.org/ch4noyu/lookup-kanji-by-heisig-keyword.git
-for more information.
-
-**Copyright:** *ch4noyu* (<mailto:ch4noyu@yahoo.com>)
-
-**Licence:** GNU GPL, version 3 or later
-
-About This File
----------------
-
-The main file. 
-Run it with
-    
-    python3 lookup.py
-
-or (under linux, after ```chmod +x lookup.py```)
-
-    ./lookup.py
+""" Main file. If called with no command line arguments, starts the
+command line user interface, otherwise tries to execute the command line arguments
+as if they had been entered in the command line user interface.
 """
 
 import os
 import sys
+import logging
 from ui import LookupCli
 from collection import KanjiCollection
 from log import logger
-import logging
 from _colorama import colorama
+
+__author__ = "ch4noyu"
+__email__ = "ch4noyu@yahoo.com"
+__license__ = "GPL"
 
 if __name__ == '__main__':
 

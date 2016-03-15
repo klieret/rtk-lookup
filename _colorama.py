@@ -1,6 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
+""" Tries to import the colorama module, otherwise defines colorama = None.
+Also defines function to help with color related issues.
+"""
+
 import re
 
 # The 'colorama' module is  used to display colors in a platform independent way (optional).
@@ -14,6 +18,9 @@ except ImportError:
 else:
     colorama.init()
 
+__author__ = "ch4noyu"
+__email__ = "ch4noyu@yahoo.com"
+__license__ = "GPL"
 
 def remove_color(string: str) -> str:
     """ Removes all formatting (i.e. escape sequences) from input string.

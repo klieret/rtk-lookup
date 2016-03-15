@@ -1,9 +1,20 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
+""" Classes to hold the results of queries to to the collection.
+A query made by the user in the command line user interface is split up
+into single words. SearchResultGroup holds the results
+of looking up such a single group, while SearchResult (which contains a list of
+SeachResultGroups represents the result of the whole search.
+"""
+
 from typing import List
 import re
 from collection import Kanji
+
+__author__ = "ch4noyu"
+__email__ = "ch4noyu@yahoo.com"
+__license__ = "GPL"
 
 # The 'romkan' module is used to convert hiragana to romanji (optional).
 # It is available at https://pypi.python.org/pypi/romkan

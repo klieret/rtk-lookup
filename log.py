@@ -1,7 +1,14 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
+""" Quickly sets up a log.
+"""
+
 import logging
+
+__author__ = "ch4noyu"
+__email__ = "ch4noyu@yahoo.com"
+__license__ = "GPL"
 
 # Note: Will get partially redefined in lookup.py
 
