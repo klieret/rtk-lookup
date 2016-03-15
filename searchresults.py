@@ -73,9 +73,13 @@ class SearchGroup(object):
         """
         return not self.is_empty and not self.has_kana and not self.has_kanji
 
-    # todo: check for this in resultprinter
     @property
-    def needs_annotation(self):
+    def needs_details(self):
+        """ Should this SearchGroup be annotated in the details section?
+        :return:
+        """
+        if not self.is_unique:
+            return True
         for wc in self.wildcards:
             if wc in self.search:
                 return True
@@ -95,7 +99,7 @@ class SearchGroup(object):
             return "broken"
 
     def __str__(self):
-        return "<SearchItem object for search '{}'>".format(self.search)
+        return "<{} object for search '{}'>".format(self.__name__, self.search)
 
     def __repr__(self):
         return self.__str__()

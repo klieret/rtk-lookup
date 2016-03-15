@@ -40,7 +40,7 @@ class Kanji(object):
         return self.kanji == other.kanji
 
     def __str__(self):
-        return "<Kanji object for kanji {}>".format(self.kanji)
+        return "<{} object for kanji {}>".format(self.__name__, self.kanji)
 
     def __repr__(self):
         return self.__str__()
@@ -99,7 +99,7 @@ class KanjiCollection(object):
         # --------- CONFIGURE ME ---------
 
         story_file = "kanji_stories.tsv"
-        delimeter = '\t'
+        delimiter = '\t'
         kanji_column = 0
         story_column = 3
 
@@ -115,7 +115,7 @@ class KanjiCollection(object):
         
         with open(story_file, 'r') as csvfile:
             # todo: use unicode normalisation?
-            reader = csv.reader(csvfile, delimiter=delimeter)
+            reader = csv.reader(csvfile, delimiter=delimiter)
             for row in reader:
                 kanji = row[kanji_column].strip()
                 story = row[story_column].strip().lower()

@@ -19,9 +19,10 @@ The user interface.
 """
 
 import cmd
-# todo: no *
-from util import *
-from collection import *
+import os
+import sys
+from log import logger
+from collection import KanjiCollection
 from searchresults import SearchGroup, SearchGroupCollection
 
 # todo: force annotations
@@ -30,21 +31,19 @@ from resultprinter import ResultPrinter
 
 class LookupCli(cmd.Cmd):
     """The command line interface (Cli). """
-
-    def __init__(self, kc):
+    def __init__(self, kanji_collection: KanjiCollection):
         cmd.Cmd.__init__(self)
 
         # KanjiCollection
-        self.kc = kc
-
-        # ----------- Configure me ----------------
+        self.kanji_collection = kanji_collection
 
         self.default_mode = 'default'
-        self.commandSeparator = "."
-        if " " in self.commandSeparator:
+        self.cmd_separator = "."
+
+        if " " in self.cmd_separator:
             raise ValueError("This would give problems later. No spaces in command separator.")
 
-        self.mode = self.default_mode
+        self._mode = self.default_mode
         self.update_prompt()
 
         # dict of modes of the form long_form (don't change): [abbrev/command, description]
@@ -61,7 +60,7 @@ class LookupCli(cmd.Cmd):
     def update_prompt(self):
         """Updates the prompt (self.promp) based on the mode.
         """
-        self.prompt = "(%s) " % self.mode
+        self.prompt = "(%s) " % self._mode
 
     def default(self, line: str):
         """Default function that gets called on the input.
@@ -80,13 +79,13 @@ class LookupCli(cmd.Cmd):
 
         if not line:
             self.emptyline()
-        elif line.startswith(self.commandSeparator):
+        elif line.startswith(self.cmd_separator):
             command = line[1:].split(" ")[0]
             self.command(command)
             if " " in line:
                 rest = ' '.join(line[1:].split(" ")[1:])
                 self.default(rest)
-        elif self.mode == "primitive":
+        elif self._mode == "primitive":
             self.primitive(line)
         else:
             self.search_history.append(line)
@@ -106,7 +105,7 @@ class LookupCli(cmd.Cmd):
         """
         pass
 
-    def change_mode(self, mode, silent=False):
+    def change_mode(self, mode: str, silent=False):
         """Changes self.mode to mode (long form).
         :param mode
         :param silent
@@ -115,15 +114,15 @@ class LookupCli(cmd.Cmd):
         if mode in ['copy', 'www'] and not os.name == "posix":
             logger.warning("Mode %s currently only supported for linux." % mode)
             logger.debug("You can adapt the corresponding function in the source code!")
-        elif mode == 'primitive' and not self.kc.stories_available:
+        elif mode == 'primitive' and not self.kanji_collection.stories_available:
             logger.warning("No user defined stories available. Mode unavailable.")
-        elif self.mode == mode:
+        elif self._mode == mode:
             if not silent:
-                logger.info("Mode %s is already active." % self.mode)
+                logger.info("Mode %s is already active." % self._mode)
         else:
-            self.mode = mode
+            self._mode = mode
             if not silent:
-                logger.info("Switched to mode %s." % self.mode)
+                logger.info("Switched to mode %s." % self._mode)
             self.update_prompt()
 
     def command(self, command: str):
@@ -147,7 +146,7 @@ class LookupCli(cmd.Cmd):
             os.system(command[1:])
             return
         elif command == 'm':
-            print("Current mode is %s." % self.mode)
+            print("Current mode is %s." % self._mode)
             return
 
         # changing modes
@@ -155,12 +154,12 @@ class LookupCli(cmd.Cmd):
             if command == self.modes[m][0]:
                 self.change_mode(m)
                 return 
-            elif command == self.commandSeparator + self.modes[m][0]:
+            elif command == self.cmd_separator + self.modes[m][0]:
                 if not self.search_history:
                     logger.warning("Search history empty. Skipping that command. ")
                     return
                 logger.info('Handling "%s" with mode %s.' % (self.search_history[-1], m))
-                old_mode = self.mode
+                old_mode = self._mode
                 self.change_mode(m, silent=True)
                 self.default(self.search_history[-1])
                 self.change_mode(old_mode, silent=True)
@@ -178,7 +177,7 @@ class LookupCli(cmd.Cmd):
         # Kanjis that match the description
         search_item_collection = SearchGroupCollection(line)
         search_item_collection.groups = [SearchGroup(line)]
-        search_item_collection.groups[0].kanji = self.kc.primitive_search(line.split(' '))
+        search_item_collection.groups[0].kanji = self.kanji_collection.primitive_search(line.split(' '))
         self.print_results(search_item_collection)
 
     # todo: shouldn't do any printing; only assemble an appropriate return object
@@ -198,7 +197,7 @@ class LookupCli(cmd.Cmd):
         # perform the searches
         for search_item in search_item_collection:
             # todo: does this update or copy?
-            search_item.kanji = self.kc.search(search_item.search)
+            search_item.kanji = self.kanji_collection.search(search_item.search)
 
             # todo: story mode
             # if self.mode == 'story':
