@@ -40,7 +40,7 @@ class Kanji(object):
         return self.kanji == other.kanji
 
     def __str__(self):
-        return "<{} object for kanji {}>".format(self.__name__, self.kanji)
+        return "<{} object for kanji {}>".format(self.__class__.__name__, self.kanji)
 
     def __repr__(self):
         return self.__str__()

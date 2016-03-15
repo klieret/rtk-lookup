@@ -22,14 +22,12 @@ class SearchResultGroup(object):
     def __init__(self, search_string: str):
         self.search = search_string  # type: str
         self.kanji = []  # type: List[Kanji]
-        self.hiragana = ""
+        self.kana = self.search
         self.wildcards = ['%', '+', '*', '?']
-        if romkan:
-            self.hiragana = romkan.to_hiragana(self.search)
-            no_kana_regex = re.compile("[^\u3040-\u30ff]")
-            if no_kana_regex.search(self.hiragana):
-                # failure to convert completely
-                self.hiragana = ""
+        if not self.is_kana and romkan:
+            # checking for self.has_kana to avoid converting hiragana
+            # and such to kana.
+            self.kana = romkan.to_hiragana(self.search)
 
     @property
     def is_empty(self):
@@ -39,12 +37,16 @@ class SearchResultGroup(object):
         return self.search == ""
 
     @property
-    def has_kana(self):
+    def is_kana(self):
         """ Could we successfully convert to hiragana?
         Note: If romkan module is missing, this will always be False.
         :return:
         """
-        return bool(self.hiragana)
+        if romkan:
+            no_kana_regex = re.compile("[^\u3040-\u30ff]")
+            if no_kana_regex.search(self.kana):
+                return False
+        return bool(self.kana)
 
     @property
     def has_kanji(self):
@@ -71,7 +73,7 @@ class SearchResultGroup(object):
         nor convert to kana.
         :return:
         """
-        return not self.is_empty and not self.has_kana and not self.has_kanji
+        return not self.is_empty and not self.is_kana and not self.has_kanji
 
     @property
     def needs_details(self):
@@ -93,13 +95,13 @@ class SearchResultGroup(object):
         """
         if self.has_kanji:
             return "kanji"
-        elif self.has_kana:
+        elif self.is_kana:
             return "kana"
         elif self.is_broken:
             return "broken"
 
     def __str__(self):
-        return "<{} object for search '{}'>".format(self.__name__, self.search)
+        return "<{} object for search '{}'>".format(self.__class__.__name__, self.search)
 
     def __repr__(self):
         return self.__str__()
@@ -127,11 +129,11 @@ class SearchResult(object):
         for group in self.groups:
             if group.has_kanji:
                 if group.is_unique:
-                    ret += str(group.kanji)
+                    ret += group.kanji[0].kanji
                 else:
-                    ret += "({})".format(''.join(group.kanji))
-            elif group.has_kana:
-                ret += group.hiragana
+                    ret += "({})".format(''.join([kanji.kanji for kanji in group.kanji]))
+            elif group.is_kana:
+                ret += group.kana
             else:
                 ret += group.search
         return ret
