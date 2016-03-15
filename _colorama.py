@@ -23,7 +23,7 @@ if colorama:
 
     fore_color_list = [getattr(colorama.Fore, color) for color in color_name_list]
     back_color_list = [getattr(colorama.Back, color) for color in color_name_list]
-    style_list =      [getattr(colorama.Style, style) for style in style_name_list]
+    style_list = [getattr(colorama.Style, style) for style in style_name_list]
     formatting_sequence_list = fore_color_list + back_color_list + style_list
 
     escaped_formatting_sequence_list = [re.escape(item) for item in formatting_sequence_list]
@@ -71,4 +71,4 @@ def strip_trailing(string: str, trailing: str) -> str:
 
 # todo: Make into ColorString class later
 
-print(strip_trailing(colorama.Fore.RED + "test", "t"))
+# print(strip_trailing(colorama.Fore.RED + "test", "t"))

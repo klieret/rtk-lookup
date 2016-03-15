@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
+from typing import List
 import re
 from collection import Kanji
 from log import logger
@@ -15,13 +16,12 @@ except ImportError:
     logger.debug("Romkan is available at https://pypi.python.org/pypi/romkan.")
 
 
-
-class SearchItem(object):
+class SearchGroup(object):
     """ This type holds a single search query and its results.
     """
     def __init__(self, search_string: str):
         self.search = search_string  # type: str
-        self.kanji = []  # type: list[Kanji]
+        self.kanji = []  # type: List[Kanji]
         self.hiragana = ""
         self.wildcards = ['%', '+', '*', '?']
         if romkan:
@@ -73,7 +73,7 @@ class SearchItem(object):
         """
         return not self.is_empty and not self.has_kana and not self.has_kanji
 
-    # todo: implement
+    # todo: check for this in resultprinter
     @property
     def needs_annotation(self):
         for wc in self.wildcards:
@@ -101,8 +101,8 @@ class SearchItem(object):
         return self.__str__()
 
 
-class SearchItemCollection(object):
-    """ This class defines a collection of SearchItems. It represents one query
+class SearchGroupCollection(object):
+    """ This class defines a collection of SearchGroups. It represents one query
     as given by user input which was then dissected into single queries.
     """
     def __init__(self, search_string: str):
@@ -111,7 +111,7 @@ class SearchItemCollection(object):
         :return:None
         """
         self.search = search_string
-        self.items = []  # type: list[SearchItem]
+        self.items = []  # type: List[SearchGroup]
 
     @property
     def is_unique(self):
@@ -150,5 +150,5 @@ class SearchItemCollection(object):
     def __contains__(self, item: int):
         return item in self.items
 
-    def __getitem__(self, item: int) -> SearchItem:
+    def __getitem__(self, item: int) -> SearchGroup:
         return self.items[item]

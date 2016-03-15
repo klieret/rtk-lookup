@@ -19,20 +19,14 @@ The user interface.
 """
 
 import cmd
-import sys
-import os
-
-
-from log import logger
 # todo: no *
 from util import *
 from collection import *
-from searchresults import SearchItem, SearchItemCollection
+from searchresults import SearchGroup, SearchGroupCollection
 
 # todo: force annotations
-
-
 from resultprinter import ResultPrinter
+
 
 class LookupCli(cmd.Cmd):
     """The command line interface (Cli). """
@@ -49,7 +43,6 @@ class LookupCli(cmd.Cmd):
         self.commandSeparator = "."
         if " " in self.commandSeparator:
             raise ValueError("This would give problems later. No spaces in command separator.")
-
 
         self.mode = self.default_mode
         self.update_prompt()
@@ -100,7 +93,7 @@ class LookupCli(cmd.Cmd):
             self.search(line)
 
     @staticmethod
-    def print_results(search_item_collection: SearchItemCollection):
+    def print_results(search_item_collection: SearchGroupCollection):
         # print(search_item_collection)
         rp = ResultPrinter(search_item_collection)
         rp.print()
@@ -183,8 +176,8 @@ class LookupCli(cmd.Cmd):
         :return
         """
         # Kanjis that match the description
-        search_item_collection = SearchItemCollection(line)
-        search_item_collection.items = [SearchItem(line)]
+        search_item_collection = SearchGroupCollection(line)
+        search_item_collection.items = [SearchGroup(line)]
         search_item_collection.items[0].kanji = self.kc.primitive_search(line.split(' '))
         self.print_results(search_item_collection)
 
@@ -199,8 +192,8 @@ class LookupCli(cmd.Cmd):
 
         # split up in search words (i.e. single search entries)
         search_words = line.split(' ')
-        search_item_collection = SearchItemCollection(line)
-        search_item_collection.items = [SearchItem(search_word) for search_word in search_words]
+        search_item_collection = SearchGroupCollection(line)
+        search_item_collection.items = [SearchGroup(search_word) for search_word in search_words]
 
         # perform the searches
         for search_item in search_item_collection:

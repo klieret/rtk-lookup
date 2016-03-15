@@ -23,6 +23,8 @@ import os.path
 import sys
 import csv
 from log import logger
+from typing import List
+
 
 class Kanji(object):
     """An object of this Class contains a kanji with the corresponding 
@@ -52,7 +54,7 @@ class KanjiCollection(object):
     """
     def __init__(self):
         # a plain list of Kanji objects
-        self.kanjis = []  # type: list[Kanji]
+        self.kanjis = []  # type: List[Kanji]
 
         # did we load any stories?
         self.stories_available = False

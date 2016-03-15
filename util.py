@@ -27,7 +27,6 @@ def copy_to_clipboard(clip: str) -> int:
     :return 0 for success, otherwise a number != 0
     """
     # Check if we are running on linux:
-    success = 1
     if os.name == "posix":
         success = os.system("echo '%s' | xclip -selection c" % clip)
     else:
@@ -41,7 +40,6 @@ def lookup(clip: str) -> int:
     :return 0 for success, otherwise a number != 0
     """
     # Check if we are running on linux:
-    success = 1
     if os.name == "posix":
         success = os.system("firefox http://tangorin.com/general/dict.php?dict=general\&s=%s &" % clip)
     else:
@@ -55,7 +53,7 @@ class CyclicalList(list):
     i.e. this behaves like a periodic list: CyclicalList([1,2,3]) = [1,2,3,1,2,3,1,2,3,....]
     """
     def __init__(self, *args, **kwargs):
-        list.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def __getitem__(self, item: int):
         return list.__getitem__(self, item % len(self))
