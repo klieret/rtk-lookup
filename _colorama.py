@@ -42,6 +42,3 @@ def remove_color(string: str) -> str:
 
     # 3. join the search results and return
     return ''.join(not_formatting_sequence_regex.findall(string))
-
-
-

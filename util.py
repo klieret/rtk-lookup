@@ -19,6 +19,8 @@ Utility functions to copy things to the clipboard, look them up in the internet 
 """
 
 import os
+import re
+from _colorama import remove_color
 
 
 def copy_to_clipboard(clip: str) -> int:
@@ -57,3 +59,17 @@ class CyclicalList(list):
 
     def __getitem__(self, item: int):
         return list.__getitem__(self, item % len(self))
+
+
+def approximate_string_length(string: str) -> int:
+        """ Note that kanji have about twice the width of latin
+        characters. This Function returns the length of $string as a
+        multiple of the length of a latin character.
+        Note: Only works for combinations of Latin characters and (full width)
+              Asian characters.
+        :param string: String.
+        :return:
+        """
+        string = remove_color(string)
+        latin_chars_regex = re.compile("[\u0020-\u007f]")
+        return 2*len(string) - len(latin_chars_regex.findall(string))
