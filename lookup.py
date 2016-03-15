@@ -67,6 +67,7 @@ if __name__ == '__main__':
         LookupCli(kc).cmdloop()
     
     else:
+        # todo: check if this is still working
         # experimental
         # There were arguments > look them up
         logger.setLevel(logging.CRITICAL)
