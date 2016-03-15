@@ -16,7 +16,7 @@ except ImportError:
     logger.debug("Romkan is available at https://pypi.python.org/pypi/romkan.")
 
 
-class SearchGroup(object):
+class SearchResultGroup(object):
     """ This type holds a single search query and its results.
     """
     def __init__(self, search_string: str):
@@ -105,7 +105,7 @@ class SearchGroup(object):
         return self.__str__()
 
 
-class SearchGroupCollection(object):
+class SearchResult(object):
     """ This class defines a collection of SearchGroups. It represents one query
     as given by user input which was then dissected into single queries.
     """
@@ -115,7 +115,30 @@ class SearchGroupCollection(object):
         :return:None
         """
         self.search = search_string
-        self.groups = []  # type: List[SearchGroup]
+        self.groups = []  # type: List[SearchResultGroup]
+
+    def copyable_result(self) -> str:
+        """If the user is desperate to search for the result online or copy
+        it for some similar person, this returns our best guess for such a string.
+        A bit similar to resultprinter.first_line but with as few formatting as possible.
+        :return:
+        """
+        ret = ""
+        for group in self.groups:
+            if group.has_kanji:
+                if group.is_unique:
+                    ret += str(group.kanji)
+                else:
+                    ret += "({})".format(''.join(group.kanji))
+            elif group.has_kana:
+                ret += group.hiragana
+            else:
+                ret += group.search
+        return ret
+
+    @property
+    def unique_success(self):
+        return self.is_broken and not self.is_broken
 
     @property
     def is_unique(self):
@@ -154,5 +177,5 @@ class SearchGroupCollection(object):
     def __contains__(self, item: int):
         return item in self.groups
 
-    def __getitem__(self, item: int) -> SearchGroup:
+    def __getitem__(self, item: int) -> SearchResultGroup:
         return self.groups[item]

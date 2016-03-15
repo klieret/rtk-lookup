@@ -21,9 +21,10 @@ The user interface.
 import cmd
 import os
 import sys
+from util import lookup, copy_to_clipboard
 from log import logger
 from collection import KanjiCollection
-from searchresults import SearchGroup, SearchGroupCollection
+from searchresults import SearchResultGroup, SearchResult
 
 # todo: force annotations
 from resultprinter import ResultPrinter
@@ -43,7 +44,7 @@ class LookupCli(cmd.Cmd):
         if " " in self.cmd_separator:
             raise ValueError("This would give problems later. No spaces in command separator.")
 
-        self._mode = self.default_mode
+        self.mode = self.default_mode
         self.update_prompt()
 
         # dict of modes of the form long_form (don't change): [abbrev/command, description]
@@ -60,7 +61,7 @@ class LookupCli(cmd.Cmd):
     def update_prompt(self):
         """Updates the prompt (self.promp) based on the mode.
         """
-        self.prompt = "(%s) " % self._mode
+        self.prompt = "(%s) " % self.mode
 
     def default(self, line: str):
         """Default function that gets called on the input.
@@ -85,14 +86,14 @@ class LookupCli(cmd.Cmd):
             if " " in line:
                 rest = ' '.join(line[1:].split(" ")[1:])
                 self.default(rest)
-        elif self._mode == "primitive":
+        elif self.mode == "primitive":
             self.primitive(line)
         else:
             self.search_history.append(line)
             self.search(line)
 
     @staticmethod
-    def print_results(search_item_collection: SearchGroupCollection):
+    def print_results(search_item_collection: SearchResult):
         # print(search_item_collection)
         rp = ResultPrinter(search_item_collection)
         rp.print()
@@ -100,7 +101,7 @@ class LookupCli(cmd.Cmd):
     # ----------- Handlers ---------------
 
     def emptyline(self):
-        """Gets called if user presses <ENTER> without providing intput.
+        """Gets called if user presses <ENTER> without providing input.
         :return: None
         """
         pass
@@ -116,13 +117,13 @@ class LookupCli(cmd.Cmd):
             logger.debug("You can adapt the corresponding function in the source code!")
         elif mode == 'primitive' and not self.kanji_collection.stories_available:
             logger.warning("No user defined stories available. Mode unavailable.")
-        elif self._mode == mode:
+        elif self.mode == mode:
             if not silent:
-                logger.info("Mode %s is already active." % self._mode)
+                logger.info("Mode %s is already active." % self.mode)
         else:
-            self._mode = mode
+            self.mode = mode
             if not silent:
-                logger.info("Switched to mode %s." % self._mode)
+                logger.info("Switched to mode %s." % self.mode)
             self.update_prompt()
 
     def command(self, command: str):
@@ -146,7 +147,7 @@ class LookupCli(cmd.Cmd):
             os.system(command[1:])
             return
         elif command == 'm':
-            print("Current mode is %s." % self._mode)
+            print("Current mode is %s." % self.mode)
             return
 
         # changing modes
@@ -159,7 +160,7 @@ class LookupCli(cmd.Cmd):
                     logger.warning("Search history empty. Skipping that command. ")
                     return
                 logger.info('Handling "%s" with mode %s.' % (self.search_history[-1], m))
-                old_mode = self._mode
+                old_mode = self.mode
                 self.change_mode(m, silent=True)
                 self.default(self.search_history[-1])
                 self.change_mode(old_mode, silent=True)
@@ -175,14 +176,14 @@ class LookupCli(cmd.Cmd):
         :return
         """
         # Kanjis that match the description
-        search_item_collection = SearchGroupCollection(line)
-        search_item_collection.groups = [SearchGroup(line)]
+        search_item_collection = SearchResult(line)
+        search_item_collection.groups = [SearchResultGroup(line)]
         search_item_collection.groups[0].kanji = self.kanji_collection.primitive_search(line.split(' '))
         self.print_results(search_item_collection)
 
     # todo: shouldn't do any printing; only assemble an appropriate return object
     def search(self, line: str):
-        """Looks for kanjis based on RTK indizes or meanings.
+        """Looks for kanjis based on RTK indices or meanings.
         :param line
         :return
         """
@@ -191,12 +192,11 @@ class LookupCli(cmd.Cmd):
 
         # split up in search words (i.e. single search entries)
         search_words = line.split(' ')
-        search_item_collection = SearchGroupCollection(line)
-        search_item_collection.groups = [SearchGroup(search_word) for search_word in search_words]
+        result = SearchResult(line)
+        result.groups = [SearchResultGroup(search_word) for search_word in search_words]
 
         # perform the searches
-        for search_item in search_item_collection:
-            # todo: does this update or copy?
+        for search_item in result:
             search_item.kanji = self.kanji_collection.search(search_item.search)
 
             # todo: story mode
@@ -204,19 +204,17 @@ class LookupCli(cmd.Cmd):
             #     for h in matching_kanjis:
             #         annotations += "%s: %s\n" % (h.kanji, h.story)
 
-        # todo: copying etc.
-        # if self.mode == 'copy':
-        #     copy_to_clipboard(remove_color(ans))
-        # elif self.mode == 'www':
-        #     lookup(remove_color(ans))
-        # elif self.mode == "conditional":
-        #     if guaranteed_hit:
-        #         logger.info("Guaranteed hit. Looking up.")
-        #         lookup(remove_color(ans))
-        #     else:
-        #         logger.info("No guaranteed hit. Doing nothing.")
-        # elif self.mode == "nothing":
-        #     pass
-        #
-        self.print_results(search_item_collection)
-        # self.print_results(result_groups, force_annotations)
+        if self.mode == 'copy':
+            copy_to_clipboard(result.copyable_result())
+        elif self.mode == 'www':
+            lookup(result.copyable_result())
+        elif self.mode == "conditional":
+            if result.unique_success:
+                logger.info("Guaranteed hit. Looking up.")
+                lookup(result.copyable_result())
+            else:
+                logger.info("No guaranteed hit. Doing nothing.")
+        elif self.mode == "nothing":
+            pass
+
+        self.print_results(result)
