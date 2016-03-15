@@ -7,11 +7,13 @@
 
 import os
 import re
+import csv
 from _colorama import remove_color
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
 __license__ = "GPL"
+
 
 def copy_to_clipboard(clip: str) -> int:
     """ Copies argument to clipboard.
@@ -63,3 +65,34 @@ def approximate_string_length(string: str) -> int:
         string = remove_color(string)
         latin_chars_regex = re.compile("[\u0020-\u007f]")
         return 2*len(string) - len(latin_chars_regex.findall(string))
+
+# todo: docstring
+def guess_csv_config(filename: str, input_dict):
+    return_dict = input_dict
+    if not os.path.exists(filename):
+        raise ValueError
+    if not input_dict["delimiter"]:
+            # guess delimiter from filename:
+            if os.path.splitext(filename)[1] == ".tsv":
+                return_dict["delimiter"] = '\t'
+            elif os.path.splitext(filename)[1] == ".csv":
+                return_dict["delimiter"] = ','
+            else:
+                raise ValueError
+    if None in return_dict.values():
+        # guess from first line of file
+        with open(filename, 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=return_dict["delimiter"])
+            for row in reader:
+                for column_no, column in enumerate(row):
+                    for key in return_dict:
+                        if key.replace("_column", "") in column and return_dict[key] is None:
+                            return_dict[key] = column_no
+                # abort search after first line
+                break
+
+    if None in return_dict.values():
+        raise ValueError
+
+    return return_dict
+

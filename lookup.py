@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     kanji_collection = KanjiCollection()
     logger.debug("Loading rtk data...")
-    kanji_collection.load_file_rtk()
+    kanji_collection._load_file_rtk()
     logger.debug("Loading stories...")
     kanji_collection.load_file_stories()
     logger.debug("Loading done.")
