@@ -80,7 +80,7 @@ class ResultPrinter(object):
     def format_first_line(self):
         """ Format the first line. First line will be empty if not necessary. """
         if self.result.is_empty:
-            self.first_line = "Empty search."
+            self.first_line = "No results"
             return
         if not self.result.multiple_searches and not self.result.is_unique:
             # first line unnecessary, leave it empty
@@ -97,7 +97,8 @@ class ResultPrinter(object):
                 self.first_line_groups.append(self.group_color(group) + group.kana +
                                               self.colors.default)
             elif group.is_broken:
-                self.first_line_groups.append(self.group_color(group) + group.search_general + self.colors.default)
+                # display kana try
+                self.first_line_groups.append(self.group_color(group) + group.kana + self.colors.default)
             else:
                 raise ValueError
 

@@ -187,6 +187,9 @@ class LookupCli(cmd.Cmd):
         search_item_collection = SearchResult(line)
         search_item_collection.groups = [SearchResultGroup(line)]
         search_item_collection.groups[0].kanji = self.kanji_collection.primitive_search(line.split(' '))
+        if not search_item_collection.groups[0].has_kanji:
+            # no results
+            search_item_collection.groups = []
         self.print_results(search_item_collection)
 
     def search_general(self, line: str):
