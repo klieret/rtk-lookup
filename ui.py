@@ -82,15 +82,15 @@ class LookupCli(cmd.Cmd):
             self.emptyline()
         elif line.startswith(self.cmd_separator):
             command = line[1:].split(" ")[0]
-            self.command(command)
+            rest = ""
             if " " in line:
                 rest = ' '.join(line[1:].split(" ")[1:])
-                self.default(rest)
+            self.command(command, rest=rest)
         elif self.mode == "primitive":
-            self.primitive(line)
+            self.search_primitive(line)
         else:
             self.search_history.append(line)
-            self.search(line)
+            self.search_general(line)
 
     @staticmethod
     def print_results(search_item_collection: SearchResult):
@@ -126,9 +126,10 @@ class LookupCli(cmd.Cmd):
                 logger.info("Switched to mode %s." % self.mode)
             self.update_prompt()
 
-    def command(self, command: str):
+    def command(self, command: str, rest=""):
         """Gets called if line starts with self.commandSeparator.
         :param command
+        :param rest of the user input after space.
         :return
         """
         if command == 'h':
@@ -151,26 +152,33 @@ class LookupCli(cmd.Cmd):
             return
 
         # changing modes
-        for m in self.modes:
-            if command == self.modes[m][0]:
-                self.change_mode(m)
-                return 
-            elif command == self.cmd_separator + self.modes[m][0]:
+        for mode in self.modes:
+            if command == self.modes[mode][0]:
+                if not rest:
+                    self.change_mode(mode)
+                else:
+                    # temporarily change mode, lookup rest, then change back
+                    old_mode = self.mode
+                    self.change_mode(mode)
+                    self.default(rest)
+                    self.change_mode(old_mode)
+                return
+            elif command == self.cmd_separator + self.modes[mode][0]:
+                # corresponding to user input of 2 cmd_separators
                 if not self.search_history:
                     logger.warning("Search history empty. Skipping that command. ")
                     return
-                logger.info('Handling "%s" with mode %s.' % (self.search_history[-1], m))
+                logger.info('Handling "%s" with mode %s.' % (self.search_history[-1], mode))
                 old_mode = self.mode
-                self.change_mode(m, silent=True)
+                self.change_mode(mode, silent=True)
                 self.default(self.search_history[-1])
                 self.change_mode(old_mode, silent=True)
                 return
 
         # if we come here, the command is not known.
         logger.warning("Command not known. Type '.h' for help.")
-        return
 
-    def primitive(self, line: str):
+    def search_primitive(self, line: str):
         """Looks for kanjis based on primitives.
         :param line
         :return
@@ -181,8 +189,7 @@ class LookupCli(cmd.Cmd):
         search_item_collection.groups[0].kanji = self.kanji_collection.primitive_search(line.split(' '))
         self.print_results(search_item_collection)
 
-    # todo: shouldn't do any printing; only assemble an appropriate return object
-    def search(self, line: str):
+    def search_general(self, line: str):
         """Looks for kanjis based on RTK indices or meanings.
         :param line
         :return
@@ -199,11 +206,9 @@ class LookupCli(cmd.Cmd):
         for search_item in result:
             search_item.kanji = self.kanji_collection.search(search_item.search)
 
-            # todo: story mode
-            # if self.mode == 'story':
-            #     for h in matching_kanjis:
-            #         annotations += "%s: %s\n" % (h.kanji, h.story)
-
+        if self.mode == 'story':
+            # todo: Implement Story mode
+            raise NotImplementedError
         if self.mode == 'copy':
             copy_to_clipboard(result.copyable_result())
         elif self.mode == 'www':

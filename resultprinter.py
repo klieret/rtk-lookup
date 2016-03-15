@@ -97,7 +97,7 @@ class ResultPrinter(object):
                 self.first_line_groups.append(self.group_color(group) + group.kana +
                                               self.colors.default)
             elif group.is_broken:
-                self.first_line_groups.append(self.group_color(group) + group.search + self.colors.default)
+                self.first_line_groups.append(self.group_color(group) + group.search_general + self.colors.default)
             else:
                 raise ValueError
 
