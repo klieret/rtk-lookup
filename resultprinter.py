@@ -1,12 +1,15 @@
 #!/usr/bin/python3
 # -*- coding: utf8 -*-
 
+# todo: get typing library to work with pycharm
+# from typing import List
 import re
 from searchresults import SearchItemCollection, SearchItem
 from util import CyclicalList
 from log import logger
 from collections import namedtuple
 from _colorama import colorama, remove_color
+
 
 class ResultPrinter(object):
     def __init__(self, search_item_collection: SearchItemCollection):
@@ -16,26 +19,29 @@ class ResultPrinter(object):
         """
         self.search_results = search_item_collection
 
-        colors_type = namedtuple("colors", ["kanji", "kana", "broken",  "default"])
+        _color_config = namedtuple("colors", ["kanji", "kana", "broken",  "default"])
 
         if colorama:
-            self.colors = colors_type(kanji=CyclicalList([colorama.Fore.RED, colorama.Fore.BLUE]),
-                                      kana=CyclicalList([colorama.Fore.CYAN]),
-                                      broken=CyclicalList([colorama.Fore.YELLOW]),
-                                      default=colorama.Style.RESET_ALL)
+            self.colors = _color_config(kanji=CyclicalList([colorama.Fore.RED, colorama.Fore.BLUE]),
+                                        kana=CyclicalList([colorama.Fore.CYAN]),
+                                        broken=CyclicalList([colorama.Fore.YELLOW]),
+                                        default=colorama.Style.RESET_ALL)
         else:
-            self.colors = colors_type(kanji=CyclicalList([""]),
-                                      kana=CyclicalList([""]),
-                                      broken=CyclicalList([""]),
-                                      default="")
+            self.colors = _color_config(kanji=CyclicalList([""]),
+                                        kana=CyclicalList([""]),
+                                        broken=CyclicalList([""]),
+                                        default="")
 
-        self.first_line = self.colors.default
-        self.detail_groups = []  # type: list[list[str]]
+        self.first_line = ""
+        self.details = ""
+        self.first_line_groups = []  # type: List[str]
+        self.detail_groups = []  # type: List[List[str]]
 
         self.indent_all = 4
         self.indent_details = 0
 
     def format_first_line(self):
+        # todo: nescessary? to check that?
         if not self.search_results.multiple_searches and not self.search_results.is_unique:
             # first line unnescessary, leave it empty
             return
@@ -43,18 +49,18 @@ class ResultPrinter(object):
             if search_item.is_empty:
                 continue
             if search_item.has_kanji:
-                if not search_item.is_unique:
-                    self.first_line += "("
+                group = ""
                 for kanji in search_item.kanji:
-                    self.first_line += self.group_color(search_item) + kanji.kanji + self.colors.default
-                if not search_item.is_unique:
-                    self.first_line += ")"
+                    group += self.group_color(search_item) + kanji.kanji + self.colors.default
+                self.first_line_groups.append(group)
             elif search_item.has_kana:
-                self.first_line += self.group_color(search_item) + search_item.hiragana + self.colors.default
+                self.first_line_groups.append(self.group_color(search_item) + search_item.hiragana + self.colors.default)
             elif search_item.is_broken:
-                self.first_line += self.group_color(search_item) + search_item.search + self.colors.default
+                self.first_line_groups.append(self.group_color(search_item) + search_item.search + self.colors.default)
             else:
                 raise ValueError
+
+        self.first_line = '|'.join(self.first_line_groups)
 
     def nth_item_of_type(self, item: SearchItem) -> int:
         nth = 0
@@ -67,21 +73,31 @@ class ResultPrinter(object):
     def group_color(self, item: SearchItem) -> str:
         return getattr(self.colors, item.type)[self.nth_item_of_type(item)]
 
-    def format_details(self):
-        if not self.search_results.is_broken and self.search_results.multiple_searches and not \
-                self.search_results.is_unique:
-            self.format_details_single_group()
-        elif self.search_results.multiple_searches:
+    def atom_color(self, atom: str, item: SearchItem) -> str:
+        if item.type == "kanji":
+            return getattr(self.colors, item.type)[item.kanji.index(atom)]
+        else:
+            return getattr(self.colors, item.type)[0]  # there's only one
+
+    def fromat_detail_items(self):
+        # print(self.search_results.is_broken, self.search_results.multiple_searches, self.search_results.is_unique)
+        if self.search_results.is_unique:
+            return
+        if self.search_results.multiple_searches:
             self.format_details_multiple_groups()
         else:
-            return
+            self.format_details_single_group()
+
+    def print_details(self):
+        divider = "\u2508" * self.approximate_string_length(self.first_line) + "\n"
+        self.details = divider.join(self.detail_groups)
 
     def format_details_single_group(self):
         details = []
         search_item = self.search_results.items[0]
         if search_item.has_kanji:
             for no, kanji in enumerate(search_item.kanji):
-                details.append("{}{}: {}{}".format(self.colors.kanji[no], kanji.kanji, kanji.meaning,
+                details.append("{}{}: {}{}".format(self.atom_color(kanji, search_item), kanji.kanji, kanji.meaning,
                                                    self.colors.default))
         else:
             # shouldn't happen. everything else should be unique
@@ -107,8 +123,8 @@ class ResultPrinter(object):
         :return:
         """
         string = remove_color(string)
-        normal_regex = re.compile("[\u0020-\u007f]")
-        return 2*len(string) - len(normal_regex.findall(string))
+        latin_chars_regex = re.compile("[\u0020-\u007f]")
+        return 2*len(string) - len(latin_chars_regex.findall(string))
 
     def print(self):
         print()
@@ -116,14 +132,16 @@ class ResultPrinter(object):
             print(" "*self.indent_all + "No results.")
             return
         self.format_first_line()
-        self.format_details()
+        self.fromat_detail_items()
         if remove_color(self.first_line):
             print(" "*self.indent_all + self.first_line)
         if remove_color(self.first_line) and self.detail_groups:
             print(" "*self.indent_all + "\u2500"*self.approximate_string_length(self.first_line))
-        for no, group in enumerate(self.detail_groups):
-            for result in group:
-                print(" "*(self.indent_all+self.indent_details) + result)
-            if not no == len(self.detail_groups)-1:
-                print(" "*self.indent_all + "\u2508"*self.approximate_string_length(self.first_line))
+        print(self.details)
+        # # todo: printing the dashed line should be done in the formatting part
+        # for no, group in enumerate(self.detail_groups):
+        #     for result in group:
+        #         print(" "*(self.indent_all+self.indent_details) + result)
+        #     if not no == len(self.detail_groups)-1:
+        #         print(" "*self.indent_all + "\u2508"*self.approximate_string_length(self.first_line))
         print()

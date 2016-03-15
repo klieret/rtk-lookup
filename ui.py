@@ -24,6 +24,7 @@ import os
 
 
 from log import logger
+# todo: no *
 from util import *
 from collection import *
 from searchresults import SearchItem, SearchItemCollection
@@ -69,7 +70,7 @@ class LookupCli(cmd.Cmd):
         """
         self.prompt = "(%s) " % self.mode
 
-    def default(self, line):
+    def default(self, line: str):
         """Default function that gets called on the input.
         :param line:
         :return:
@@ -99,7 +100,7 @@ class LookupCli(cmd.Cmd):
             self.search(line)
 
     @staticmethod
-    def print_results(search_item_collection):
+    def print_results(search_item_collection: SearchItemCollection):
         # print(search_item_collection)
         rp = ResultPrinter(search_item_collection)
         rp.print()
@@ -132,7 +133,7 @@ class LookupCli(cmd.Cmd):
                 logger.info("Switched to mode %s." % self.mode)
             self.update_prompt()
 
-    def command(self, command):
+    def command(self, command: str):
         """Gets called if line starts with self.commandSeparator.
         :param command
         :return
