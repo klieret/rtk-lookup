@@ -20,7 +20,7 @@ else:
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
-__license__ = "GPL"
+__license__ = "LGPLv3"
 
 
 def remove_color(string: str) -> str:

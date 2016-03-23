@@ -14,7 +14,7 @@ from ._colorama import colorama, remove_color
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
-__license__ = "GPL"
+__license__ = "LGPLv3"
 
 
 class ResultPrinter(object):

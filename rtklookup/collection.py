@@ -15,7 +15,7 @@ from .util import guess_csv_config
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
-__license__ = "GPL"
+__license__ = "LGPLv3"
 
 
 class Kanji(object):

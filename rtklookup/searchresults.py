@@ -14,7 +14,7 @@ from .collection import Kanji
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
-__license__ = "GPL"
+__license__ = "LGPLv3"
 
 # The 'romkan' module is used to convert hiragana to romanji (optional).
 # It is available at https://pypi.python.org/pypi/romkan

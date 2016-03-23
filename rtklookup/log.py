@@ -8,7 +8,7 @@ import logging
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
-__license__ = "GPL"
+__license__ = "LGPLv3"
 
 # Note: Will get partially redefined in lookup.py
 

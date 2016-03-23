@@ -12,7 +12,7 @@ from ._colorama import remove_color
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
-__license__ = "GPL"
+__license__ = "LGPLv3"
 
 
 def copy_to_clipboard(clip: str) -> int:
