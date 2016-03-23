@@ -1,10 +1,6 @@
 todo: explain configuration of files!
-todo: bug: first look up something with "+" etc., so that it has a comment, then use "..c", then copy will also copy the comment >> just save the last comment and answer separately!
-todo: document story mode
 todo: running on mobile
-todo: update screenshot with something that shows combinability of "+" and ? etc.
+todo: documentation
 todo: help
-todo: documentation of primitive mode
 todo: which heisig version are we using?
-todo: mode switching more flexible
 todo: unit testing

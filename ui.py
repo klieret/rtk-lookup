@@ -17,6 +17,7 @@ __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
 __license__ = "GPL"
 
+
 class LookupCli(cmd.Cmd):
     """The command line interface (Cli). """
     def __init__(self, kanji_collection: KanjiCollection):

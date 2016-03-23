@@ -17,6 +17,7 @@ __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
 __license__ = "GPL"
 
+
 class Kanji(object):
     """An object of this Class contains a kanji with the corresponding 
     information (index, meaning, story etc).
@@ -39,7 +40,9 @@ class Kanji(object):
     def __hash__(self):
         return self.kanji.__hash__()
 
-
+# todo: move data files to subdirectory?
+# todo: use configParser or similar to configure filenames instead of trying to guess it
+# todo: shouldn't the loading process maybe be done from outside?
 class KanjiCollection(object):
     """An object of this Class bundles many Kanji objects.
     """
@@ -57,6 +60,7 @@ class KanjiCollection(object):
             self._load_file_rtk()
         except:
             logger.critical("Failed to load the kanji database. Exiting.")
+            # todo: then why don't we exit
 
     def _load_file_rtk(self):
         """Load the file that contains the RTK kanji, indizes and meanings.
@@ -72,6 +76,7 @@ class KanjiCollection(object):
                            "meaning_column": None}
         # --------------------------------
 
+        # todo: shouldn't we raise exceptions instead of using sys.exit?
         if not rtk_file_name:
             try:
                 rtk_file_name = glob.glob("rtk_data*")[0]

@@ -54,17 +54,17 @@ class CyclicalList(list):
 
 
 def approximate_string_length(string: str) -> int:
-        """ Note that kanji have about twice the width of latin
-        characters. This Function returns the length of $string as a
-        multiple of the length of a latin character.
-        Note: Only works for combinations of Latin characters and (full width)
-              Asian characters.
-        :param string: String.
-        :return:
-        """
-        string = remove_color(string)
-        latin_chars_regex = re.compile("[\u0020-\u007f]")
-        return 2*len(string) - len(latin_chars_regex.findall(string))
+    """ Note that kanji have about twice the width of latin
+    characters. This Function returns the length of $string as a
+    multiple of the length of a latin character.
+    Note: Only works for combinations of Latin characters and (full width)
+          Asian characters.
+    :param string: String.
+    :return:
+    """
+    string = remove_color(string)
+    latin_chars_regex = re.compile("[\u0020-\u007f]")
+    return 2*len(string) - len(latin_chars_regex.findall(string))
 
 # todo: docstring
 def guess_csv_config(filename: str, input_dict):

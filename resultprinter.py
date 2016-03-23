@@ -16,6 +16,7 @@ __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
 __license__ = "GPL"
 
+
 class ResultPrinter(object):
     """ Class used to print the result of a query made by the user. """
     def __init__(self, search_group_collection: SearchResult):

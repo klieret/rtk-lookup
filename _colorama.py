@@ -22,6 +22,7 @@ __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
 __license__ = "GPL"
 
+
 def remove_color(string: str) -> str:
     """ Removes all formatting (i.e. escape sequences) from input string.
     Useful for getting the display length of a string.

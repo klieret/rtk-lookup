@@ -88,6 +88,8 @@ class SearchResultGroup(object):
     @property
     def needs_details(self):
         """ Should this SearchGroup be annotated in the details section?
+        Returns true if there are several kanji matching the search criteria
+        or if the search contained some kind of wildcard character.
         :return:
         """
         if not self.is_unique:
