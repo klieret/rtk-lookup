@@ -13,6 +13,7 @@ from rtklookup.ui import LookupCli
 from rtklookup.collection import KanjiCollection
 from rtklookup.log import logger
 from rtklookup.colorama import colorama
+from rtklookup.config import load_config
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
@@ -35,6 +36,9 @@ if __name__ == '__main__':
     if not len(sys.argv) == 1:
         # not running with user interface: suppress warnings
         logger.setLevel(logging.CRITICAL)
+
+    # do this after we have properly setup the logger
+    load_config()
 
     kanji_collection = KanjiCollection()
     logger.debug("Loading rtk data...")

@@ -11,6 +11,7 @@ SeachResultGroups represents the result of the whole search.
 from typing import List
 import re
 from .collection import Kanji
+from .config import config
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"

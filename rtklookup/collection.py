@@ -11,7 +11,7 @@ import csv
 import glob
 from typing import List
 from .log import logger
-from .util import guess_csv_config
+from .config import config
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
@@ -59,9 +59,9 @@ class KanjiCollection(object):
     def load_file_rtk(self):
         try:
             self._load_file_rtk()
-        except:
+        except ValueError:
             logger.critical("Failed to load the kanji database. Exiting.")
-            # todo: then why don't we exit
+            sys.exit(1)
 
     def _load_file_rtk(self):
         """Load the file that contains the RTK kanji, indizes and meanings.
@@ -69,83 +69,49 @@ class KanjiCollection(object):
 
         # we just raise exceptions and catch them later
 
-        # --------- CONFIGURE ME ---------
-        rtk_file_name = ""
-        rtk_file_config = {"delimiter": "",
-                           "kanji_column": None,
-                           "index_column": None,
-                           "meaning_column": None}
-        # --------------------------------
+        if not os.path.exists(config["rtk_data"]["path"]):
+            logger.fatal("File %s (meant to contain heisig indizes) not found. " % config["rtk_data"]["path"])
+            raise ValueError
 
-        # todo: shouldn't we raise exceptions instead of using sys.exit?
-        if not rtk_file_name:
-            try:
-                rtk_file_name = glob.glob("rtk_data*")[0]
-            except IndexError:
-                logger.critical("Didn't find any file that matches rtk_data*. Exiting.")
-                sys.exit(1)
-
-        if not os.path.exists(rtk_file_name):
-            logger.fatal("File %s (meant to contain heisig indizes) not found. Exiting." % rtk_file_name)
-            sys.exit(1)
-
-        try:
-            rtk_file_config = guess_csv_config(rtk_file_name, rtk_file_config)
-        except ValueError:
-            logger.warning("Could not identify column structure of files {}.".format(rtk_file_name))
-
-        with open(rtk_file_name, 'r') as csvfile:
-            reader = csv.reader(csvfile, delimiter=rtk_file_config["delimiter"])
+        delim = bytes(config["rtk_data"]["delim"], "utf-8").decode("unicode_escape")
+        with open(config["rtk_data"]["path"], 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=delim)
             for row in reader:
-                kanji = row[rtk_file_config["kanji_column"]].strip()
-                index = row[rtk_file_config["index_column"]].strip()
-                meaning = row[rtk_file_config["meaning_column"]].strip().lower()
+                kanji = row[config.getint("rtk_data", "kanji_column")].strip()
+                index = row[config.getint("rtk_data", "index_column")].strip()
+                keyword = row[config.getint("rtk_data", "keyword_column")].strip().lower()
                 
                 kanji_obj = Kanji(kanji)
                 kanji_obj.index = index
-                kanji_obj.meaning = meaning
+                kanji_obj.meaning = keyword
 
                 self.kanjis.append(kanji_obj)
 
     def load_file_stories(self):
-        """Load file that contains the RTK kanji, indizes and meanings.
+        try:
+            self._load_file_stories()
+        except ValueError:
+            logger.warning("Could not load stories for kanji.")
+            self.stories_available = False
+        else:
+            self.stories_available = True
+
+    def _load_file_stories(self):
+        """Load file that contains the RTK kanji, indizes and keywords.
         """
 
-        # --------- CONFIGURE ME ---------
-        story_file_name = ""
-        story_file_config = {"delimiter": "",
-                             "kanji_column": None,
-                             "story_column": None}
-        # --------------------------------
-
-        if not story_file_name:
-            try:
-                story_file_name = glob.glob("rtk_stories*")[0]
-            except IndexError:
-                logger.warning("Didn't find any file that matches rtk_stories*. Primitive mode will be unavailable.")
-
-        if not os.path.exists(story_file_name):
+        if not os.path.exists(config["rtk_stories"]["path"]):
             logger.warning("File %s (contains user stories) not found. Primitive mode will be unavailable." %
-                           story_file_name)
-            self.stories_available = False
-            return
+                           config["rtk_stories"]["path"])
+            raise ValueError
 
-        try:
-            story_file_config = guess_csv_config(story_file_name, story_file_config)
-        except ValueError:
-            logger.warning("Could not identify column structure of files {}. "
-                           "Primitive mode will be unavailable.".format(story_file_name))
-            self.stories_available = False
-            return
-
-        self.stories_available = True
-        
-        with open(story_file_name, 'r') as csvfile:
+        delim = bytes(config["rtk_stories"]["delim"], "utf-8").decode("unicode_escape")
+        with open(config["rtk_stories"]["path"], 'r') as csvfile:
             # todo: use unicode normalisation?
-            reader = csv.reader(csvfile, delimiter=story_file_config["delimiter"])
+            reader = csv.reader(csvfile, delimiter=delim)
             for row in reader:
-                kanji = row[story_file_config["kanji_column"]].strip()
-                story = row[story_file_config["story_column"]].strip().lower()
+                kanji = row[config.getint("rtk_stories", "kanji_column")].strip()
+                story = row[config.getint("rtk_stories", "story_column")].strip().lower()
 
                 pos = self.pos_from_kanji(kanji)
                 if pos:
