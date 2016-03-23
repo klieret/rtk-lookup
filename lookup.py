@@ -12,7 +12,7 @@ import logging
 from rtklookup.ui import LookupCli
 from rtklookup.collection import KanjiCollection
 from rtklookup.log import logger
-from rtklookup._colorama import colorama
+from rtklookup.colorama import colorama
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"

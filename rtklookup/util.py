@@ -8,7 +8,7 @@
 import os
 import re
 import csv
-from ._colorama import remove_color
+from .colorama import remove_color
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"

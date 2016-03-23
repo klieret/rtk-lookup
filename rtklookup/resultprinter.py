@@ -10,7 +10,7 @@ from typing import List
 from collections import namedtuple
 from .searchresults import SearchResult, SearchResultGroup
 from .util import CyclicalList, approximate_string_length
-from ._colorama import colorama, remove_color
+from .colorama import colorama, remove_color
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
