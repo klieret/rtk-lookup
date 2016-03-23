@@ -125,7 +125,7 @@ class ResultPrinter(object):
             if group.has_kanji and not group.is_unique:
                 details = []
                 for kanji in group.kanji:
-                    details.append("{}{}: {}{}".format(colorer(group, item=kanji), kanji.kanji, kanji.meaning,
+                    details.append("{}{}: {}{}".format(colorer(group, item=kanji), kanji.kanji, kanji.keyword,
                                                        self.colors.default))
                 self.detail_groups.append(details)
 

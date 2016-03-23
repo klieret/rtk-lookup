@@ -180,7 +180,7 @@ class LookupCli(cmd.Cmd):
         self.print_results(search_item_collection)
 
     def search_general(self, line: str):
-        """Looks for kanjis based on RTK indices or meanings.
+        """Looks for kanjis based on RTK indices or keywords.
         :param line
         :return
         """

@@ -20,12 +20,12 @@ __license__ = "LGPLv3"
 
 class Kanji(object):
     """ An object of this Class contains a kanji with the corresponding
-    information (index, meaning, story etc).
+    information (index, keyword, story etc).
     """
     def __init__(self, kanji: str):
         self.kanji = kanji
         self.index = ""
-        self.meaning = ""
+        self.keyword = ""
         self.story = ""
 
     def __equal__(self, other):
@@ -64,7 +64,7 @@ class KanjiCollection(object):
             sys.exit(1)
 
     def _load_file_rtk(self):
-        """Load the file that contains the RTK kanji, indizes and meanings.
+        """Load the file that contains the RTK kanji, indizes and keywords.
         """
 
         # we just raise exceptions and catch them later
@@ -83,7 +83,7 @@ class KanjiCollection(object):
                 
                 kanji_obj = Kanji(kanji)
                 kanji_obj.index = index
-                kanji_obj.meaning = keyword
+                kanji_obj.keyword = keyword
 
                 self.kanjis.append(kanji_obj)
 
@@ -152,13 +152,13 @@ class KanjiCollection(object):
         elif word[-1] == "?":
             sword = word[:-1]
             for kanji_obj in self.kanjis:
-                if sword in kanji_obj.meaning:
+                if sword in kanji_obj.keyword:
                     found.append(kanji_obj)
 
         elif word[-1] == "+":
             sword = word[:-1]
             for kanji_obj in self.kanjis:
-                if sword in kanji_obj.meaning.split(' '):
+                if sword in kanji_obj.keyword.split(' '):
                     found.append(kanji_obj)
 
         elif word[-1] == "%":
@@ -166,14 +166,14 @@ class KanjiCollection(object):
             for kanji_obj in self.kanjis:
                 is_found = True
                 for letter in sword:
-                    if not kanji_obj.meaning.count(letter) == sword.count(letter):
+                    if not kanji_obj.keyword.count(letter) == sword.count(letter):
                         is_found = False
                 if is_found:
                     found.append(kanji_obj)
 
         else:
             for kanji_obj in self.kanjis:
-                if word == kanji_obj.meaning:
+                if word == kanji_obj.keyword:
                     found.append(kanji_obj)
 
         return found
