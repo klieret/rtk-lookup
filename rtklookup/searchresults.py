@@ -10,7 +10,7 @@ SeachResultGroups represents the result of the whole search.
 
 from typing import List
 import re
-from collection import Kanji
+from .collection import Kanji
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"

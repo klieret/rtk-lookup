@@ -9,9 +9,9 @@ import os.path
 import sys
 import csv
 import glob
-from log import logger
 from typing import List
-from util import guess_csv_config
+from .log import logger
+from .util import guess_csv_config
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
@@ -19,7 +19,7 @@ __license__ = "GPL"
 
 
 class Kanji(object):
-    """An object of this Class contains a kanji with the corresponding 
+    """ An object of this Class contains a kanji with the corresponding
     information (index, meaning, story etc).
     """
     def __init__(self, kanji: str):
@@ -40,11 +40,12 @@ class Kanji(object):
     def __hash__(self):
         return self.kanji.__hash__()
 
+
 # todo: move data files to subdirectory?
 # todo: use configParser or similar to configure filenames instead of trying to guess it
 # todo: shouldn't the loading process maybe be done from outside?
 class KanjiCollection(object):
-    """An object of this Class bundles many Kanji objects.
+    """An object of this Class bundles sevaral Kanji objects.
     """
     def __init__(self):
         # a plain list of Kanji objects

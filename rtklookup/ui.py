@@ -7,11 +7,11 @@
 import cmd
 import os
 import sys
-from util import lookup, copy_to_clipboard
-from log import logger
-from collection import KanjiCollection
-from searchresults import SearchResultGroup, SearchResult
-from resultprinter import ResultPrinter
+from .util import lookup, copy_to_clipboard
+from .log import logger
+from .collection import KanjiCollection
+from .searchresults import SearchResultGroup, SearchResult
+from .resultprinter import ResultPrinter
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"

@@ -9,10 +9,10 @@ as if they had been entered in the command line user interface.
 import os
 import sys
 import logging
-from ui import LookupCli
-from collection import KanjiCollection
-from log import logger
-from _colorama import colorama
+from rtklookup.ui import LookupCli
+from rtklookup.collection import KanjiCollection
+from rtklookup.log import logger
+from rtklookup._colorama import colorama
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"

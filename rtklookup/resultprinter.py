@@ -7,10 +7,10 @@ Note that the ResultPrinter gets initialized anew for every SearchResult.
 """
 
 from typing import List
-from searchresults import SearchResult, SearchResultGroup
-from util import CyclicalList, approximate_string_length
 from collections import namedtuple
-from _colorama import colorama, remove_color
+from .searchresults import SearchResult, SearchResultGroup
+from .util import CyclicalList, approximate_string_length
+from ._colorama import colorama, remove_color
 
 __author__ = "ch4noyu"
 __email__ = "ch4noyu@yahoo.com"
