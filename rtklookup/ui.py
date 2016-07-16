@@ -26,6 +26,7 @@ class LookupCli(cmd.Cmd):
         # KanjiCollection
         self.kanji_collection = kanji_collection
 
+        # todo: move to config?
         self.default_mode = 'default'
         self.cmd_separator = "."
 

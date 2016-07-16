@@ -8,7 +8,6 @@ import os
 import os.path
 import sys
 import csv
-import glob
 from typing import List
 from .log import logger
 from .config import config
@@ -18,6 +17,7 @@ __email__ = "ch4noyu@yahoo.com"
 __license__ = "LGPLv3"
 
 
+# todo: set config as a class variable instead of using it as a global variable
 class Kanji(object):
     """ An object of this Class contains a kanji with the corresponding
     information (index, keyword, story etc).
@@ -41,8 +41,6 @@ class Kanji(object):
         return self.kanji.__hash__()
 
 
-# todo: move data files to subdirectory?
-# todo: use configParser or similar to configure filenames instead of trying to guess it
 # todo: shouldn't the loading process maybe be done from outside?
 class KanjiCollection(object):
     """An object of this Class bundles sevaral Kanji objects.
