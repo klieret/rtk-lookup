@@ -137,6 +137,8 @@ class KanjiCollection(object):
         :param word: search phrase
         :return: The positions of the matching kanjiObjs in self.kanjis (as a list)
         """
+        if not word:
+            return
 
         word = word.replace('_', ' ')
         found = []
