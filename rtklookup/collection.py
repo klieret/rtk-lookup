@@ -173,6 +173,11 @@ class KanjiCollection(object):
             for kanji_obj in self.kanjis:
                 if word == kanji_obj.keyword:
                     found.append(kanji_obj)
+                else:
+                    # in case the words consists of kanji
+                    for letter in word:
+                        if letter == kanji_obj.kanji:
+                            found.append(kanji_obj)
 
         return found
 

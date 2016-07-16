@@ -122,7 +122,8 @@ class ResultPrinter(object):
             colorer = self.item_color  # color by item: every kanji inside a group has one color
 
         for group in self.result.groups:
-            if group.has_kanji and not group.is_unique:
+            # fixme: there should be an option for that
+            if True or group.has_kanji and not group.is_unique:
                 details = []
                 for kanji in group.kanji:
                     details.append("{}{}: {}{}".format(colorer(group, item=kanji), kanji.kanji, kanji.keyword,
@@ -167,5 +168,6 @@ class ResultPrinter(object):
         for group_no, group in enumerate(self.detail_groups):
             for item in group:
                 self.print_line(item)
+            # todo: this should only be if there are more than one options to display?
             if not group_no == len(self.detail_groups)-1:
                 self.print_divider("\u2508")
