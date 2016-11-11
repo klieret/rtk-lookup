@@ -10,8 +10,7 @@ import re
 import csv
 from .colorama import remove_color
 
-__author__ = "ch4noyu"
-__email__ = "ch4noyu@yahoo.com"
+__author__ = "klieret"
 __license__ = "LGPLv3"
 
 

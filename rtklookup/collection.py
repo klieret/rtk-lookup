@@ -12,8 +12,7 @@ from typing import List
 from .log import logger
 from .config import config
 
-__author__ = "ch4noyu"
-__email__ = "ch4noyu@yahoo.com"
+__author__ = "klieret"
 __license__ = "LGPLv3"
 
 

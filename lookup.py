@@ -15,8 +15,7 @@ from rtklookup.log import logger
 from rtklookup.colorama import colorama
 from rtklookup.config import load_config
 
-__author__ = "ch4noyu"
-__email__ = "ch4noyu@yahoo.com"
+__author__ = "klieret"
 __license__ = "LGPLv3"
 
 if __name__ == '__main__':

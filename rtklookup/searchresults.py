@@ -13,8 +13,7 @@ import re
 from .collection import Kanji
 from .config import config
 
-__author__ = "ch4noyu"
-__email__ = "ch4noyu@yahoo.com"
+__author__ = "klieret"
 __license__ = "LGPLv3"
 
 # The 'romkan' module is used to convert hiragana to romanji (optional).

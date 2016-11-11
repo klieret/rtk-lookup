@@ -13,8 +13,7 @@ from .collection import KanjiCollection
 from .searchresults import SearchResultGroup, SearchResult
 from .resultprinter import ResultPrinter
 
-__author__ = "ch4noyu"
-__email__ = "ch4noyu@yahoo.com"
+__author__ = "klieret"
 __license__ = "LGPLv3"
 
 

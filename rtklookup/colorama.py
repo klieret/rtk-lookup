@@ -18,8 +18,7 @@ except ImportError:
 else:
     colorama.init()
 
-__author__ = "ch4noyu"
-__email__ = "ch4noyu@yahoo.com"
+__author__ = "klieret"
 __license__ = "LGPLv3"
 
 
