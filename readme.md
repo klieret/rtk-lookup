@@ -5,17 +5,17 @@ A little command line interface that allows to look up kanji with the respective
 
 ![3.png](https://bitbucket.org/repo/qe4bg9/images/254760220-3.png)
 
-Examples:
+## Basic searching
     
-    [default] large resist
+    (default) large resist
 
         大抵
 
-    [default] 107 1832
+    (default) 107 1832
 
         大抵
 
-    [default] large 1832
+    (default) large 1832
 
         大抵
 
@@ -24,15 +24,15 @@ This ```romkan``` module which can be downloaded [here](https://pypi.python.org/
 
 Examples:
     
-    [default] large てい
+    (default) large てい
 
         大てい
 
-    [default] large 抵
+    (default) large 抵
 
         大抵
 
-    [default] large tei
+    (default) large tei
 
         大てい
 
@@ -45,6 +45,7 @@ There are four modes (in parenthesis: command to activate mode)
 * default (```.d```): Do nothing.
 * copy (```.c```): Copy result to clipboard.
 * lookup (```.w```): Lookup expression (default: tangorin.com with firefox)
+* conditional: Lookup expression if the search gave a unique result
 * primitive (```.p```): Try to find kanji by specifying primitives (this requires an additional file that contains all the kanji stories of the user)
 
 The current mode is displayed by the prompt.
@@ -55,49 +56,34 @@ If the input matches more than one result, no action will be performed, regardle
 
 If a keyword contains a space, substitute ```_```:
 
-    [default] sign_of_the_hog
+    (default) sign_of_the_hog
 
         亥
 
-```word+``` will look for all keywords of the form "word1 word2 word3" where word matches (exactly) one of the words. If
-there are multiple matches, all of them are printed as a list. 
+```word+``` will look for all keywords of the form "word1 word2 word3" where word matches (exactly) one of the words. 
 
-    [default] sign_of_the_hog
-
-        亥
-
-    [default] sign+
-
-        酉: sign of the bird
-        亥: sign of the hog
-        寅: sign of the tiger
-        辰: sign of the dragon
-        丑: sign of the cow
-        卯: sign of the hare
-        巳: sign of the snake
-
-    [default] fish+
+    (default) fish+
 
         乙: fish guts
         魚: fish
         鰭: fish fin
 
-    [default] fin+
+    (default) fin+
 
         鰭
 
-    [default] fish+ thunder
+    (default) fish+ thunder
 
-        {乙 (fish guts), 魚 (fish), 鰭 (fish fin)}雷
+        乙魚鰭雷
+        ────────
+        乙: fish guts
+        魚: fish
+        鰭: fish fin
 
 
 ```word?``` will look for all keywords that contain "word":
 
-    [default] goi?
-
-        行
-
-    [default] fish?
+    (default) fish?
 
         貝: shellfish
         乙: fish guts
@@ -106,12 +92,29 @@ there are multiple matches, all of them are printed as a list.
         恣: selfish
         鰭: fish fin
 
-    [default] fish+
+    (default) fin?
+    
+        指: finger
+        棺: coffin
+        緻: fine
+        縁: affinity
+        精: refined
+        済: finish
+        婉: well finished
+        鰭: fish fin
+        
+    (default) fish? thunder
 
+        貝乙魚漁恣鰭雷
+        ──────────────
+        貝: shellfish
         乙: fish guts
         魚: fish
+        漁: fishing
+        恣: selfish
         鰭: fish fin
 
+You can mix multiple search options:
 
 ## Installation:
 
