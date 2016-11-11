@@ -35,7 +35,7 @@ class SearchResultGroup(object):
         self.kanji = []  # type: List[Kanji]
         self.kana = self.search
         self.wildcards = ['%', '+', '*', '?']
-        if not self.is_kana and romkan:
+        if not self.has_kana and romkan:
             # checking for self.has_kana to avoid converting hiragana
             # and such to kana.
             self.kana = romkan.to_hiragana(self.search)
@@ -48,16 +48,18 @@ class SearchResultGroup(object):
         return self.search == ""
 
     @property
-    def is_kana(self):
+    def has_kana(self):
         """ Could we successfully convert to hiragana?
         Note: If romkan module is missing, this will always be False.
         :return:
         """
         if romkan:
-            no_kana_regex = re.compile("[^\u3040-\u30ff]")
-            if no_kana_regex.search(self.kana):
+            if re.search("[^\u3040-\u30ff]", self.kana):
                 return False
-        return bool(self.kana)
+            else:
+                return True
+        else:
+            return False
 
     @property
     def has_kanji(self):
@@ -84,7 +86,7 @@ class SearchResultGroup(object):
         nor convert to kana.
         :return:
         """
-        return not self.is_empty and not self.is_kana and not self.has_kanji
+        return not self.is_empty and not self.has_kana and not self.has_kanji
 
     @property
     def needs_details(self):
@@ -108,7 +110,7 @@ class SearchResultGroup(object):
         """
         if self.has_kanji:
             return "kanji"
-        elif self.is_kana:
+        elif self.has_kana:
             return "kana"
         elif self.is_broken:
             return "broken"
@@ -145,7 +147,7 @@ class SearchResult(object):
                     ret += group.kanji[0].kanji
                 else:
                     ret += "({})".format(''.join([kanji.kanji for kanji in group.kanji]))
-            elif group.is_kana:
+            elif group.has_kana:
                 ret += group.kana
             else:
                 ret += group.search

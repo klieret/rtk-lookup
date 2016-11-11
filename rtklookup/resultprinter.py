@@ -102,7 +102,7 @@ class ResultPrinter(object):
                 for kanji in group.kanji:
                     group_string += self.group_color(group) + kanji.kanji + self.colors.default
                 self.first_line_groups.append(group_string)
-            elif group.is_kana:
+            elif group.has_kana:
                 self.first_line_groups.append(self.group_color(group) + group.kana +
                                               self.colors.default)
             elif group.is_broken:

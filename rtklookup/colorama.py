@@ -33,6 +33,8 @@ def remove_color(string: str) -> str:
     if not colorama:
         return string
 
+    # todo: can't I just remove all escape sequenes?
+    # or will that not work on windows?
     # 1. get all formatting sequences
     color_name_list = ["BLACK", "RED", "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE", "RESET", "BLACK", "RED",
                        "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE", "RESET", ]
