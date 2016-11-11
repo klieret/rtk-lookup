@@ -82,8 +82,10 @@ class SearchResultGroup(object):
 
     @property
     def is_broken(self):
-        """ Returns true if we could neither find a kanji matching the query
-        nor convert to kana.
+        """ Returns true if NONE of the following is is true :
+        * we can find at least one matching kanji
+        * we can convert to kana
+        * the query is empty
         :return:
         """
         return not self.is_empty and not self.has_kana and not self.has_kanji

@@ -123,7 +123,7 @@ class ResultPrinter(object):
 
         for group in self.result.groups:
             # fixme: there should be an option for that
-            if True or group.has_kanji and not group.is_unique:
+            if group.has_kanji and not group.is_unique:
                 details = []
                 for kanji in group.kanji:
                     details.append("{}{}: {}{}".format(colorer(group, item=kanji), kanji.kanji, kanji.keyword,
