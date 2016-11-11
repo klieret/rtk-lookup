@@ -1,0 +1,6 @@
+*.pyc
+readme_files/screenshots
+__pycache__/
+.idea/**
+data/rtk_stories.tsv
+meta/**
