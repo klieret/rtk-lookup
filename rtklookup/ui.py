@@ -30,18 +30,22 @@ class LookupCli(cmd.Cmd):
         self.cmd_separator = "."
 
         if " " in self.cmd_separator:
-            raise ValueError("This would give problems later. No spaces in command separator.")
+            raise ValueError("This would give problems later. "
+                             "No spaces in command separator.")
 
         self.mode = self.default_mode
         self.update_prompt()
 
-        # dict of modes of the form long_form (don't change): [abbrev/command, description]
+        # dict of modes of the form
+        # long_form (don't change): [abbrev/command, description]
         self.modes = {'default': ['d', 'do nothing'],
                       'copy': ['c', 'Copy'],
                       'www': ['w', 'Lookup in the www.'],
                       'primitive': ['p', 'lookup kanji by primitives'],
-                      'conditional': ['o', 'Lookup in the www if the search was guaranteed to be successful.'],
-                      'story': ['s', 'Like default but also prints the story corresponding to the kanji.']}
+                      'conditional': ['o', 'Lookup in the www if the search '
+                                           'was guaranteed to be successful.'],
+                      'story': ['s', 'Like default but also prints the story '
+                                     'corresponding to the kanji.']}
 
         self.search_history = [] 
 
@@ -100,10 +104,14 @@ class LookupCli(cmd.Cmd):
         :return
         """
         if mode in ['copy', 'www'] and not os.name == "posix":
-            logger.warning("Mode %s currently only supported for linux." % mode)
-            logger.debug("You can adapt the corresponding function in the source code!")
-        elif mode == 'primitive' and not self.kanji_collection.stories_available:
-            logger.warning("No user defined stories available. Mode unavailable.")
+            logger.warning("Mode %s currently only supported for linux." %
+                           mode)
+            logger.debug("You can adapt the corresponding function in the "
+                         "source code!")
+        elif mode == 'primitive' and not \
+                self.kanji_collection.stories_available:
+            logger.warning("No user defined stories available. "
+                           "Mode unavailable.")
         elif self.mode == mode:
             if not silent:
                 logger.info("Mode %s is already active." % self.mode)
@@ -120,10 +128,12 @@ class LookupCli(cmd.Cmd):
         :return
         """
         if command == 'h':
-            print("Basic commands: .q (quit), .h (help), .!<command> (run command in shell), .m (print current mode) ")
+            print("Basic commands: .q (quit), .h (help), .!<command> "
+                  "(run command in shell), .m (print current mode) ")
             print("Available modes:")
             for mode in self.modes:
-                print("    %s (.%s): %s" % (mode, self.modes[mode][0], self.modes[mode][1]))
+                print("    %s (.%s): %s" % (mode, self.modes[mode][0],
+                                            self.modes[mode][1]))
             return
         elif command == 'q':
             logger.info("Bye.")
@@ -153,9 +163,11 @@ class LookupCli(cmd.Cmd):
             elif command == self.cmd_separator + self.modes[mode][0]:
                 # corresponding to user input of 2 cmd_separators
                 if not self.search_history:
-                    logger.warning("Search history empty. Skipping that command. ")
+                    logger.warning("Search history empty. "
+                                   "Skipping that command. ")
                     return
-                logger.info('Handling "%s" with mode %s.' % (self.search_history[-1], mode))
+                logger.info('Handling "%s" with mode %s.' %
+                            (self.search_history[-1], mode))
                 old_mode = self.mode
                 self.change_mode(mode, silent=True)
                 self.default(self.search_history[-1])
@@ -173,7 +185,8 @@ class LookupCli(cmd.Cmd):
         # Kanjis that match the description
         search_item_collection = SearchResult(line, mode=self.mode)
         search_item_collection.groups = [SearchResultGroup(line)]
-        search_item_collection.groups[0].kanji = self.kanji_collection.primitive_search(line.split(' '))
+        search_item_collection.groups[0].kanji = \
+            self.kanji_collection.primitive_search(line.split(' '))
         if not search_item_collection.groups[0].has_kanji:
             # no results
             search_item_collection.groups = []
@@ -190,11 +203,13 @@ class LookupCli(cmd.Cmd):
         # split up in search words (i.e. single search entries)
         search_words = line.split(' ')
         result = SearchResult(line, mode=self.mode)
-        result.groups = [SearchResultGroup(search_word) for search_word in search_words]
+        result.groups = \
+            [SearchResultGroup(search_word) for search_word in search_words]
 
         # perform the searches
         for search_item in result:
-            search_item.kanji = self.kanji_collection.search(search_item.search)
+            search_item.kanji = \
+                self.kanji_collection.search(search_item.search)
 
         if self.mode == 'story':
             # todo: Implement Story mode

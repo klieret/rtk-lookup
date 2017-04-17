@@ -20,7 +20,8 @@ class ResultPrinter(object):
     """ Class used to print the result of a query made by the user. """
     def __init__(self, search_group_collection: SearchResult):
         """
-        :param search_group_collection: SearchItemCollection object containing the information about the search results.
+        :param search_group_collection: SearchItemCollection object containing
+        the information about the search results.
         :return:None
         """
         self.result = search_group_collection
@@ -39,12 +40,15 @@ class ResultPrinter(object):
         """ Sets up the namedtuple self.colors that holds the color settings.
         :return:
         """
-        _colors_type = namedtuple("colors", ["kanji", "kana", "broken",  "default"])
+        _colors_type = namedtuple("colors", ["kanji", "kana", "broken",
+                                             "default"])
         if colorama:
-            self.colors = _colors_type(kanji=CyclicalList([colorama.Fore.RED, colorama.Fore.BLUE]),
-                                       kana=CyclicalList([colorama.Fore.CYAN]),
-                                       broken=CyclicalList([colorama.Fore.YELLOW]),
-                                       default=colorama.Style.RESET_ALL)
+            self.colors = \
+                _colors_type(kanji=CyclicalList([colorama.Fore.RED,
+                                                 colorama.Fore.BLUE]),
+                             kana=CyclicalList([colorama.Fore.CYAN]),
+                             broken=CyclicalList([colorama.Fore.YELLOW]),
+                             default=colorama.Style.RESET_ALL)
         else:
             # everything will be black...
             self.colors = _colors_type(kanji=CyclicalList([""]),
@@ -73,8 +77,8 @@ class ResultPrinter(object):
             return getattr(self.colors, group.type)[0]  # there's only one
 
     def nth_group_of_type(self, group: SearchResultGroup) -> int:
-        """ Position of SearchGroup among the other SearchGroups of same type in
-        the SearchGroupCollection.
+        """ Position of SearchGroup among the other SearchGroups of same type
+        in the SearchGroupCollection.
         :param group:
         :return:
         """
@@ -86,7 +90,8 @@ class ResultPrinter(object):
                 nth += 1
 
     def format_first_line(self):
-        """ Format the first line. First line will be empty if not necessary. """
+        """ Format the first line. First line will be empty if not necessary.
+        """
         if self.result.is_empty:
             self.first_line = "No results"
             return
@@ -103,14 +108,16 @@ class ResultPrinter(object):
             if group.has_kanji:
                 group_string = ""
                 for kanji in group.kanji:
-                    group_string += self.group_color(group) + kanji.kanji + self.colors.default
+                    group_string += self.group_color(group) + kanji.kanji + \
+                                    self.colors.default
                 self.first_line_groups.append(group_string)
             elif group.has_kana:
-                self.first_line_groups.append(self.group_color(group) + group.kana +
-                                              self.colors.default)
+                self.first_line_groups.append(self.group_color(group) +
+                                              group.kana + self.colors.default)
             elif group.is_broken:
                 # display kana try
-                self.first_line_groups.append(self.group_color(group) + group.kana + self.colors.default)
+                self.first_line_groups.append(self.group_color(group) +
+                                              group.kana + self.colors.default)
             else:
                 raise ValueError
 
@@ -118,20 +125,25 @@ class ResultPrinter(object):
         self.first_line = ''.join(self.first_line_groups)
 
     def format_details(self):
-        """ Format the detail block. Detail block will be empty if not requred. """
+        """ Format the detail block. Detail block will be empty if not
+        required. """
         if self.result.multiple_searches:
-            colorer = self.group_color  # color by group: every group has one color
+            # color by group: every group has one color
+            colorer = self.group_color
         else:
-            colorer = self.item_color  # color by item: every kanji inside a group has one color
+            # color by item: every kanji inside a group has one color
+            colorer = self.item_color
 
         for group in self.result.groups:
             # fixme: there should be an option for that
             # in primitive mode we always want to display the keywords
-            if group.has_kanji and (self.result.mode == "primitive" or not group.is_unique):
+            if group.has_kanji and (self.result.mode == "primitive"
+                                    or not group.is_unique):
                 details = []
                 for kanji in group.kanji:
-                    details.append("{}{}: {}{}".format(colorer(group, item=kanji), kanji.kanji, kanji.keyword,
-                                                       self.colors.default))
+                    details.append("{}{}: {}{}".format(
+                        colorer(group, item=kanji), kanji.kanji, kanji.keyword,
+                        self.colors.default))
                 self.detail_groups.append(details)
 
     def print_line(self, line: str):
@@ -172,6 +184,6 @@ class ResultPrinter(object):
         for group_no, group in enumerate(self.detail_groups):
             for item in group:
                 self.print_line(item)
-            # todo: this should only be if there are more than one options to display?
+    # todo: this should only be if there are more than one options to display?
             if not group_no == len(self.detail_groups)-1:
                 self.print_divider("\u2508")

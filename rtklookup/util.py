@@ -7,7 +7,6 @@
 
 import os
 import re
-import csv
 from .colorama import remove_color
 
 __author__ = "klieret"
@@ -34,16 +33,18 @@ def lookup(clip: str) -> int:
     """
     # Check if we are running on linux:
     if os.name == "posix":
-        success = os.system("firefox http://tangorin.com/general/dict.php?dict=general\&s=%s &" % clip)
+        success = os.system("firefox http://tangorin.com/general/"
+                            "dict.php?dict=general\&s=%s &" % clip)
     else:
         raise NotImplemented
     return success
 
 
 class CyclicalList(list):
-    """ Like a normal list only with the __getitem__ method overwritten
-    so that CyclicalList[index] equals CyclicalList[index % len(CyclicalList)],
-    i.e. this behaves like a periodic list: CyclicalList([1,2,3]) = [1,2,3,1,2,3,1,2,3,....]
+    """ Like a normal list only with the __getitem__ method overwritten so
+    that CyclicalList[index] equals CyclicalList[index % len(CyclicalList)],
+    i.e. this behaves like a periodic list: CyclicalList([1,2,3]) = [1,2,3,
+    1,2,3,1,2,3,....]
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

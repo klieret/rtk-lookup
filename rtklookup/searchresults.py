@@ -11,7 +11,6 @@ SeachResultGroups represents the result of the whole search.
 from typing import List
 import re
 from .collection import Kanji
-from .config import config
 
 __author__ = "klieret"
 __license__ = "LGPLv3"
@@ -70,9 +69,9 @@ class SearchResultGroup(object):
     @property
     def is_unique(self):
         """ Returns true if there are no more than one kanjis that match the
-        search query. Note: Therefore this function will return True, whenever there
-        are no kanji found at all and even if we could not even convert to hiragana.
-        :return:
+        search query. Note: Therefore this function will return True,
+        whenever there are no kanji found at all and even if we could not
+        even convert to hiragana. :return:
         """
         if self.has_kanji:
             return len(self.kanji) == 1
@@ -117,7 +116,8 @@ class SearchResultGroup(object):
             return "broken"
 
     def __str__(self):
-        return "<{} object for search '{}'>".format(self.__class__.__name__, self.search)
+        return "<{} object for search '{}'>".format(self.__class__.__name__,
+                                                    self.search)
 
     def __repr__(self):
         return self.__str__()
@@ -138,8 +138,9 @@ class SearchResult(object):
 
     def copyable_result(self) -> str:
         """If the user is desperate to search for the result online or copy
-        it for some similar person, this returns our best guess for such a string.
-        A bit similar to resultprinter.first_line but with as few formatting as possible.
+        it for some similar person, this returns our best guess for such a
+        string. A bit similar to resultprinter.first_line but with as few
+        formatting as possible.
         :return:
         """
         ret = ""
@@ -148,7 +149,8 @@ class SearchResult(object):
                 if group.is_unique:
                     ret += group.kanji[0].kanji
                 else:
-                    ret += "({})".format(''.join([kanji.kanji for kanji in group.kanji]))
+                    ret += "({})".format(''.join(
+                        [kanji.kanji for kanji in group.kanji]))
             elif group.has_kana:
                 ret += group.kana
             else:
@@ -178,7 +180,8 @@ class SearchResult(object):
 
     @property
     def is_broken(self) -> bool:
-        """Could one of the items that the user searched for not be found/converted at all?
+        """Could one of the items that the user searched for not be
+        found/converted at all?
         :return:
         """
         for item in self.groups:

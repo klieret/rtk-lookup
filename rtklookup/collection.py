@@ -31,7 +31,8 @@ class Kanji(object):
         return self.kanji == other.kanji
 
     def __str__(self):
-        return "<{} object for kanji {}>".format(self.__class__.__name__, self.kanji)
+        return "<{} object for kanji {}>".format(self.__class__.__name__,
+                                                 self.kanji)
 
     def __repr__(self):
         return self.__str__()
@@ -67,16 +68,19 @@ class KanjiCollection(object):
         # we just raise exceptions and catch them later
 
         if not os.path.exists(config["rtk_data"]["path"]):
-            logger.fatal("File %s (meant to contain heisig indizes) not found. " % config["rtk_data"]["path"])
+            logger.fatal("File %s (meant to contain heisig indizes) "
+                         "not found. " % config["rtk_data"]["path"])
             raise ValueError
 
-        delim = bytes(config["rtk_data"]["delim"], "utf-8").decode("unicode_escape")
+        delim = bytes(config["rtk_data"]["delim"], "utf-8").decode(
+            "unicode_escape")
         with open(config["rtk_data"]["path"], 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=delim)
             for row in reader:
                 kanji = row[config.getint("rtk_data", "kanji_column")].strip()
                 index = row[config.getint("rtk_data", "index_column")].strip()
-                keyword = row[config.getint("rtk_data", "keyword_column")].strip().lower()
+                keyword = row[config.getint("rtk_data",
+                                            "keyword_column")].strip().lower()
                 
                 kanji_obj = Kanji(kanji)
                 kanji_obj.index = index
@@ -98,17 +102,21 @@ class KanjiCollection(object):
         """
 
         if not os.path.exists(config["rtk_stories"]["path"]):
-            logger.warning("File %s (contains user stories) not found. Primitive mode will be unavailable." %
+            logger.warning("File %s (contains user stories) not found. "
+                           "Primitive mode will be unavailable." %
                            config["rtk_stories"]["path"])
             raise ValueError
 
-        delim = bytes(config["rtk_stories"]["delim"], "utf-8").decode("unicode_escape")
+        delim = bytes(config["rtk_stories"]["delim"], "utf-8").decode(
+            "unicode_escape")
         with open(config["rtk_stories"]["path"], 'r') as csvfile:
             # todo: use unicode normalisation?
             reader = csv.reader(csvfile, delimiter=delim)
             for row in reader:
-                kanji = row[config.getint("rtk_stories", "kanji_column")].strip()
-                story = row[config.getint("rtk_stories", "story_column")].strip().lower()
+                kanji = row[config.getint("rtk_stories",
+                                          "kanji_column")].strip()
+                story = row[config.getint("rtk_stories",
+                                          "story_column")].strip().lower()
 
                 pos = self.pos_from_kanji(kanji)
                 if pos:
@@ -134,7 +142,7 @@ class KanjiCollection(object):
         """
         Does the actual search.
         :param word: search phrase
-        :return: The positions of the matching kanjiObjs in self.kanjis (as a list)
+        :return: The positions of the matching kanjiObjs in self.kanjis [list]
         """
         if not word:
             return
@@ -165,7 +173,8 @@ class KanjiCollection(object):
             for kanji_obj in self.kanjis:
                 is_found = True
                 for letter in sword:
-                    if not kanji_obj.keyword.count(letter) == sword.count(letter):
+                    if not kanji_obj.keyword.count(letter) == \
+                            sword.count(letter):
                         is_found = False
                 if is_found:
                     found.append(kanji_obj)

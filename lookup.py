@@ -2,8 +2,8 @@
 # -*- coding: utf8 -*-
 
 """ Main file. If called with no command line arguments, starts the
-command line user interface, otherwise tries to execute the command line arguments
-as if they had been entered in the command line user interface.
+command line user interface, otherwise tries to execute the command line
+arguments as if they had been entered in the command line user interface.
 """
 
 import os
@@ -29,7 +29,9 @@ if __name__ == '__main__':
     # we reset the formatter.
     if colorama:
         sh = logger.handlers[0]
-        fm = logging.Formatter(colorama.Style.DIM + "%(levelname)s: %(message)s" + colorama.Style.RESET_ALL)
+        fm = logging.Formatter(colorama.Style.DIM +
+                               "%(levelname)s: %(message)s" +
+                               colorama.Style.RESET_ALL)
         sh.setFormatter(fm)
 
     if not len(sys.argv) == 1:
@@ -55,7 +57,8 @@ if __name__ == '__main__':
         lines = ' '.join(sys.argv[1:]).split(";")
         cli = LookupCli(kanji_collection)
         for l in lines:
-            l = l.lstrip()  # else it matters whether there is a space in front of the ','
+            # else it matters whether there is a space in front of the ',':
+            l = l.lstrip()
             if not l.startswith('.'):
                 print("Output for '%s':" % l)
             cli.default(l)
