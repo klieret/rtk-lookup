@@ -127,13 +127,14 @@ class SearchResult(object):
     """ This class defines a collection of SearchGroups. It represents one query
     as given by user input which was then dissected into single queries.
     """
-    def __init__(self, search_string: str):
+    def __init__(self, search_string: str, mode=None):
         """
         :param search_string: The whole search query before dissection.
         :return:None
         """
         self.search = search_string
         self.groups = []  # type: List[SearchResultGroup]
+        self.mode = mode  # the mode which was used for the search
 
     def copyable_result(self) -> str:
         """If the user is desperate to search for the result online or copy

@@ -90,6 +90,10 @@ class ResultPrinter(object):
         if self.result.is_empty:
             self.first_line = "No results"
             return
+        if self.result.mode == "primitive":
+            # we always want to format the results in details style
+            # (including the keyword), thus we don't need a first line
+            return
         if not self.result.multiple_searches and not self.result.is_unique:
             # first line unnecessary, leave it empty
             return
@@ -122,7 +126,8 @@ class ResultPrinter(object):
 
         for group in self.result.groups:
             # fixme: there should be an option for that
-            if group.has_kanji and not group.is_unique:
+            # in primitive mode we always want to display the keywords
+            if group.has_kanji and (self.result.mode == "primitive" or not group.is_unique):
                 details = []
                 for kanji in group.kanji:
                     details.append("{}{}: {}{}".format(colorer(group, item=kanji), kanji.kanji, kanji.keyword,

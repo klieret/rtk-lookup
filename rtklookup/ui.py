@@ -171,7 +171,7 @@ class LookupCli(cmd.Cmd):
         :return
         """
         # Kanjis that match the description
-        search_item_collection = SearchResult(line)
+        search_item_collection = SearchResult(line, mode=self.mode)
         search_item_collection.groups = [SearchResultGroup(line)]
         search_item_collection.groups[0].kanji = self.kanji_collection.primitive_search(line.split(' '))
         if not search_item_collection.groups[0].has_kanji:
@@ -189,7 +189,7 @@ class LookupCli(cmd.Cmd):
 
         # split up in search words (i.e. single search entries)
         search_words = line.split(' ')
-        result = SearchResult(line)
+        result = SearchResult(line, mode=self.mode)
         result.groups = [SearchResultGroup(search_word) for search_word in search_words]
 
         # perform the searches
