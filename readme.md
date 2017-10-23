@@ -1,22 +1,25 @@
 # Lookup Kanji by Heisig Keyword or frame number
 
 ## Short Description
-A little command line interface that allows to look up kanji with the respective heisig keyword or frame number.
 
-![3.png](https://bitbucket.org/repo/qe4bg9/images/254760220-3.png)
+For people who learn [kanji](https://bitbucket.org/ch4noyu/anki-addon-reset-all-fields/admin) with the books from 
+James Heisig ([remembering the kanji](https://en.wikipedia.org/wiki/Remembering_the_Kanji_and_Remembering_the_Hanzi)). 
+
+A little command line interface that allows to look up multiple kanji with 
+
+* The keyword (or parts of it)
+* Parts of the mneomic/story
+* The frame number
+
+![3.png](https://raw.githubusercontent.com/klieret/readme-files/master/rtk-lookup/scrot_3.png)
 
 ## Basic searching
     
     (default) large resist
-
         大抵
-
     (default) 107 1832
-
         大抵
-
     (default) large 1832
-
         大抵
 
 If words are not found, they are converted to hiragana if the ```romkan``` module is installed (optional). 
@@ -25,15 +28,10 @@ This ```romkan``` module which can be downloaded [here](https://pypi.python.org/
 Examples:
     
     (default) large てい
-
         大てい
-
     (default) large 抵
-
         大抵
-
     (default) large tei
-
         大てい
 
 To quit, type ```.q```.
@@ -57,23 +55,19 @@ If the input matches more than one result, no action will be performed, regardle
 If a keyword contains a space, substitute ```_```:
 
     (default) sign_of_the_hog
-
         亥
 
 ```word+``` will look for all keywords of the form "word1 word2 word3" where word matches (exactly) one of the words. 
 
     (default) fish+
-
         乙: fish guts
         魚: fish
         鰭: fish fin
 
     (default) fin+
-
         鰭
 
     (default) fish+ thunder
-
         乙魚鰭雷
         ────────
         乙: fish guts
@@ -84,7 +78,6 @@ If a keyword contains a space, substitute ```_```:
 ```word?``` will look for all keywords that contain "word":
 
     (default) fish?
-
         貝: shellfish
         乙: fish guts
         魚: fish
@@ -93,7 +86,6 @@ If a keyword contains a space, substitute ```_```:
         鰭: fish fin
 
     (default) fin?
-    
         指: finger
         棺: coffin
         緻: fine
@@ -104,7 +96,6 @@ If a keyword contains a space, substitute ```_```:
         鰭: fish fin
         
     (default) fish? thunder
-
         貝乙魚漁恣鰭雷
         ──────────────
         貝: shellfish
@@ -118,7 +109,7 @@ You can mix multiple search options:
 
 ## Installation:
 
-Download the file ```lookup.py```. Run it with ```python3 lookup.py```.
+Download the file ```lookup.py```. Run it with ```python3 lookup.py```. To search through your own stories/menmonic, you need to supply them via a text file (e.g. download them from [kanji.koohii](https://kanji.koohii.com/)).
 
 ## Issues, Suggestions, Feature Requests etc.
 
@@ -128,19 +119,12 @@ Open a ticket at [this addon's gitbucket issue page](https://bitbucket.org/ch4no
 
 The source is hostet at [this addon's bitbucket page](https://bitbucket.org/ch4noyu/lookup-kanji-by-heisig-keyword/overview).
 
-## Copyright
+## License
 
-**Copyright:** *ch4noyu* (<mailto:ch4noyu@yahoo.com>)
-
-**Licence:** GNU AGPL, version 3 or later
-
-The list of all kanji by heisig number "RTK.tsv" was included in an Anki plugin with:
-
-**Copyright**: Ian Worthington <Worthy.vii@gmail.com>
-
-**License:** GNU GPL, version 3 or later
+GNU AGPL, version 3 or later. The list of all kanji by heisig number ```RTK.tsv``` was included in an Anki plugin with copyright Ian Worthington <Worthy.vii@gmail.com>, GNU GPL, version 3 or later.
 
 ## History
 
+* 23 Oct 2017: Moved repository to github.
 * 05 Aug 2015: Series of bigger changes.
 * 31 Mai 2015: First version released.
