@@ -1,0 +1,4 @@
+include data/*.tsv
+include data/__init__.py
+include readme.md
+include config/*.config

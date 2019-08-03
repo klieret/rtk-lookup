@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 # -*- coding: utf8 -*-
 
 """ Main file. If called with no command line arguments, starts the
@@ -18,7 +18,7 @@ from rtklookup.config import load_config
 __author__ = "klieret"
 __license__ = "LGPLv3"
 
-if __name__ == '__main__':
+def main():
 
     # else the datafile will not be found if the script is called
     # from another location
@@ -62,3 +62,6 @@ if __name__ == '__main__':
             if not l.startswith('.'):
                 print("Output for '%s':" % l)
             cli.default(l)
+
+if __name__ == '__main__':
+    main()

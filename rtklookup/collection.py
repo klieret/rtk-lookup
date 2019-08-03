@@ -11,6 +11,8 @@ import csv
 from typing import List
 from .log import logger
 from .config import config
+from pkg_resources import resource_stream, resource_filename
+import codecs
 
 __author__ = "klieret"
 __license__ = "LGPLv3"
@@ -67,26 +69,32 @@ class KanjiCollection(object):
 
         # we just raise exceptions and catch them later
 
-        if not os.path.exists(config["rtk_data"]["path"]):
+        resource = ('data', 'rtk_data.tsv')
+        filename = resource_filename(*resource)
+
+        print(filename)
+        if not os.path.exists(filename):
             logger.fatal("File %s (meant to contain heisig indizes) "
-                         "not found. " % config["rtk_data"]["path"])
+                         "not found. " % filename)
             raise ValueError
 
         delim = bytes(config["rtk_data"]["delim"], "utf-8").decode(
             "unicode_escape")
-        with open(config["rtk_data"]["path"], 'r') as csvfile:
-            reader = csv.reader(csvfile, delimiter=delim)
-            for row in reader:
-                kanji = row[config.getint("rtk_data", "kanji_column")].strip()
-                index = row[config.getint("rtk_data", "index_column")].strip()
-                keyword = row[config.getint("rtk_data",
-                                            "keyword_column")].strip().lower()
 
-                kanji_obj = Kanji(kanji)
-                kanji_obj.index = index
-                kanji_obj.keyword = keyword
+        io = resource_stream(*resource)
+        csvfile = codecs.getreader("utf-8")(io)
+        reader = csv.reader(csvfile, delimiter=delim)
+        for row in reader:
+            kanji = row[config.getint("rtk_data", "kanji_column")].strip()
+            index = row[config.getint("rtk_data", "index_column")].strip()
+            keyword = row[config.getint("rtk_data",
+                                        "keyword_column")].strip().lower()
 
-                self.kanjis.append(kanji_obj)
+            kanji_obj = Kanji(kanji)
+            kanji_obj.index = index
+            kanji_obj.keyword = keyword
+
+            self.kanjis.append(kanji_obj)
 
     def load_file_stories(self):
         try:
@@ -109,18 +117,20 @@ class KanjiCollection(object):
 
         delim = bytes(config["rtk_stories"]["delim"], "utf-8").decode(
             "unicode_escape")
-        with open(config["rtk_stories"]["path"], 'r') as csvfile:
-            # todo: use unicode normalisation?
-            reader = csv.reader(csvfile, delimiter=delim)
-            for row in reader:
-                kanji = row[config.getint("rtk_stories",
-                                          "kanji_column")].strip()
-                story = row[config.getint("rtk_stories",
-                                          "story_column")].strip().lower()
 
-                pos = self.pos_from_kanji(kanji)
-                if pos:
-                    self.kanjis[pos].story = story
+        io = resource_stream('data', 'rtk_data.tsv')
+        csvfile = codecs.getreader("utf-8")(io)
+        reader = csv.reader(csvfile, delimiter=delim)
+        # todo: use unicode normalisation?
+        for row in reader:
+            kanji = row[config.getint("rtk_stories",
+                                        "kanji_column")].strip()
+            story = row[config.getint("rtk_stories",
+                                        "story_column")].strip().lower()
+
+            pos = self.pos_from_kanji(kanji)
+            if pos:
+                self.kanjis[pos].story = story
 
     # used to update values in self.kanjis
     def pos_from_kanji(self, kanji):
