@@ -99,7 +99,7 @@ class ResultPrinter(object):
             # we always want to format the results in details style
             # (including the keyword), thus we don't need a first line
             return
-        if not self.result.multiple_searches and not self.result.is_unique:
+        if not self.result.multiple_searches:
             # first line unnecessary, leave it empty
             return
         for group in self.result.groups:
@@ -137,8 +137,8 @@ class ResultPrinter(object):
         for group in self.result.groups:
             # fixme: there should be an option for that
             # in primitive mode we always want to display the keywords
-            if group.has_kanji and (self.result.mode == "primitive"
-                                    or not group.is_unique):
+            if group.has_kanji:
+
                 details = []
                 for kanji in group.kanji:
                     details.append("{}{}: {}{}".format(
