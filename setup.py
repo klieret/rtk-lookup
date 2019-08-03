@@ -15,7 +15,7 @@ with open('readme.md') as readme_file:
         long_description_content_type='text/markdown',
         url='https://github.com/klieret/kanji-lookup',
         packages=find_packages(),
-        # package_dir={'': 'src'},
+        python_requires='>=3.5',
         include_package_data=True,
         classifiers=[
             'Programming Language :: Python :: 3',
