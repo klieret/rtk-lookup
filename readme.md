@@ -34,6 +34,15 @@ Examples:
     (default) large tei
         大てい
 
+You can also lookup english keyword with kanji too
+
+    (default) 譲
+        譲: defer
+    (default) 図書館
+        書: write
+        図: map
+        館: bldg.
+
 To quit, type ```.q```.
 
 ## Modes 
