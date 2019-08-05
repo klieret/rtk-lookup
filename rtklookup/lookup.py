@@ -12,7 +12,6 @@ import logging
 from rtklookup.ui import LookupCli
 from rtklookup.collection import KanjiCollection
 from rtklookup.log import logger
-from rtklookup.colorama import colorama
 from rtklookup.config import load_config
 
 

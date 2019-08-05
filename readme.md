@@ -23,6 +23,12 @@ The command line interface can then be started with
 
     rtk
 
+If this doesn't work, you can use
+
+    python3 -m rtktools
+
+or add ``~/.local/bin/`` to your ``$PATH`` variable.
+
 Installing latest development version:
 
     git clone https://github.com/klieret/rtk-lookup.git
