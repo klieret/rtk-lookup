@@ -13,6 +13,24 @@ A little command line interface that allows to look up multiple kanji with
 
 ![3.png](https://raw.githubusercontent.com/klieret/readme-files/master/rtk-lookup/scrot_3.png)
 
+## Installation:
+
+Installation with python package manager:
+
+    pip3 install --user --upgrade rtklookup
+   
+The command line interface can then be started with
+
+    rtk
+
+Installing latest development version:
+
+    git clone https://github.com/klieret/rtk-lookup.git
+    cd rtk-lookup
+    pip3 install --editable --user .
+
+To search through your own stories/menmonic, you need to supply them via a text file (e.g. download them from [kanji.koohii](https://kanji.koohii.com/)).
+
 ## Basic searching
     
     (default) large resist
@@ -115,10 +133,6 @@ If a keyword contains a space, substitute ```_```:
         鰭: fish fin
 
 You can mix multiple search options:
-
-## Installation:
-
-Download the file ```lookup.py```. Run it with ```python3 lookup.py```. To search through your own stories/menmonic, you need to supply them via a text file (e.g. download them from [kanji.koohii](https://kanji.koohii.com/)).
 
 ## Issues, Suggestions, Feature Requests etc.
 
