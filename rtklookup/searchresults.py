@@ -11,15 +11,7 @@ SeachResultGroups represents the result of the whole search.
 from typing import List
 import re
 from rtklookup.collection import Kanji
-
-# The 'romkan' module is used to convert hiragana to romanji (optional).
-# It is available at https://pypi.python.org/pypi/romkan
-try:
-    import romkan
-except ImportError:
-    romkan = None
-    print("Romkan module not found. No Support for hiragana.")
-    print("Romkan is available at https://pypi.python.org/pypi/romkan.")
+import romkan
 
 
 class SearchResultGroup(object):
@@ -30,7 +22,7 @@ class SearchResultGroup(object):
         self.kanji = []  # type: List[Kanji]
         self.kana = self.search
         self.wildcards = ['%', '+', '*', '?']
-        if not self.has_kana and romkan:
+        if not self.has_kana:
             # checking for self.has_kana to avoid converting hiragana
             # and such to kana.
             self.kana = romkan.to_hiragana(self.search)
@@ -45,16 +37,12 @@ class SearchResultGroup(object):
     @property
     def has_kana(self):
         """ Could we successfully convert to hiragana?
-        Note: If romkan module is missing, this will always be False.
         :return:
         """
-        if romkan:
-            if re.search("[^\u3040-\u30ff]", self.kana):
-                return False
-            else:
-                return True
-        else:
+        if re.search("[^\u3040-\u30ff]", self.kana):
             return False
+        else:
+            return True
 
     @property
     def has_kanji(self):

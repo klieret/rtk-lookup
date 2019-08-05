@@ -22,7 +22,9 @@ with open('readme.md') as readme_file:
         url='https://github.com/klieret/rtk-lookup',
         packages=find_packages(),
         python_requires='>=3.5',
-        install_requires="colorama",
+        install_requires=[
+            "colorama", "romkan"
+        ],
         include_package_data=True,
         entry_points={
             'console_scripts': ['rtk = rtklookup.lookup:main']
