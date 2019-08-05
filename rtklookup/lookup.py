@@ -15,8 +15,6 @@ from rtklookup.log import logger
 from rtklookup.colorama import colorama
 from rtklookup.config import load_config
 
-__author__ = "klieret"
-__license__ = "LGPLv3"
 
 def main():
 
@@ -62,6 +60,7 @@ def main():
             if not l.startswith('.'):
                 print("Output for '%s':" % l)
             cli.default(l)
+
 
 if __name__ == '__main__':
     main()

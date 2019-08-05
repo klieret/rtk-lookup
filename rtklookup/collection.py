@@ -14,9 +14,6 @@ from rtklookup.config import config
 from pkg_resources import resource_stream, resource_filename
 import codecs
 
-__author__ = "klieret"
-__license__ = "LGPLv3"
-
 
 # todo: set config as a class variable instead of using it as a global variable
 class Kanji(object):

@@ -9,9 +9,6 @@ import os
 import re
 from rtklookup.colorama import remove_color
 
-__author__ = "klieret"
-__license__ = "LGPLv3"
-
 
 def copy_to_clipboard(clip: str) -> int:
     """ Copies argument to clipboard.

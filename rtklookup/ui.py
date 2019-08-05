@@ -13,9 +13,6 @@ from rtklookup.collection import KanjiCollection
 from rtklookup.searchresults import SearchResultGroup, SearchResult
 from rtklookup.resultprinter import ResultPrinter
 
-__author__ = "klieret"
-__license__ = "LGPLv3"
-
 
 class LookupCli(cmd.Cmd):
     """The command line interface (Cli). """

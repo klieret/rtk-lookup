@@ -12,9 +12,6 @@ from rtklookup.searchresults import SearchResult, SearchResultGroup
 from rtklookup.util import CyclicalList, approximate_string_length
 from rtklookup.colorama import colorama, remove_color
 
-__author__ = "klieret"
-__license__ = "LGPLv3"
-
 
 class ResultPrinter(object):
     """ Class used to print the result of a query made by the user. """

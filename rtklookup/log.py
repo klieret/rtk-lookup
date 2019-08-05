@@ -6,8 +6,6 @@
 
 import logging
 
-__author__ = "klieret"
-__license__ = "LGPLv3"
 
 # Note: Will get partially redefined in lookup.py
 

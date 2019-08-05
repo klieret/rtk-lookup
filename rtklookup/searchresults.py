@@ -12,9 +12,6 @@ from typing import List
 import re
 from rtklookup.collection import Kanji
 
-__author__ = "klieret"
-__license__ = "LGPLv3"
-
 # The 'romkan' module is used to convert hiragana to romanji (optional).
 # It is available at https://pypi.python.org/pypi/romkan
 try:

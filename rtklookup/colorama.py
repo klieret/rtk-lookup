@@ -19,9 +19,6 @@ except ImportError:
 else:
     colorama.init()
 
-__author__ = "klieret"
-__license__ = "LGPLv3"
-
 
 def remove_color(string: str) -> str:
     """ Removes all formatting (i.e. escape sequences) from input string.
