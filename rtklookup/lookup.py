@@ -22,16 +22,6 @@ def main():
     # from another location
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    # logger was set up before by log, but we didn't have
-    # coloring at that time. Now we (might) have it, in which case
-    # we reset the formatter.
-    if colorama:
-        sh = logger.handlers[0]
-        fm = logging.Formatter(colorama.Style.DIM +
-                               "%(levelname)s: %(message)s" +
-                               colorama.Style.RESET_ALL)
-        sh.setFormatter(fm)
-
     if not len(sys.argv) == 1:
         # not running with user interface: suppress warnings
         logger.setLevel(logging.CRITICAL)
