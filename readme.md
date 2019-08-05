@@ -17,7 +17,7 @@ A little command line interface that allows to look up multiple kanji with
 
 Installation with python package manager:
 
-    pip3 install --user --upgrade rtklookup
+    pip3 install --user --upgrade rtk-lookup
    
 The command line interface can then be started with
 
@@ -25,7 +25,7 @@ The command line interface can then be started with
 
 If this doesn't work, you can use
 
-    python3 -m rtktools
+    python3 -m rtklookup 
 
 or add ``~/.local/bin/`` to your ``$PATH`` variable.
 
