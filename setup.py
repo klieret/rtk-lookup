@@ -23,7 +23,9 @@ with open('readme.md') as readme_file:
         packages=find_packages(),
         python_requires='>=3.5',
         install_requires=[
-            "colorama", "romkan"
+            "colorama",
+            "romkan",
+            "colorlog"
         ],
         include_package_data=True,
         entry_points={

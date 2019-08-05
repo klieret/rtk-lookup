@@ -4,15 +4,24 @@
 """ Quickly sets up a log.
 """
 
+import colorlog
 import logging
-import colorama
 
 
-logger = logging.getLogger("lookup")
+logger = colorlog.getLogger("lookup")
 logger.setLevel(logging.DEBUG)
-sh = logging.StreamHandler()
+sh = colorlog.StreamHandler()
 sh.setLevel(logging.DEBUG)
-fm = logging.Formatter(colorama.Style.DIM + "%(levelname)s: %(message)s" +
-                       colorama.Style.RESET_ALL)
+log_colors = {
+    "DEBUG": "cyan",
+    "INFO": "green",
+    "WARNING": "yellow",
+    "ERROR": "red",
+    "CRITICAL": "red",
+}
+fm = colorlog.ColoredFormatter(
+    "%(log_color)s%(name)s:%(levelname)s:%(message)s",
+    log_colors=log_colors,
+)
 sh.setFormatter(fm)
 logger.addHandler(sh)
