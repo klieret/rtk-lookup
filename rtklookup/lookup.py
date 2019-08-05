@@ -9,13 +9,15 @@ arguments as if they had been entered in the command line user interface.
 import os
 import sys
 import logging
+import signal
 from rtklookup.ui import LookupCli
 from rtklookup.collection import KanjiCollection
 from rtklookup.log import logger
 from rtklookup.config import load_config
-
+from rtklookup import handler
 
 def main():
+    signal.signal(signal.SIGINT, lambda signal, frame: handler.exit())
 
     # else the datafile will not be found if the script is called
     # from another location

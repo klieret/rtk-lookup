@@ -69,7 +69,6 @@ class KanjiCollection(object):
         resource = ('rtklookup', 'data/rtk_data.tsv')
         filename = resource_filename(*resource)
 
-        print(filename)
         if not os.path.exists(filename):
             logger.fatal("File %s (meant to contain heisig indizes) "
                          "not found. " % filename)

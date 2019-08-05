@@ -12,7 +12,7 @@ from rtklookup.log import logger
 from rtklookup.collection import KanjiCollection
 from rtklookup.searchresults import SearchResultGroup, SearchResult
 from rtklookup.resultprinter import ResultPrinter
-
+from rtklookup import handler
 
 class LookupCli(cmd.Cmd):
     """The command line interface (Cli). """
@@ -133,8 +133,7 @@ class LookupCli(cmd.Cmd):
                                             self.modes[mode][1]))
             return
         elif command == 'q':
-            logger.info("Bye.")
-            sys.exit(0)
+            handler.exit()
         elif command == '':
             self.emptyline()
             return
