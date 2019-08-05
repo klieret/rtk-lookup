@@ -27,7 +27,7 @@ cd "${sourceDir}"
 
 rm -rf "dist/"
 
-version=$(cat rtktools/version.txt)
+version=$(cat rtklookup/version.txt)
 echo "Version is: " $version
 
 read -p "Is this the correct version (bump before release!) [Yy]? " -n 1 -r
