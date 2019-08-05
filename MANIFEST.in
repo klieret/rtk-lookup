@@ -1,4 +1,3 @@
-include data/*.tsv
-include data/__init__.py
+include rtklookup/data/*.tsv
 include readme.md
-include config/*.config
+include rtklookup/config/*.config

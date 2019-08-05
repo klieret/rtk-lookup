@@ -7,7 +7,7 @@
 
 import os
 import re
-from .colorama import remove_color
+from rtklookup.colorama import remove_color
 
 __author__ = "klieret"
 __license__ = "LGPLv3"

@@ -9,8 +9,8 @@ import os.path
 import sys
 import csv
 from typing import List
-from .log import logger
-from .config import config
+from rtklookup.log import logger
+from rtklookup.config import config
 from pkg_resources import resource_stream, resource_filename
 import codecs
 
@@ -69,7 +69,7 @@ class KanjiCollection(object):
 
         # we just raise exceptions and catch them later
 
-        resource = ('data', 'rtk_data.tsv')
+        resource = ('rtklookup', 'data/rtk_data.tsv')
         filename = resource_filename(*resource)
 
         print(filename)

@@ -3,15 +3,14 @@
 
 import configparser
 import os.path
-from .log import logger
+from rtklookup.log import logger
 from pkg_resources import resource_filename
-
 
 
 config = configparser.ConfigParser()
 # allow dynamic stuff:
 config._interpolation = configparser.ExtendedInterpolation()
-config_files = [resource_filename('config', 'default.config')]
+config_files = [resource_filename('rtklookup', 'config/default.config')]
 
 
 def load_config():

@@ -7,11 +7,11 @@
 import cmd
 import os
 import sys
-from .util import lookup, copy_to_clipboard
-from .log import logger
-from .collection import KanjiCollection
-from .searchresults import SearchResultGroup, SearchResult
-from .resultprinter import ResultPrinter
+from rtklookup.util import lookup, copy_to_clipboard
+from rtklookup.log import logger
+from rtklookup.collection import KanjiCollection
+from rtklookup.searchresults import SearchResultGroup, SearchResult
+from rtklookup.resultprinter import ResultPrinter
 
 __author__ = "klieret"
 __license__ = "LGPLv3"

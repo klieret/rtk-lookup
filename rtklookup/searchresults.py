@@ -10,7 +10,7 @@ SeachResultGroups represents the result of the whole search.
 
 from typing import List
 import re
-from .collection import Kanji
+from rtklookup.collection import Kanji
 
 __author__ = "klieret"
 __license__ = "LGPLv3"
