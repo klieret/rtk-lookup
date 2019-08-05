@@ -37,6 +37,15 @@ then
 fi
 
 python3 setup.py sdist bdist_wheel
+
+twine check "${sourceDir}/dist/*"
+
+read -p "Does this look ok? [Yy] " -n 1 -r
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    exit 114
+fi
+
 python3 -m twine upload --verbose --repository-url https://upload.pypi.org/legacy/ dist/*
 git tag -a "v${version}" -m "Release version ${version}"
 git push origin "v${version}"
