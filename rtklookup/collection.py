@@ -81,7 +81,7 @@ class KanjiCollection(object):
                 index = row[config.getint("rtk_data", "index_column")].strip()
                 keyword = row[config.getint("rtk_data",
                                             "keyword_column")].strip().lower()
-                
+
                 kanji_obj = Kanji(kanji)
                 kanji_obj.index = index
                 kanji_obj.keyword = keyword

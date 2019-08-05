@@ -47,7 +47,7 @@ class LookupCli(cmd.Cmd):
                       'story': ['s', 'Like default but also prints the story '
                                      'corresponding to the kanji.']}
 
-        self.search_history = [] 
+        self.search_history = []
 
     def update_prompt(self):
         """Updates the prompt (self.promp) based on the mode.

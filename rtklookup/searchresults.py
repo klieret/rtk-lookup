@@ -190,6 +190,14 @@ class SearchResult(object):
         return False
 
     @property
+    def is_single_kanji(self) -> bool:
+        """Does the whole query string contains only one kanji
+        and nothing else?
+        :return:
+        """
+        return len(self.groups) == 1 and all([g.kanji for g in self.groups])
+
+    @property
     def is_empty(self):
         """Do we have no search items?
         :return:

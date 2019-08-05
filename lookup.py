@@ -47,11 +47,11 @@ if __name__ == '__main__':
     logger.debug("Loading stories...")
     kanji_collection.load_file_stories()
     logger.debug("Loading done.")
-    
+
     if len(sys.argv) == 1:
         # No argument given > start cli interface
         LookupCli(kanji_collection).cmdloop()
-    
+
     else:
         # future: add option to generate better parsable output
         lines = ' '.join(sys.argv[1:]).split(";")
