@@ -140,8 +140,7 @@ class ResultPrinter(object):
         for group in self.result.groups:
             # fixme: there should be an option for that
             # in primitive mode we always want to display the keywords
-            if group.has_kanji and (self.result.mode == "primitive"
-	                                    or not group.is_unique or self.result.is_single_kanji):
+            if group.has_kanji:
                 details = []
                 for kanji in group.kanji:
                     details.append("{}{}: {}{}".format(
