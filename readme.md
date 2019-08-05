@@ -124,6 +124,11 @@ Download the file ```lookup.py```. Run it with ```python3 lookup.py```. To searc
 
 Open a ticket at [this addon's gitbucket issue page](https://github.com/klieret/rtk-lookup/issues). Suggestions and feature requests are welcome as well!
 
+## Contributors
+
+* [Kilian Lieret](https://github.com/klieret)
+* [Kavin Ruengprateepsang](https://github.com/kavinvin)
+
 ## License
 
 GNU AGPL, version 3 or later. The list of all kanji by heisig number ```RTK.tsv``` was included in an Anki plugin with copyright Ian Worthington <Worthy.vii@gmail.com>, GNU GPL, version 3 or later.
