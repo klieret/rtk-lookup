@@ -195,7 +195,7 @@ class SearchResult(object):
         and nothing else?
         :return:
         """
-        return len([g for g in self.groups if g.kanji]) == 1
+        return len(self.groups) == 1 and all([g.kanji for g in self.groups])
 
     @property
     def is_empty(self):
