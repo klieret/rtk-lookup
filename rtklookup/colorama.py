@@ -6,21 +6,8 @@ Also defines function to help with color related issues.
 """
 
 import re
-
-# The 'colorama' module is  used to display colors in a platform independent
-# way (optional).
-# It is available at https://pypi.python.org/pypi/colorama
-try:
-    import colorama
-except ImportError:
-    colorama = None
-    print("Colorama module not found. No Support for colors.")
-    print("Colorama is available at https://pypi.python.org/pypi/colorama.")
-else:
-    colorama.init()
-
-__author__ = "klieret"
-__license__ = "LGPLv3"
+import colorama
+colorama.init()
 
 
 def remove_color(string: str) -> str:
@@ -30,8 +17,6 @@ def remove_color(string: str) -> str:
     :param string: string possibly containing colorama formatting sequences.
     :return:
     """
-    if not colorama:
-        return string
 
     # todo: can't I just remove all escape sequenes?
     # or will that not work on windows?

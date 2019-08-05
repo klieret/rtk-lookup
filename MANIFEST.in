@@ -1,0 +1,4 @@
+include rtklookup/data/*.tsv
+include readme.md
+include rtklookup/config/*.config
+include rtklookup/version.txt

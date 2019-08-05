@@ -7,10 +7,7 @@
 
 import os
 import re
-from .colorama import remove_color
-
-__author__ = "klieret"
-__license__ = "LGPLv3"
+from rtklookup.colorama import remove_color
 
 
 def copy_to_clipboard(clip: str) -> int:

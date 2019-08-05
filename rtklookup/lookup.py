@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 # -*- coding: utf8 -*-
 
 """ Main file. If called with no command line arguments, starts the
@@ -12,27 +12,14 @@ import logging
 from rtklookup.ui import LookupCli
 from rtklookup.collection import KanjiCollection
 from rtklookup.log import logger
-from rtklookup.colorama import colorama
 from rtklookup.config import load_config
 
-__author__ = "klieret"
-__license__ = "LGPLv3"
 
-if __name__ == '__main__':
+def main():
 
     # else the datafile will not be found if the script is called
     # from another location
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
-
-    # logger was set up before by log, but we didn't have
-    # coloring at that time. Now we (might) have it, in which case
-    # we reset the formatter.
-    if colorama:
-        sh = logger.handlers[0]
-        fm = logging.Formatter(colorama.Style.DIM +
-                               "%(levelname)s: %(message)s" +
-                               colorama.Style.RESET_ALL)
-        sh.setFormatter(fm)
 
     if not len(sys.argv) == 1:
         # not running with user interface: suppress warnings
@@ -62,3 +49,7 @@ if __name__ == '__main__':
             if not l.startswith('.'):
                 print("Output for '%s':" % l)
             cli.default(l)
+
+
+if __name__ == '__main__':
+    main()

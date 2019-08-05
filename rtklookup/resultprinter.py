@@ -8,12 +8,9 @@ Note that the ResultPrinter gets initialized anew for every SearchResult.
 
 from typing import List
 from collections import namedtuple
-from .searchresults import SearchResult, SearchResultGroup
-from .util import CyclicalList, approximate_string_length
-from .colorama import colorama, remove_color
-
-__author__ = "klieret"
-__license__ = "LGPLv3"
+from rtklookup.searchresults import SearchResult, SearchResultGroup
+from rtklookup.util import CyclicalList, approximate_string_length
+from rtklookup.colorama import colorama, remove_color
 
 
 class ResultPrinter(object):
