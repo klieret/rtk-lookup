@@ -28,3 +28,4 @@ MANIFEST
 target/
 
 .DS_Store
+.vscode/
