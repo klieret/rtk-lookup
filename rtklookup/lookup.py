@@ -15,17 +15,29 @@ from rtklookup.collection import KanjiCollection
 from rtklookup.log import logger
 from rtklookup.config import load_config
 from rtklookup import handler
+import argparse
+
+def create_parser():
+    parser = argparse.ArgumentParser(prog='rtk', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--verbose', '-v', action='store_true', help='Verbosity')
+    parser.add_argument('keywords', metavar='N', nargs='*', help='Keywords used to lookup')
+
+    return parser
 
 def main():
     signal.signal(signal.SIGINT, lambda signal, frame: handler.exit())
+    args = create_parser().parse_args()
 
     # else the datafile will not be found if the script is called
     # from another location
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    if not len(sys.argv) == 1:
-        # not running with user interface: suppress warnings
-        logger.setLevel(logging.CRITICAL)
+    if not args.verbose:
+        if args.keywords:
+            # not running with user interface: suppress warnings
+            logger.setLevel(logging.CRITICAL)
+        else:
+            logger.setLevel(logging.WARNING)
 
     # do this after we have properly setup the logger
     load_config()
@@ -37,20 +49,18 @@ def main():
     kanji_collection.load_file_stories()
     logger.debug("Loading done.")
 
-    if len(sys.argv) == 1:
+    if not args.keywords:
         # No argument given > start cli interface
         LookupCli(kanji_collection).cmdloop()
-
     else:
         # future: add option to generate better parsable output
-        lines = ' '.join(sys.argv[1:]).split(";")
         cli = LookupCli(kanji_collection)
-        for l in lines:
+        for keyword in args.keywords:
             # else it matters whether there is a space in front of the ',':
-            l = l.lstrip()
-            if not l.startswith('.'):
-                print("Output for '%s':" % l)
-            cli.default(l)
+            keyword = keyword.lstrip()
+            if not keyword.startswith('.'):
+                print("Output for '%s':" % keyword)
+            cli.default(keyword)
 
 
 if __name__ == '__main__':
