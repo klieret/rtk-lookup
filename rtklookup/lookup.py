@@ -33,8 +33,11 @@ def main():
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     if not args.verbose:
-        # not running with user interface: suppress warnings
-        logger.setLevel(logging.CRITICAL)
+        if args.keywords:
+            # not running with user interface: suppress warnings
+            logger.setLevel(logging.CRITICAL)
+        else:
+            logger.setLevel(logging.WARNING)
 
     # do this after we have properly setup the logger
     load_config()
