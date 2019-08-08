@@ -47,6 +47,8 @@ class KanjiCollection(object):
     def __init__(self):
         # a plain list of Kanji objects
         self.kanjis = []  # type: List[Kanji]
+        self.keyword_to_obj = {}
+        self.kanji_to_obj = {}
 
         # did we load any stories?
         self.stories_available = False
@@ -91,6 +93,9 @@ class KanjiCollection(object):
             kanji_obj.keyword = keyword
 
             self.kanjis.append(kanji_obj)
+            self.keyword_to_obj[keyword] = kanji_obj
+            self.kanji_to_obj[kanji] = kanji_obj
+
 
     def load_file_stories(self):
         try:
@@ -186,14 +191,12 @@ class KanjiCollection(object):
                     found.append(kanji_obj)
 
         else:
-            for kanji_obj in self.kanjis:
-                if word == kanji_obj.keyword:
-                    found.append(kanji_obj)
-                else:
-                    # in case the words consists of kanji
-                    for letter in word:
-                        if letter == kanji_obj.kanji:
-                            found.append(kanji_obj)
+            if word in self.keyword_to_obj:
+                found.append(self.keyword_to_obj[word])
+            else:
+                for letter in word:
+                    if letter in self.kanji_to_obj:
+                        found.append(self.kanji_to_obj[letter])
 
         return found
 
