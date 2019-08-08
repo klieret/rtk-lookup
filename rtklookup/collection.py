@@ -190,13 +190,14 @@ class KanjiCollection(object):
                 if is_found:
                     found.append(kanji_obj)
 
+        elif word in self.keyword_to_obj:
+            found.append(self.keyword_to_obj[word])
+
         else:
-            if word in self.keyword_to_obj:
-                found.append(self.keyword_to_obj[word])
-            else:
-                for letter in word:
-                    if letter in self.kanji_to_obj:
-                        found.append(self.kanji_to_obj[letter])
+            # Map each kanji to the corresponding keyword
+            for letter in word:
+                if letter in self.kanji_to_obj:
+                    found.append(self.kanji_to_obj[letter])
 
         return found
 
