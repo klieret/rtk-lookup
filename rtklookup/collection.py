@@ -47,6 +47,9 @@ class KanjiCollection(object):
     def __init__(self):
         # a plain list of Kanji objects
         self.kanjis = []  # type: List[Kanji]
+        self.keyword_to_obj = {}
+        self.kanji_to_obj = {}
+        self.index_to_obj = {}
 
         # did we load any stories?
         self.stories_available = False
@@ -91,6 +94,10 @@ class KanjiCollection(object):
             kanji_obj.keyword = keyword
 
             self.kanjis.append(kanji_obj)
+            self.keyword_to_obj[keyword] = kanji_obj
+            self.kanji_to_obj[kanji] = kanji_obj
+            self.index_to_obj[index] = kanji_obj
+
 
     def load_file_stories(self):
         try:
@@ -156,11 +163,9 @@ class KanjiCollection(object):
         word = word.replace('_', ' ')
         found = []
 
-        if word.isdigit():
+        if word.isdigit() and word in self.index_to_obj:
             # searching for RTK index
-            for kanji_obj in self.kanjis:
-                if kanji_obj.index == word:
-                    found.append(kanji_obj)
+            found.append(self.index_to_obj[word])
 
         elif word[-1] == "?":
             sword = word[:-1]
@@ -185,15 +190,14 @@ class KanjiCollection(object):
                 if is_found:
                     found.append(kanji_obj)
 
+        elif word in self.keyword_to_obj:
+            found.append(self.keyword_to_obj[word])
+
         else:
-            for kanji_obj in self.kanjis:
-                if word == kanji_obj.keyword:
-                    found.append(kanji_obj)
-                else:
-                    # in case the words consists of kanji
-                    for letter in word:
-                        if letter == kanji_obj.kanji:
-                            found.append(kanji_obj)
+            # Map each kanji to the corresponding keyword
+            for letter in word:
+                if letter in self.kanji_to_obj:
+                    found.append(self.kanji_to_obj[letter])
 
         return found
 
