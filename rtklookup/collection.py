@@ -112,16 +112,19 @@ class KanjiCollection(object):
         """Load file that contains the RTK kanji, indizes and keywords.
         """
 
-        if not os.path.exists(config["rtk_stories"]["path"]):
+        resource = ('rtklookup', config["rtk_stories"]["path"])
+        filename = resource_filename(*resource)
+
+        if not os.path.exists(filename):
             logger.warning("File %s (contains user stories) not found. "
                            "Primitive mode will be unavailable." %
-                           config["rtk_stories"]["path"])
+                           filename)
             raise ValueError
 
         delim = bytes(config["rtk_stories"]["delim"], "utf-8").decode(
             "unicode_escape")
 
-        io = resource_stream('data', 'rtk_data.tsv')
+        io = resource_stream(*resource)
         csvfile = codecs.getreader("utf-8")(io)
         reader = csv.reader(csvfile, delimiter=delim)
         # todo: use unicode normalisation?
